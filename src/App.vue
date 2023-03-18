@@ -3,16 +3,36 @@
   <div class="common-layout">
     <el-container class="bg-slate-50">
       <el-header class="header-border">
-        <el-row :gutter="20" justify="end">
-          <!-- <el-col :span="10" :offset=4>
+        <!-- <el-row :gutter="20" justify="end">
+          <el-col :span="10" :offset=4>
             <div class="grid-content ep-bg-purple"/>ChatGPT Translate
-          </el-col> -->
+          </el-col>
             <el-col :span="10">
               <el-button type="primary" plain :icon="Edit" size="small" color="#626aef">Edit Prompts</el-button>
               <el-button type="primary" plain :icon="Setting" size="small" color="#626aef">Settings</el-button>
-              <!-- <el-button type="primary" plain :icon="Share" size="small" color="#626aef" :dark="isDark" /> -->
+              <el-button type="primary" plain :icon="Share" size="small" color="#626aef" :dark="isDark" />
           </el-col>
-        </el-row>
+        </el-row> -->
+        <el-menu
+        :default-active="activeIndex"
+        class="menu-style"
+        mode="horizontal"
+        :ellipsis="false"
+        @select="handleMenuSelect"
+      >
+        <el-menu-item index="0">ChatGPT 4.0</el-menu-item>
+        <div class="flex-grow" />
+        <el-menu-item index="1">Edit Prompts</el-menu-item>
+        <el-sub-menu index="2">
+          <template #title>More</template>
+          <el-menu-item index="2-1">API Key</el-menu-item>
+          <el-sub-menu index="2-2">
+            <template #title>Mode</template>
+            <el-menu-item index="2-2-1">Light</el-menu-item>
+            <el-menu-item index="2-2-2">Dark</el-menu-item>
+          </el-sub-menu>
+        </el-sub-menu>
+      </el-menu>
       </el-header>
       <el-main>
         <div class="textarea-container">
@@ -82,8 +102,8 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 
-import { Edit, Search, Share, Setting, CopyDocument, Refresh} from '@element-plus/icons-vue'
-import { onMounted, ref } from 'vue'
+import { Edit, Search, Share, Setting, CopyDocument, Refresh, SetUp} from '@element-plus/icons-vue'
+import { onMounted, ref} from 'vue'
 
 interface RestaurantItem {
   value: string
@@ -92,8 +112,14 @@ interface RestaurantItem {
 
 const state1 = ref('')
 const textarea = ref('')
-const loading = ref(false)
+const loading = ref(true)
 const response = ref('Type your request above and press enter')
+
+const activeIndex = ref('1')
+const handleMenuSelect = (key: string, keyPath: string[]) => {
+  console.log(key, keyPath)
+}
+
 const buttons = [
   { type: '', text: 'plain a gpt name' },
   { type: 'primary', text: 'primary  a gpt name' },
@@ -141,14 +167,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
-.el-header {
-  height: 40px;
-  line-height: 40px;
+.menu-style {
+  border-bottom: 0px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(248 250 252/var(--tw-bg-opacity));
 }
 
 .el-main {
-  height: 520px;
+  height: 100%;
 }
 
 .el-row {
@@ -158,21 +184,13 @@ onMounted(() => {
   margin-bottom: 0;
 }
 
-.bg-slate-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(226 232 240/var(--tw-bg-opacity));
-}
-
 .bg-slate-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(248 250 252/var(--tw-bg-opacity));
 }
 
-
 .header-border {
   border-bottom-width: 1px;
-  --tw-border-opacity: 1;
-  border-bottom-color: rgb(203 213 225/var(--tw-border-opacity));
 }
 .textarea-bg {
   --tw-bg-opacity: 1;
@@ -284,6 +302,9 @@ onMounted(() => {
   margin-left: 12px;
 }
 
+.flex-grow {
+  flex-grow: 1;
+}
 .logo.vite:hover {
   filter: drop-shadow(0 0 2em #747bff);
 }
