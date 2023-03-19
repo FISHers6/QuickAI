@@ -1,21 +1,58 @@
-<script setup lang="ts">
-import { ref } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
+<template lang="pug">
+.says-area
+  .empty-area(v-if="!response")
+    el-icon.icon
+      EditPen
+  span {{ response }}
+//- .greet
+  .card
+    input( id="greet-input" v-model="name" placeholder="Enter a name...")
+    button(type="button" @click="greet") Greet
+  p {{ response }} 
+</template>
 
-const greetMsg = ref("");
-const name = ref("");
+<script lang="ts">
+import { Promotion, WarnTriangleFilled, EditPen } from '@element-plus/icons-vue'
 
-async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  greetMsg.value = await invoke("greet", { name: name.value });
-}
+export default defineComponent({
+    name: 'Greet',
+    props: {
+        response: {
+            type: String as PropType<string>,
+            required: true
+        },
+        loading: {
+            type: Boolean as PropType<boolean>,
+            required: true
+        }
+    },
+    components: {
+      Promotion, WarnTriangleFilled, EditPen
+    }
+})
+
 </script>
 
-<template>
-  <div class="card">
-    <input id="greet-input" v-model="name" placeholder="Enter a name..." />
-    <button type="button" @click="greet()">Greet</button>
-  </div>
+<style lang="scss" scoped>
+.says-area {
+  height: 30vh;
+  background-color: var(--el-fill-color-blank);
+  border-radius: var(--radius-1);
+  padding: 5px 11px;
+  box-sizing: border-box;
+  color: var(--color-white-080);
 
-  <p>{{ greetMsg }}</p>
-</template>
+  .empty-area {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .icon {
+      font-size: 3rem;
+      color: var(--color-white-003);
+    }
+  }
+}
+</style>

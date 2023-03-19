@@ -1,4 +1,3 @@
-
 <template>
     <div class="result-container">
         <el-row justify="space-between" class="say-tip">
@@ -10,7 +9,6 @@
           </div>
         </el-row>
         <el-row justify="start">
-          <!-- <el-empty description="description" /> -->
           <el-skeleton v-if="loading" :rows="4" animated/>
           <el-text v-else class="mx-1 result-text">{{response}}</el-text>
         </el-row>
