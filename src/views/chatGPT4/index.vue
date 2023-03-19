@@ -27,6 +27,7 @@ import { onMounted, ref } from 'vue'
 import Greet from '@/components/Greet.vue'
 import type { ElInput } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
+import askChatGPT from '@/hooks/api'
 
 const question = ref('')
 const answer = ref('')
@@ -50,7 +51,10 @@ const handleInputConfirm = () => {
   inputValue.value = ''
 }
 
-const askTheQuestion = () => {
+const askTheQuestion = async () => {
+  console.log('ask')
+  const {answer, loading} = await askChatGPT(question.value, '', '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')
+  console.log(answer, loading)
   alert('Ask The Question')
 }
 

@@ -13,6 +13,7 @@
     "@tauri-apps/api": "^1.2.0",
     "@vueuse/core": "^9.13.0",
     "element-plus": "^2.3.0",
+    "eventsource-parser": "^0.1.0",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
