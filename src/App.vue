@@ -79,11 +79,12 @@
 
         <div class="result-container">
           <el-row justify="space-between" class="say-tip">
-            <el-col :span="5">ChatGPT Says:</el-col>
-            <el-col :span="2">
+            <div>ChatGPT Says:</div>
+            <div class="flex-grow" />
+            <div>
               <el-icon><Refresh /></el-icon>
               <el-icon class="copy-icon"><CopyDocument /></el-icon>
-            </el-col>
+            </div>
           </el-row>
           <el-row justify="start">
             <!-- <el-empty description="description" /> -->
@@ -304,6 +305,7 @@ onMounted(() => {
 
 .flex-grow {
   flex-grow: 1;
+  display: inline-block;
 }
 .logo.vite:hover {
   filter: drop-shadow(0 0 2em #747bff);
