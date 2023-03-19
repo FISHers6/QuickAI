@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "ChagGPT-PC",
+    "productName": "ChatGPT-PC",
     "version": "0.0.0"
   },
   "tauri": {
@@ -40,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "ChagGPT-PC",
+        "title": "ChatGPT-PC",
         "width": 800,
         "height": 600
       }

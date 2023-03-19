@@ -3,16 +3,6 @@
   <div class="common-layout">
     <el-container class="bg-slate-50">
       <el-header class="header-border">
-        <!-- <el-row :gutter="20" justify="end">
-          <el-col :span="10" :offset=4>
-            <div class="grid-content ep-bg-purple"/>ChatGPT Translate
-          </el-col>
-            <el-col :span="10">
-              <el-button type="primary" plain :icon="Edit" size="small" color="#626aef">Edit Prompts</el-button>
-              <el-button type="primary" plain :icon="Setting" size="small" color="#626aef">Settings</el-button>
-              <el-button type="primary" plain :icon="Share" size="small" color="#626aef" :dark="isDark" />
-          </el-col>
-        </el-row> -->
         <el-menu
         :default-active="activeIndex"
         class="menu-style"
@@ -76,22 +66,7 @@
             </el-col>
           </el-row>
         </div>
-
-        <div class="result-container">
-          <el-row justify="space-between" class="say-tip">
-            <div>ChatGPT Says:</div>
-            <div class="flex-grow" />
-            <div>
-              <el-icon><Refresh /></el-icon>
-              <el-icon class="copy-icon"><CopyDocument /></el-icon>
-            </div>
-          </el-row>
-          <el-row justify="start">
-            <!-- <el-empty description="description" /> -->
-            <el-skeleton v-if="loading" :rows="4" animated/>
-            <el-text v-else class="mx-1 result-text">{{response}}</el-text>
-          </el-row>
-        </div>
+        <Result :loading=loading :response=response></Result>
       </el-main>
     </el-container>
   </div>
@@ -102,9 +77,8 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-
-import { Edit, Search, Share, Setting, CopyDocument, Refresh, SetUp} from '@element-plus/icons-vue'
 import { onMounted, ref} from 'vue'
+import Result from './components/Result.vue'
 
 interface RestaurantItem {
   value: string
@@ -113,7 +87,7 @@ interface RestaurantItem {
 
 const state1 = ref('')
 const textarea = ref('')
-const loading = ref(true)
+const loading = ref(false)
 const response = ref('Type your request above and press enter')
 
 const activeIndex = ref('1')
@@ -232,37 +206,6 @@ onMounted(() => {
   padding-right: 2px;
 }
 
-.result-container {
-  border-top-width: 1px;
-  --tw-border-opacity: 1;
-  border-top-color: rgb(203 213 225/var(--tw-border-opacity));
-  margin-top: 10px;
-  padding-top: 12px;
-  padding-bottom: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-}
-
-.say-tip {
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 28px;
-  --tw-text-opacity: 1;
-  color: rgb(100 116 139/var(--tw-text-opacity));
-  margin-bottom: 5px;
-}
-
-.result-text {
-  padding-left:2px;
-  font-size: 15px;
-  line-height: 24px;
-}
-
-.copy-icon {
-  margin-left: 6px;
-}
 .border-slate-300 {
   --tw-border-opacity: 1;
   border-color: rgb(203 213 225/var(--tw-border-opacity));
