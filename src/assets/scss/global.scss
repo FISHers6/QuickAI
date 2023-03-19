@@ -1,0 +1,36 @@
+@import './default.scss';
+@import './dark.scss';
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  background-color: var(--color-ui-bg);
+  // padding: 0.85rem 1rem;
+}
+
+.el-button,
+.el-input,
+.el-textarea__inner {
+  border-radius: var(--radius-1) !important;
+}
+
+.el-input,
+.el-textarea__inner {
+  box-shadow: none !important;
+  color: var(--color-white-080) !important;
+}
+
+.tools-list {
+  background: var(--color-bg-elevation-1) !important;
+  border-color: var(--color-bg-elevation-1) !important;
+  .tools-item {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
