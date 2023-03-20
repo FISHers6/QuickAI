@@ -1,6 +1,7 @@
 <template lang='pug'>
 el-main#Main
-  router-view
+  el-scrollbar
+    router-view
 </template>
 <script lang='ts' setup>
 </script>

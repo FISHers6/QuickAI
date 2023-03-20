@@ -48,7 +48,7 @@ onBeforeMount(() => {
     align-items: center;
 
     .el-tabs__item {
-      transition: all .3s ease;
+      transition: all .1s linear;
 
       color: var(--color-white-040);
 

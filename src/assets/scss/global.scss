@@ -19,9 +19,14 @@ body {
 }
 
 .el-input,
-.el-textarea__inner {
+.el-textarea__inner,
+.el-input__wrapper {
   box-shadow: none !important;
   color: var(--color-white-080) !important;
+}
+
+.el-autocomplete-suggestion li:hover {
+  background-color: var(--color-white-006)!important;
 }
 
 .tools-list {

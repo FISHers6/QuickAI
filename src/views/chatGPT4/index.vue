@@ -12,11 +12,10 @@
       template(#default="{ item }")
         div.value {{ item.value }}
         span.link {{ item.link }}
-  //- el-autocomplete(v-model="state1" :fetch-suggestions="querySearch" clearable placeholder="Ask ChatGPT. Ex: Write an email reply in yoda style" @select="handleSelect")
-  .prompts
-    el-tag(v-for="tag in promptsTags", effect="plain", :key="tag", closable, :disable-transitions="false", @close="handleClose(tag)") {{ tag }}
-    el-input.add-tag(v-if="inputVisible", ref="InputRef", v-model="inputValue", size="small" @keyup.enter="handleInputConfirm", @blur="handleInputConfirm")
-    el-button(v-else class="button-new-tag ml-1" size="small" @click="showInput") + New Tag
+    .prompts
+      el-tag(v-for="tag in promptsTags", effect="plain", :key="tag", closable, :disable-transitions="false", @close="handleClose(tag)") {{ tag }}
+      el-input.add-tag(v-if="inputVisible", ref="InputRef", v-model="inputValue", size="small" @keyup.enter="handleInputConfirm", @blur="handleInputConfirm")
+      el-button(v-else class="button-new-tag ml-1" size="small" @click="showInput") + New Tag
   .chats-says
     h4 ChatGPT says:
     Greet(:response="answer" :loading="loading")

@@ -45,10 +45,10 @@
   --header-height: 80px;
   --dimmed-opacity: 0.5;
 
-  --color-foreground-elevation-1: var(--color-white-003);
-  --color-foreground-elevation-2: var(--color-white-006);
-  --color-foreground-elevation-3: var(--color-white-010);
-  --color-foreground-elevation-4: var(--color-white-020);
+  // --color-foreground-elevation-1: var(--color-white-003);
+  // --color-foreground-elevation-2: var(--color-white-006);
+  // --color-foreground-elevation-3: var(--color-white-010);
+  // --color-foreground-elevation-4: var(--color-white-020);
   --color-bg-elevation-1: #191a1d;
   --color-bg-elevation-2: #202124;
   --color-root-bg: #232323;
@@ -111,6 +111,5 @@
   --tab-size: 40px;
   --tab-bar-size: 40px;
   --layer-size: 30px;
-  --box-shadow-popup: 0 8px 8px rgba(0, 0, 0, 0.075);
-
+  --box-shadow-popup: 0 8px 8px rgba(0, 0, 0, 0.216);
 }
