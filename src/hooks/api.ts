@@ -1,45 +1,45 @@
-import { ref, Ref } from 'vue'
+import { Ref } from 'vue'
 import type { ParsedEvent, ReconnectInterval } from "eventsource-parser"
 import { createParser } from "eventsource-parser"
 
 const baseURL = 'api.openai.com'
 
 interface GPTMessage {
-    role: string
+    role: string,
     content: string
 }
 
-async function askChatGPT(question: string, prompts: string, apiKey: string) {
-    const answer = ref('')
-    const loading = ref(true)
-
-    console.log(123)
-
-    const messages: GPTMessage[] = [
-        {role: 'system', content: prompts},
-        {role: 'user', content: question}
-    ]
-
-    try{
-        let response = await askChatGPTCore(messages, apiKey)
-        loading.value = false
-        answer.value = response
-    }catch(error: any){
-        loading.value = false
-        answer.value = error.message.includes("The user aborted a request")
-          ? ""
-          : error.message.replace(/(sk-\w{5})\w+/g, "$1")
-    }
-
-    return {
-        answer,
-        loading,
-    }
+interface GPTParam {
+  question: string, 
+  prompts: string, 
+  apiKey: string,
 }
 
-async function askChatGPTCore(messages: GPTMessage[], apiKey: string) {
-    let response = await askChatGPTAPI(messages, apiKey)
+async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boolean>) {
+  if (!param.question || param.question === '\n' || param.question.length === 0) {
+    return
+  }
+  
+  const controller = new AbortController()
+  const messages: GPTMessage[] = [
+      {role: 'system', content: param.prompts},
+      {role: 'user', content: param.question}
+  ]
 
+  try{
+      await askChatGPTCore(messages, param.apiKey, controller, result)
+      loading.value = false
+  }catch(error: any){
+      loading.value = false
+      result.value = error.message.includes("The user aborted a request")
+        ? ""
+        : error.message.replace(/(sk-\w{5})\w+/g, "$1")
+  }
+}
+
+// App组件调用方来传参 如何不用Ref做参数也能做到传进一个响应式对象, 目前的实现是把Result和loading都写进来了
+async function askChatGPTCore(messages: GPTMessage[], apiKey: string, controller: AbortController, result: Ref<String>) {  
+  let response = await askChatGPTAPI(messages, apiKey, controller)
     if (!response.ok) {
         const res = await response.json()
         throw new Error(res.error.message)
@@ -51,37 +51,31 @@ async function askChatGPTCore(messages: GPTMessage[], apiKey: string) {
     const reader = data.getReader()
     const decoder = new TextDecoder("utf-8")
     let done = false
-    let result = ''
 
     while (!done) {
         const { value, done: readerDone } = await reader.read()
         if (value) {
             let char = decoder.decode(value)
-            if (char === "\n" && result.endsWith("\n")) {
+            if (char === "\n" && result.value.endsWith("\n")) {
                 continue
             }
             if (char) {
-                result = result + char
+                result.value = result.value + char
             }
         }
         done = readerDone
     }
-    console.log(result)
-    return result
 }
 
-async function askChatGPTAPI(messages: GPTMessage[], apiKey: string) {
+async function askChatGPTAPI(messages: GPTMessage[], apiKey: string, controller: AbortController) {
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
 
-    const body = JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages,
-        stream: true
-    })
-    console.log(body)
+    if (!apiKey) {
+      throw new Error("请填写OpenAI API key")
+    }
 
-    const rawRes = await fetch(`https://${baseURL}/v1/chat/completions`, {
+    let fut = fetch(`https://${baseURL}/v1/chat/completions`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`
@@ -91,8 +85,11 @@ async function askChatGPTAPI(messages: GPTMessage[], apiKey: string) {
         model: "gpt-3.5-turbo",
         messages,
         stream: true
-      })
-    }).catch(err => {
+      }),
+      signal: controller.signal
+    })
+
+    const rawRes = await fut.catch(err => {
       return new Response(
         JSON.stringify({
           error: {
@@ -102,8 +99,6 @@ async function askChatGPTAPI(messages: GPTMessage[], apiKey: string) {
         { status: 500 }
       )
     })
-
-    console.log(rawRes)
 
     if (!rawRes.ok) {
       return new Response(rawRes.body, {
@@ -132,9 +127,22 @@ async function askChatGPTAPI(messages: GPTMessage[], apiKey: string) {
           }
         }
         const parser = createParser(streamParser)
-        for await (const chunk of rawRes.body.pipeThrough(new TextDecoderStream()).pipeThrough(parser)) {
-          controller.enqueue(chunk)
+
+        // chrome not support async iterator, so manually read iterator
+        async function readAllChunks(readableStream: any) {
+          const reader = readableStream.getReader();
+          
+          let done, value;
+          while (!done) {
+            ({ value, done } = await reader.read());
+            if (done) {
+              return;
+            }
+            parser.feed(decoder.decode(value))
+          }
         }
+
+        await readAllChunks(rawRes.body)
       }
     })
 

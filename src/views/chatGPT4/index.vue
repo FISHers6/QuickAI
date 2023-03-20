@@ -27,6 +27,7 @@ import Greet from '@/components/Greet.vue'
 import type { ElInput } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
 import askChatGPT from '@/hooks/api'
+import GPTParam from '@/hooks/api'
 
 const question = ref('')
 const answer = ref('')
@@ -51,10 +52,15 @@ const handleInputConfirm = () => {
 }
 
 const askTheQuestion = async () => {
-  console.log('ask')
-  const {answer, loading} = await askChatGPT(question.value, '', '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')
-  console.log(answer, loading)
-  alert('Ask The Question')
+  console.log('ask starting...')
+  answer.value = ''
+  let AskGPTParam = {
+    question: question.value,
+    prompts: '', 
+    apiKey: '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'
+  }
+  await askChatGPT(AskGPTParam, answer, loading)
+  console.log('ask start end.')
 }
 
 
