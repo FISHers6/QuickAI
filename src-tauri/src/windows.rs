@@ -46,7 +46,7 @@ pub fn chatgpt_windows() {
                "chatgpt",
                tauri::WindowUrl::App("index.html".into()),
            )
-           .inner_size(480.0, 480.0)
+           .inner_size(560.0, 600.0)
            .always_on_top(true)
            .fullscreen(false)
            .decorations(false)
