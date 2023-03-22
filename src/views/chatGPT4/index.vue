@@ -2,7 +2,7 @@
 #ChatGPT4
   .yq
     h4 Your question is:
-    el-input.textarea(v-model="question" type='textarea' placeholder="Say something & Enter ... " @keydown.enter="askTheQuestion")
+    el-input.textarea(v-model="question" type='textarea' placeholder="Say something & Enter ... " @keydown="askTheQuestion")
   .yq
     h4 Your Prompt is:
     el-autocomplete(v-model="state" :fetch-suggestions="querySearch" popper-class="my-autocomplete" placeholder="Ask ChatGPT. Ex: Write an email reply in yoda style" @select="handleSelect")
@@ -18,12 +18,11 @@
       el-button(v-else class="button-new-tag ml-1" size="small" @click="showInput") + New Tag
   .chats-says
     h4 ChatGPT says:
-    Greet(:response="answer" :loading="loading")
+    Result(:response="answer" :loading="loading")
 </template>
 
 <script lang='ts' setup>
-import { onMounted, ref } from 'vue'
-import Greet from '@/components/Greet.vue'
+import Result from '@/components/Result.vue'
 import type { ElInput } from 'element-plus'
 import { Edit } from '@element-plus/icons-vue'
 import askChatGPT from '@/hooks/api'
@@ -34,7 +33,7 @@ const answer = ref('')
 const loading = ref(false)
 
 const inputValue = ref('')
-const promptsTags: any = ref([1, 2, 3])
+const promptsTags: any = ref([ 1, 2, 3 ])
 const inputVisible = ref(false)
 const InputRef = ref<InstanceType<typeof ElInput>>()
 
@@ -51,16 +50,20 @@ const handleInputConfirm = () => {
   inputValue.value = ''
 }
 
-const askTheQuestion = async () => {
-  console.log('ask starting...')
-  answer.value = ''
-  let AskGPTParam = {
-    question: question.value,
-    prompts: '', 
-    apiKey: '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'
+
+const askTheQuestion = async ({ isComposing, key }: KeyboardEvent) => {
+  // 解决中文输入法回车时触发的bug
+  if (!isComposing && key === 'Enter') {
+    console.log('ask starting...')
+    answer.value = ''
+    let AskGPTParam = {
+      question: question.value,
+      prompts: '',
+      apiKey: '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'
+    }
+    await askChatGPT(AskGPTParam, answer, loading)
+    console.log('ask start end.')
   }
-  await askChatGPT(AskGPTParam, answer, loading)
-  console.log('ask start end.')
 }
 
 

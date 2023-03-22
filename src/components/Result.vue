@@ -1,86 +1,61 @@
-<template>
-    <div class="result-container">
-        <el-row justify="space-between" class="say-tip">
-          <div>ChatGPT Says:</div>
-          <div class="flex-grow" />
-          <div>
-            <el-icon><Refresh /></el-icon>
-            <el-icon class="copy-icon"><CopyDocument /></el-icon>
-          </div>
-        </el-row>
-        <el-row justify="start">
-          <el-skeleton v-if="loading" :rows="4" animated/>
-          <el-text v-else class="mx-1 result-text">{{response}}</el-text>
-        </el-row>
-      </div>
+<template lang="pug">
+.says-area
+  .empty-area(v-if="!response")
+    el-icon.icon
+      EditPen
+  MarkdownView(v-else :response="response")
+
+//- .greet
+  .card
+    input( id="greet-input" v-model="name" placeholder="Enter a name...")
+    button(type="button" @click="greet") Greet
+  p {{ response }} 
 </template>
+  
+<script lang="ts" setup>
+import { Promotion, WarnTriangleFilled, EditPen } from '@element-plus/icons-vue'
+import MarkdownView from './MarkdownView.vue';
 
-<script lang="ts">
-import { PropType, defineComponent } from "vue";
-
-import { CopyDocument, Refresh } from '@element-plus/icons-vue'
-import { ElIcon, ElRow } from "element-plus";
-
-export default defineComponent({
-    name: 'Result',
-    props: {
-        response: {
-            type: String as PropType<string>,
-            required: true
-        },
-        loading: {
-            type: Boolean as PropType<boolean>,
-            required: true
-        }
-    },
-    components: {
-        ElIcon,
-        ElRow,
-        Refresh,
-        CopyDocument
-    }
+const props = defineProps({
+  response: {
+    type: String as PropType<string>,
+    required: true
+  },
+  loading: {
+    type: Boolean as PropType<boolean>,
+    required: true
+  }
 })
 
 </script>
-
-
-<style>
-.flex-grow {
-    flex-grow: 1;
-    display: inline-block;
-}
-
-
-.copy-icon {
-    margin-left: 6px;
-}
-
-.result-container {
-    border-top-width: 1px;
-    --tw-border-opacity: 1;
-    border-top-color: rgb(203 213 225/var(--tw-border-opacity));
-    margin-top: 10px;
-    padding-top: 12px;
-    padding-bottom: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: stretch;
-}
   
-.say-tip {
-    font-weight: 500;
-    font-size: 18px;
-    line-height: 28px;
-    --tw-text-opacity: 1;
-    color: rgb(100 116 139/var(--tw-text-opacity));
-    margin-bottom: 5px;
-}
+<style lang="scss" scoped>
+.says-area {
+  position: relative;
+  height: 35vh;
+  background-color: var(--el-fill-color-blank);
+  border-radius: var(--radius-1);
+  padding: 5px 11px;
+  box-sizing: border-box;
+  color: var(--color-white-080);
+  overflow: hidden;
 
-.result-text {
-    padding-left:2px;
-    font-size: 15px;
-    line-height: 24px;
-}
+  .empty-area {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
+    .icon {
+      font-size: 3rem;
+      color: var(--color-white-003);
+    }
+  }
+
+  .speaking {
+    position: relative;
+  }
+}
 </style>
+  
