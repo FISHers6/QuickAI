@@ -17,7 +17,7 @@ import VueHighlightJS from 'vue3-highlightjs'
 
 import '@/assets/scss/global.scss'
 import 'element-plus/dist/index.css'
-import 'highlight.js/styles/atom-one-light.css'
+import 'highlight.js/styles/atom-one-dark.css'
 
 const app = createApp(App)
 

@@ -2,7 +2,7 @@
 #ChatGPT4
   .yq
     h4 Your question is:
-    el-input.textarea(v-model="question" type='textarea' placeholder="Say something & Enter ... " @keydown="askTheQuestion")
+    el-input.textarea(:suffix-icon="Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown="askTheQuestion")
   .yq
     h4 Your Prompt is:
     el-autocomplete(v-model="state" :fetch-suggestions="querySearch" popper-class="my-autocomplete" placeholder="Ask ChatGPT. Ex: Write an email reply in yoda style" @select="handleSelect")
@@ -24,7 +24,7 @@
 <script lang='ts' setup>
 import Result from '@/components/Result.vue'
 import type { ElInput } from 'element-plus'
-import { Edit } from '@element-plus/icons-vue'
+import { Edit, Promotion } from '@element-plus/icons-vue'
 import askChatGPT from '@/hooks/api'
 import GPTParam from '@/hooks/api'
 

@@ -38,7 +38,12 @@ const handleUpload = (val: any) => {
 //   ]
 // })
 
-
+onMounted(() => {
+  const element: any = document.querySelector(".markdown-body") // 替换成你需要滚动的元素的ID
+  element.addEventListener("DOMSubtreeModified", () => {
+    element.scrollTop = element.scrollHeight;
+  });
+})
 
 </script>
 
@@ -69,8 +74,9 @@ const handleUpload = (val: any) => {
   }
 
   pre {
-    background-color: var(--color-white-003);
+    background-color: var(--color-toolbar);
     color: var(--color-white-080) !important;
+    font-weight: 600;
   }
 
   code {
@@ -78,6 +84,4 @@ const handleUpload = (val: any) => {
     border-radius: 2px;
   }
 }
-
-
 </style>

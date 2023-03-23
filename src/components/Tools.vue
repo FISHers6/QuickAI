@@ -18,7 +18,6 @@ const mode = ref(false)
 
 const changeMode = (val: boolean) => {
   document.documentElement.classList[ val ? 'add' : 'remove' ]('theme-dark')
-  val ? import('highlight.js/styles/atom-one-light.css') : import('highlight.js/styles/atom-one-dark.css')
 }
 </script>
 <style lang='scss' scoped>
