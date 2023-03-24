@@ -1,8 +1,8 @@
-use crate::APP;
-use anyhow::Result;
-use tauri::Manager;
 
-pub fn trigger_message_update(message: String) -> Result<()> {
-    APP.get().unwrap().emit_all("update-message", message)?;
+use anyhow::Result;
+use tauri::{Manager, AppHandle};
+
+pub fn trigger_message_update(handle: &AppHandle, selected: String) -> Result<()> {
+    handle.emit_all("change-selected-content", selected)?;
     Ok(())
 }

@@ -16,6 +16,9 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "globalShortcut": {
+        "all": true
       }
     },
     "bundle": {
@@ -41,8 +44,9 @@
         "fullscreen": false,
         "resizable": true,
         "title": "ChatGPT-PC",
-        "width": 800,
-        "height": 600
+        "width": 560,
+        "height": 600,
+        "center": true
       }
     ]
   }

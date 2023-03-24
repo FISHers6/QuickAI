@@ -2,7 +2,7 @@
 #ChatGPT4
   .yq
     h4 Your question is:
-    el-input.textarea(:suffix-icon="loading ? Loading : Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown.stop="askTheQuestion")
+    el-input.textarea(:suffix-icon="loading ? Loading : Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown.stop="invokeEnter")
   .yq
     h4 Your Prompt is:
     el-autocomplete(v-model="state" :fetch-suggestions="querySearch" popper-class="my-autocomplete" placeholder="Ask ChatGPT. Ex: Write an email reply in yoda style" @select="handleSelect")
@@ -29,8 +29,13 @@ import type { ElInput } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
 import askChatGPT from '@/hooks/api'
 import GPTParam from '@/hooks/api'
+import { invoke } from '@tauri-apps/api'
+import useClipboard from '@/hooks/useClipboard'
+import { onMounted } from 'vue';
+import { listen } from '@tauri-apps/api/event';
 
-const question = ref('')
+
+const { question, getSelectedContent } = useClipboard();
 const answer = ref('')
 const loading = ref(false)
 
@@ -53,10 +58,17 @@ const handleInputConfirm = () => {
 }
 
 
-const askTheQuestion = async ({ isComposing, key }: KeyboardEvent) => {
+const invokeEnter = async ({ isComposing, key }: KeyboardEvent) => {
   // 解决中文输入法回车时触发的bug
   if (!isComposing && key === 'Enter' && !loading.value) {
-    loading.value = true
+    if(question.value !== '') {
+      await askTheQuestion()
+    }
+  }
+}
+
+const askTheQuestion = async () => {
+  loading.value = true
     console.log('ask starting...')
     answer.value = ''
     let AskGPTParam = {
@@ -66,8 +78,34 @@ const askTheQuestion = async ({ isComposing, key }: KeyboardEvent) => {
     }
     await askChatGPT(AskGPTParam, answer, loading)
     console.log('ask start end.')
-  }
 }
+
+const unlisten = listen('change-selected-content', (event) => {
+    const selected: string = event.payload as string;
+    if (selected && selected !== '') {
+      question.value = selected
+    }
+});
+
+onMounted(async () => {
+  links.value = loadAll()
+  try {
+    await getSelectedContent();
+    if(question.value != undefined && question.value !== '') {
+      // await askTheQuestion()
+    }
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+watchEffect(() => {
+  if (question.value !== '') {
+    console.log(111)
+    console.log(question.value)
+    // await askTheQuestion()
+  }
+});
 
 
 interface LinkItem {
@@ -110,10 +148,6 @@ const handleSelect = (item: LinkItem) => {
 const handleIconClick = (ev: Event) => {
   console.log(ev)
 }
-
-onMounted(() => {
-  links.value = loadAll()
-})
 
 </script>
 

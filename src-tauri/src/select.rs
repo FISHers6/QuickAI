@@ -1,6 +1,6 @@
-use clipboard::ClipboardProvider;
+use anyhow::{anyhow, Result};
 use clipboard::ClipboardContext;
-use anyhow::{Result, anyhow};
+use clipboard::ClipboardProvider;
 
 #[cfg(target_os = "windows")]
 pub fn copy() {
@@ -45,17 +45,16 @@ pub fn copy() {
 }
 
 pub fn selected_text() -> Result<String> {
-    let mut cli_pboard: ClipboardContext = ClipboardProvider::new().map_err(|_err| {
-        anyhow!("get clipboard error")
-    })?;
-    let old_text = cli_pboard.get_contents().map_err(|_err| {
-        anyhow!("get clipboard content error")
-    })?;
+    let mut cli_pboard: ClipboardContext =
+        ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
+    let old_text = cli_pboard
+        .get_contents()
+        .map_err(|_err| anyhow!("get clipboard content error"))?;
     copy();
     if let Ok(new_text) = cli_pboard.get_contents() {
         let _err = cli_pboard.set_contents(old_text);
         Ok(new_text)
-    }else {
+    } else {
         let _err = cli_pboard.set_contents(old_text.clone());
         Ok(old_text)
     }

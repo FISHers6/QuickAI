@@ -1,8 +1,7 @@
-
+use crate::windows;
+use anyhow::Result;
 use tauri::AppHandle;
 use tauri::GlobalShortcutManager;
-use anyhow::Result;
-use crate::windows;
 
 pub(crate) struct ShortcutRegister;
 
@@ -13,8 +12,8 @@ impl ShortcutRegister {
         // 依次注册快捷键
         let shortcut = "CommandOrControl+D";
         handle
-        .global_shortcut_manager()
-        .register(shortcut, windows::chatgpt_windows)?;
+            .global_shortcut_manager()
+            .register(shortcut, windows::chatgpt_windows)?;
         Ok(())
     }
 }
