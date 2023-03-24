@@ -12,12 +12,12 @@
 </template>
 <script lang='ts' setup>
 import { MoreFilled } from '@element-plus/icons-vue'
+import { setLink, removeLink } from '@/utils'
 
 const mode = ref(false)
 
 const changeMode = (val: boolean) => {
-  if(val) document.documentElement.classList.add('theme-dark')
-  else document.documentElement.classList.remove('theme-dark')
+  document.documentElement.classList[ val ? 'add' : 'remove' ]('theme-dark')
 }
 </script>
 <style lang='scss' scoped>

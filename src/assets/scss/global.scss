@@ -12,6 +12,9 @@ body {
   // padding: 0.85rem 1rem;
 }
 
+.el-input {
+  height: 2.5rem;
+}
 .el-button,
 .el-input,
 .el-textarea__inner {
@@ -26,7 +29,7 @@ body {
 }
 
 .el-autocomplete-suggestion li:hover {
-  background-color: var(--color-white-006)!important;
+  background-color: var(--color-white-006) !important;
 }
 
 .tools-list {
