@@ -4,12 +4,6 @@
     el-icon.icon
       EditPen
   MarkdownView(v-else :response="response")
-
-//- .greet
-  .card
-    input( id="greet-input" v-model="name" placeholder="Enter a name...")
-    button(type="button" @click="greet") Greet
-  p {{ response }} 
 </template>
   
 <script lang="ts" setup>
@@ -26,13 +20,12 @@ const props = defineProps({
     required: true
   }
 })
-
 </script>
   
 <style lang="scss" scoped>
 .says-area {
   position: relative;
-  height: 35vh;
+  height: calc(100vh - 25.85rem);
   background-color: var(--el-fill-color-blank);
   border-radius: var(--radius-1);
   padding: 5px 11px;

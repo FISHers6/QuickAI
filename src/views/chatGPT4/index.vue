@@ -2,7 +2,7 @@
 #ChatGPT4
   .yq
     h4 Your question is:
-    el-input.textarea(:suffix-icon="Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown="askTheQuestion")
+    el-input.textarea(:suffix-icon="loading ? Loading : Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown.stop="askTheQuestion")
   .yq
     h4 Your Prompt is:
     el-autocomplete(v-model="state" :fetch-suggestions="querySearch" popper-class="my-autocomplete" placeholder="Ask ChatGPT. Ex: Write an email reply in yoda style" @select="handleSelect")
@@ -19,10 +19,12 @@
   .chats-says
     h4 ChatGPT says:
     Result(:response="answer" :loading="loading")
+    
 </template>
 
 <script lang='ts' setup>
 import Result from '@/components/Result.vue'
+import Loading from '@/components/loading.vue'
 import type { ElInput } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
 import askChatGPT from '@/hooks/api'
@@ -53,7 +55,8 @@ const handleInputConfirm = () => {
 
 const askTheQuestion = async ({ isComposing, key }: KeyboardEvent) => {
   // 解决中文输入法回车时触发的bug
-  if (!isComposing && key === 'Enter') {
+  if (!isComposing && key === 'Enter' && !loading.value) {
+    loading.value = true
     console.log('ask starting...')
     answer.value = ''
     let AskGPTParam = {
@@ -120,6 +123,9 @@ onMounted(() => {
 
   &>* {
     margin-bottom: 1.628rem;
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   .yq,
