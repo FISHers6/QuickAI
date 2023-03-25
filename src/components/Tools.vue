@@ -7,18 +7,21 @@
         MoreFilled
     .tools-item
       span Dark
-      el-switch(v-model="mode" @change="changeMode" size="small")
+      el-switch(v-model="isDarkMode" size="small")
   //- el-button.more(:icon="MoreFilled" type="primary" link)
 </template>
 <script lang='ts' setup>
 import { MoreFilled } from '@element-plus/icons-vue'
 import { setLink, removeLink } from '@/utils'
 
-const mode = ref(false)
+const isDarkMode = ref(true)
 
 const changeMode = (val: boolean) => {
   document.documentElement.classList[ val ? 'add' : 'remove' ]('theme-dark')
 }
+
+watch(isDarkMode, changeMode, { immediate: true });
+
 </script>
 <style lang='scss' scoped>
 #Tools {
