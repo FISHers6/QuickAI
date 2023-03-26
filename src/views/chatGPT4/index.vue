@@ -4,16 +4,8 @@
     h4 Your question is:
     el-input.textarea(:suffix-icon="loading ? Loading : Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown.stop="invokeEnter")
   .yq
-    h4 Your Prompt is:
-    el-autocomplete(v-model="state" :fetch-suggestions="querySearch" popper-class="my-autocomplete" placeholder="Ask ChatGPT. Ex: Write an email reply in yoda style" @select="handleSelect")
-      template(#suffix)
-        el-icon.el-input__icon(@click="handleIconClick")
-          edit
-      template(#default="{ item }")
-        div.value {{ item.value }}
-        span.link {{ item.link }}
     .prompts
-      el-tag(v-for="tag in promptsTags", effect="plain", :key="tag", closable, :disable-transitions="false", @close="handleClose(tag)") {{ tag }}
+      el-tag(v-for="tag in promptTags", effect="plain", :key="tag.title", closable, :disable-transitions="false", @close="handleClose(tag)" :class="{ highlight: isSelected(tag) }" @click="handleSelectTag(tag)") {{ tag.title }}
       el-input.add-tag(v-if="inputVisible", ref="InputRef", v-model="inputValue", size="small" @keyup.enter="handleInputConfirm", @blur="handleInputConfirm")
       el-button(v-else class="button-new-tag ml-1" size="small" @click="showInput") + New Tag
   .chats-says
@@ -26,6 +18,7 @@
 import Result from '@/components/Result.vue'
 import Loading from '@/components/loading.vue'
 import type { ElInput } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
 import askChatGPT from '@/hooks/api'
 import GPTParam from '@/hooks/api'
@@ -34,29 +27,61 @@ import useClipboard from '@/hooks/useClipboard'
 import { onMounted } from 'vue';
 import { listen } from '@tauri-apps/api/event';
 
+import { usePromptModeStore } from '@/hooks/store'
 
 const { question, getSelectedContent } = useClipboard();
 const answer = ref('')
 const loading = ref(false)
 
 const inputValue = ref('')
-const promptsTags: any = ref([ 1, 2, 3 ])
 const inputVisible = ref(false)
 const InputRef = ref<InstanceType<typeof ElInput>>()
 
-const handleClose = (tag: string) => promptsTags.value.splice(promptsTags.value.indexOf(tag), 1)
+const promptModeStore = usePromptModeStore()
+const promptTags = computed(() => promptModeStore.items)
+
+const handleClose = (item: any) => {
+  promptModeStore.removeByTitle(item.title)
+}
+
+const isSelected = (item: any) => {
+    return promptModeStore.selectedPrompt && promptModeStore.selectedPrompt.title === item.title
+}
+
+const handleSelectTag = (item: any) => {
+    if (isSelected(item)) {
+        promptModeStore.clearSelectedPrompt()
+        closePromptNotification(item.title)
+    }else {
+        promptModeStore.setSelectedPrompt(item.title)
+        openPromptNotification(item.title)
+    }
+}
+
+const openPromptNotification = (mode: string) => {
+  ElMessage({
+    message: 'enable ' + mode,
+    type: 'success',
+  })
+}
+
+const closePromptNotification = (mode: string) => {
+  ElMessage({
+    message: 'close ' + mode,
+    type: 'warning',
+  })
+}
+
+const handleInputConfirm = () => {
+  if (inputValue.value) promptModeStore.add(inputValue.value);
+  inputVisible.value = false
+  inputValue.value = ''
+}
 
 const showInput = () => {
   inputVisible.value = true
   nextTick(() => InputRef.value!.input!.focus())
 }
-
-const handleInputConfirm = () => {
-  if (inputValue.value) promptsTags.value.push(inputValue.value)
-  inputVisible.value = false
-  inputValue.value = ''
-}
-
 
 const invokeEnter = async ({ isComposing, key }: KeyboardEvent) => {
   // 解决中文输入法回车时触发的bug
@@ -73,7 +98,7 @@ const askTheQuestion = async () => {
     answer.value = ''
     let AskGPTParam = {
       question: question.value,
-      prompts: '',
+      prompts: promptModeStore.getSelectedPrompt,
       apiKey: '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'
     }
     await askChatGPT(AskGPTParam, answer, loading)
@@ -81,14 +106,13 @@ const askTheQuestion = async () => {
 }
 
 const unlisten = listen('change-selected-content', (event) => {
-    const selected: string = event.payload as string;
+    const selected: string = (event.payload as string).trim();
     if (selected && selected !== '') {
       question.value = selected
     }
 });
 
 onMounted(async () => {
-  links.value = loadAll()
   try {
     await getSelectedContent();
     if(question.value != undefined && question.value !== '') {
@@ -106,48 +130,6 @@ watchEffect(() => {
     // await askTheQuestion()
   }
 });
-
-
-interface LinkItem {
-  value: string
-  link: string
-}
-
-const state = ref('')
-const links = ref<LinkItem[]>([])
-
-const querySearch = (queryString: string, cb: any) => {
-  const results = queryString
-    ? links.value.filter(createFilter(queryString))
-    : links.value
-  // call callback function to return suggestion objects
-  cb(results)
-}
-const createFilter = (queryString: any) => {
-  return (restaurant: any) => {
-    return (
-      restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
-    )
-  }
-}
-const loadAll = () => {
-  return [
-    { value: 'vue', link: 'https://github.com/vuejs/vue' },
-    { value: 'element', link: 'https://github.com/ElemeFE/element' },
-    { value: 'cooking', link: 'https://github.com/ElemeFE/cooking' },
-    { value: 'mint-ui', link: 'https://github.com/ElemeFE/mint-ui' },
-    { value: 'vuex', link: 'https://github.com/vuejs/vuex' },
-    { value: 'vue-router', link: 'https://github.com/vuejs/vue-router' },
-    { value: 'babel', link: 'https://github.com/babel/babel' },
-  ]
-}
-const handleSelect = (item: LinkItem) => {
-  console.log(item)
-}
-
-const handleIconClick = (ev: Event) => {
-  console.log(ev)
-}
 
 </script>
 
@@ -172,10 +154,19 @@ const handleIconClick = (ev: Event) => {
   .prompts {
     display: flex;
     flex-wrap: wrap;
-    margin-top: 0.5rem;
+    margin-top: 0.2rem;
 
     .el-tag {
       background-color: #915eff34;
+
+      &.highlight {
+        animation: highlight-color 0.5s ease-in-out;
+      }
+    }
+
+    .el-tag.highlight {
+      background-color: var(--color-primary);
+      color: var(--color-white-100);
     }
 
     .el-input.add-tag {
@@ -204,6 +195,18 @@ const handleIconClick = (ev: Event) => {
       background-color: #915eff34;
       outline: 0;
     }
+  }
+}
+
+@keyframes highlight-color {
+  0% {
+    background-color: #915eff34;
+  }
+  50% {
+    background-color: #915eff80;
+  }
+  100% {
+    background-color: #915eff34;
   }
 }
 </style>

@@ -14,6 +14,7 @@
     "@vueuse/core": "^9.13.0",
     "element-plus": "^2.3.0",
     "eventsource-parser": "^0.1.0",
+    "pinia": "^2.0.33",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6",
     "vue3-highlightjs": "^1.0.5",

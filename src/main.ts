@@ -13,6 +13,8 @@ import App from "./App.vue";
 import ElementPlus from 'element-plus'
 import router from '@/route'
 import VueHighlightJS from 'vue3-highlightjs'
+import { createPinia } from 'pinia'
+const pinia = createPinia()
 
 
 import '@/assets/scss/global.scss'
@@ -22,4 +24,4 @@ import 'highlight.js/styles/atom-one-dark.css'
 const app = createApp(App)
 
 
-app.use(ElementPlus).use(router).use(VueHighlightJS).mount('#app')
+app.use(ElementPlus).use(router).use(VueHighlightJS).use(pinia).mount('#app')
