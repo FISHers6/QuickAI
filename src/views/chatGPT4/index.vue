@@ -5,7 +5,7 @@
     el-input.textarea(:suffix-icon="loading ? Loading : Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown.stop="invokeEnter")
   .yq
     .prompts
-      el-tag(v-for="tag in promptTags", effect="plain", :key="tag.title", closable, :disable-transitions="false", @close="handleClose(tag)" :class="{ highlight: isSelected(tag) }" @click="handleSelectTag(tag)") {{ tag.title }}
+      el-tag(v-for="tag in promptTags", effect="plain", :key="tag.act", closable, :disable-transitions="false", @close="handleClose(tag)" :class="{ highlight: isSelected(tag) }" @click="handleSelectTag(tag)") {{ tag.act }}
       el-input.add-tag(v-if="inputVisible", ref="InputRef", v-model="inputValue", size="small" @keyup.enter="handleInputConfirm", @blur="handleInputConfirm")
       el-button(v-else class="button-new-tag ml-1" size="small" @click="showInput") + New Tag
   .chats-says
@@ -41,20 +41,20 @@ const promptModeStore = usePromptModeStore()
 const promptTags = computed(() => promptModeStore.items)
 
 const handleClose = (item: any) => {
-  promptModeStore.removeByTitle(item.title)
+  promptModeStore.removeByTitle(item.act)
 }
 
 const isSelected = (item: any) => {
-    return promptModeStore.selectedPrompt && promptModeStore.selectedPrompt.title === item.title
+    return promptModeStore.selectedPrompt && promptModeStore.selectedPrompt.act === item.act
 }
 
 const handleSelectTag = (item: any) => {
     if (isSelected(item)) {
         promptModeStore.clearSelectedPrompt()
-        closePromptNotification(item.title)
+        closePromptNotification(item.act)
     }else {
-        promptModeStore.setSelectedPrompt(item.title)
-        openPromptNotification(item.title)
+        promptModeStore.setSelectedPrompt(item.act)
+        openPromptNotification(item.act)
     }
 }
 
