@@ -34,17 +34,10 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: 'test1',
+        path: 'prompt',
         component: Test,
         meta: {
-          title: 'Prompt',
-        },
-      },
-      {
-        path: 'test2',
-        component: Test,
-        meta: {
-          title: 'test2',
+          title: '功能场景',
         },
       },
     ],

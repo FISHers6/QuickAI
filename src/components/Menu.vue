@@ -16,12 +16,9 @@ const menuData = ref([{
   label: 'ChatGPT 4.0',
   name: 'chatgpt4',
 }, {
-  label: 'Test1',
-  name: 'test1',
-}, {
-  label: 'Test2',
-  name: 'test2',
-}
+  label: '功能场景',
+  name: 'prompt',
+},
 ])
 
 const handleClick = (val: any) => {

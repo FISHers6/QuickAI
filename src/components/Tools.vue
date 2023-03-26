@@ -1,6 +1,6 @@
 <template lang='pug'>
 #Tools 
-  el-button(type="primary") Edit Prompts
+  el-button(type="primary") Plus 版
   el-popover(popper-class="tools-list")
     template(#reference)
       el-icon.tool-more(color="var(--el-color-primary)" size="24")

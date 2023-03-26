@@ -4,7 +4,7 @@ el-autocomplete(v-model="state" :fetch-suggestions="querySearch" placeholder="As
         el-icon.el-input__icon(@click="handleIconClick")
           search
       template(#default="{ item }")
-        div.title {{ item.title }}
+        div.title {{ item.act }}
         span.description {{ item.description }}
 .prompt-card-container
     .prompt-card(v-for="(item, index) in displayItems" :key="index" :span="8" :offset="index > 0 ? 2 : 0" :class="{ active: isSelected(item) }" @click="handleSelectItem(item)")
@@ -12,7 +12,7 @@ el-autocomplete(v-model="state" :fetch-suggestions="querySearch" placeholder="As
             el-icon.prompt-icon(size="35")
               component(:is="item.icon")
             .prompt-title
-                span {{ item.title }}
+                span {{ item.act }}
 </template>
   
 <script lang='ts' setup>
@@ -28,8 +28,8 @@ const state = ref('')
 const selected = ref<LinkItem | null>(null)
 
 interface LinkItem {
-  title: string
-  description: string
+  act: string
+  prompt: string
   icon: any
 }
 
@@ -44,8 +44,8 @@ const querySearch = (queryString: string, cb: any) => {
 const createFilter = (queryString: any) => {
   return (restaurant: any) => {
     return (
-      restaurant.title.toLowerCase().indexOf(queryString.toLowerCase()) === 0 
-      || restaurant.description.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+      restaurant.act.toLowerCase().indexOf(queryString.toLowerCase()) === 0 
+      || restaurant.prompt.toLowerCase().indexOf(queryString.toLowerCase()) === 0
     )
   }
 }
@@ -69,7 +69,7 @@ const displayItems = computed(() => {
     // 有搜索内容时，展示搜索结果
     return items.value.filter(createFilter(state.value))
   } else if (selected.value) {
-    state.value = selected.value.title
+    state.value = selected.value.act
     // 有选中的项时，只展示该项
     return [selected.value]
   } else {
@@ -80,16 +80,16 @@ const displayItems = computed(() => {
 
 
 const isSelected = (item: any) => {
-    return promptModeStore.selectedPrompt && promptModeStore.selectedPrompt.title === item.title
+    return promptModeStore.selectedPrompt && promptModeStore.selectedPrompt.act === item.act
 }
 
 const handleSelectItem = (item: any) => {
     if (isSelected(item)) {
         promptModeStore.clearSelectedPrompt()
-        closePromptNotification(item.title)
+        closePromptNotification(item.act)
     }else {
-        promptModeStore.setSelectedPrompt(item.title)
-        openPromptNotification(item.title)
+        promptModeStore.setSelectedPrompt(item.act)
+        openPromptNotification(item.act)
     }
 }
 
