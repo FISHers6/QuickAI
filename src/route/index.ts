@@ -37,7 +37,7 @@ export const routes: Array<RouteRecordRaw> = [
         path: 'test1',
         component: Test,
         meta: {
-          title: 'test1',
+          title: 'Prompt',
         },
       },
       {

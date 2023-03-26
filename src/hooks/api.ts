@@ -16,14 +16,16 @@ interface GPTParam {
 }
 
 async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boolean>) {
-  if (!param.question || param.question === '\n' || param.question.length === 0) {
+  let question = param.question.trim()
+  let prompts = param.prompts.trim()
+  if (!question || question === '\n' || question.length === 0) {
     return
   }
   
   const controller = new AbortController()
   const messages: GPTMessage[] = [
-      {role: 'system', content: param.prompts},
-      {role: 'user', content: param.question}
+      {role: 'system', content: prompts},
+      {role: 'user', content: question}
   ]
 
   try{
