@@ -19,6 +19,14 @@ const menuData = ref([{
   label: '功能场景',
   name: 'prompt',
 },
+{
+  label: '会话模式',
+  name: 'chatwin',
+},
+{
+  label: '聊天',
+  name: 'gpt',
+},
 ])
 
 const handleClick = (val: any) => {

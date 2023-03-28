@@ -11,17 +11,35 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import ElementPlus from 'element-plus'
-import router from '@/route'
 import VueHighlightJS from 'vue3-highlightjs'
 import { createPinia } from 'pinia'
-const pinia = createPinia()
 
+import { setupI18n } from './locales'
+import { setupAssets, setupScrollbarStyle } from './plugins'
+import { setupStore } from './store'
+import { setupRouter } from './route'
 
 import '@/assets/scss/global.scss'
 import 'element-plus/dist/index.css'
 import 'highlight.js/styles/atom-one-dark.css'
 
-const app = createApp(App)
+async function bootstrap() {
+    const app = createApp(App)
+    setupAssets()
 
+    setupScrollbarStyle()
 
-app.use(ElementPlus).use(router).use(VueHighlightJS).use(pinia).mount('#app')
+    setupStore(app)
+
+    setupI18n(app)
+
+    await setupRouter(app)
+    app.use(ElementPlus)
+    app.use(VueHighlightJS)
+
+    app.mount('#app')
+}
+  
+bootstrap()
+  
+
