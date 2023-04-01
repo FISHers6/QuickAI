@@ -60,14 +60,14 @@ const handleSelectTag = (item: any) => {
 
 const openPromptNotification = (mode: string) => {
   ElMessage({
-    message: 'enable ' + mode,
+    message: '开启指令:' + mode,
     type: 'success',
   })
 }
 
 const closePromptNotification = (mode: string) => {
   ElMessage({
-    message: 'close ' + mode,
+    message: '关闭指令:' + mode,
     type: 'warning',
   })
 }
@@ -99,7 +99,8 @@ const askTheQuestion = async () => {
     let AskGPTParam = {
       question: question.value,
       prompts: promptModeStore.getSelectedPrompt,
-      apiKey: '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'
+      // apiKey: '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'
+      apiKey: ''
     }
     await askChatGPT(AskGPTParam, answer, loading)
     console.log('ask start end.')

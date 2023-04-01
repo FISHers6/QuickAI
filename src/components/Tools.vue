@@ -1,6 +1,6 @@
 <template lang='pug'>
 #Tools 
-  el-button(type="primary") Plus 版
+  el-button(type="primary") Plus
   el-popover(popper-class="tools-list")
     template(#reference)
       el-icon.tool-more(color="var(--el-color-primary)" size="24")

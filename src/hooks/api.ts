@@ -2,6 +2,9 @@ import { Ref } from 'vue'
 import type { ParsedEvent, ReconnectInterval } from "eventsource-parser"
 import { createParser } from "eventsource-parser"
 
+import {Chat} from '@/typings/chat'
+import { fetchChatAPIProcess } from '@/api'
+
 const baseURL = 'api.openai.com'
 
 interface GPTMessage {
@@ -14,7 +17,6 @@ interface GPTParam {
   prompts: string, 
   apiKey: string,
 }
-
 async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boolean>) {
   let question = param.question.trim()
   let prompts = param.prompts.trim()
@@ -28,15 +30,57 @@ async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boo
       {role: 'user', content: question}
   ]
 
-  try{
-      await askChatGPTCore(messages, param.apiKey, controller, result)
-      loading.value = false
-  }catch(error: any){
-      loading.value = false
-      result.value = error.message.includes("The user aborted a request")
-        ? ""
-        : error.message.replace(/(sk-\w{5})\w+/g, "$1")
+  if(param.apiKey || param.apiKey!=='') {
+      try{
+        await askChatGPTCore(messages, param.apiKey, controller, result)
+        loading.value = false
+    }catch(error: any){
+        loading.value = false
+        result.value = error.message.includes("The user aborted a request")
+          ? ""
+          : error.message.replace(/(sk-\w{5})\w+/g, "$1")
+    }
+  }else {
+    let options=	{
+      conversationId: '',
+		  parentMessageId: ''
+    }
+    const concatenatedContent = messages.reduce((accumulator, current) => {
+      if (current.role === 'user') {
+        return accumulator + current.content;
+      } else {
+        return accumulator;
+      }
+    }, '');
+    
+    await fetchChatAPIOnce(concatenatedContent, controller, result, options)
   }
+
+}
+
+    // 文本对话 检查指令/image 生成图片
+async function fetchChatAPIOnce(message: string, controller:any, result: any, options: any){
+  await fetchChatAPIProcess<Chat.ConversationResponse>({
+    prompt: message,
+    options,
+    signal: controller.signal,
+    onDownloadProgress: ({ event }) => {
+      const xhr = event.target
+      const { responseText } = xhr
+      // Always process the final line
+      const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
+      let chunk = responseText
+      if (lastIndex !== -1)
+        chunk = responseText.substring(lastIndex)
+      try {
+        const data = JSON.parse(chunk)
+        result = result + data.text ?? ''
+      }
+      catch (error) {
+      //
+      }
+    },
+  })
 }
 
 // App组件调用方来传参 如何不用Ref做参数也能做到传进一个响应式对象, 目前的实现是把Result和loading都写进来了

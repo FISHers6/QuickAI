@@ -1,5 +1,5 @@
 import { useChatStore } from '@/store'
-
+import { Chat } from '@/typings/chat'
 export function useChat() {
   const chatStore = useChatStore()
 

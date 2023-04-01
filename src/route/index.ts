@@ -13,7 +13,6 @@ import Chat from '@/views/chatwin/index.vue'
 
 import type { App } from 'vue'
 import { setupPageGuard } from './permission'
-import { ChatLayout } from '@/views/chat/layout'
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -58,19 +57,6 @@ export const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '对话模式',
         },
-      },
-      {
-        path: 'gpt',
-        name: 'gpt',
-        component: ChatLayout,
-        redirect: '/home/gpt/chat',
-        children: [
-          {
-            path: 'chat/:uuid?',
-            name: 'Chat',
-            component: () => import('@/views/chat/index.vue'),
-          },
-        ],
       },
     ],
   },

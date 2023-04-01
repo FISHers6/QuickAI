@@ -16,16 +16,12 @@ const menuData = ref([{
   label: 'ChatGPT 4.0',
   name: '/home/chatgpt4',
 }, {
-  label: '功能场景',
+  label: '快捷指令',
   name: '/home/prompt',
 },
 {
   label: '会话模式',
   name: '/home/chatwin',
-},
-{
-  label: '聊天',
-  name: '/home/gpt',
 },
 ])
 

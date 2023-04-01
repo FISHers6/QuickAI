@@ -1,18 +1,10 @@
 <template>
   <div class="chat-window">
-    <div class="other-fun">
-          <label @click="snapchat">
-            <span class="iconfont icon-snapchat"></span>
-          </label>
-          <label for="docFile">
-            <span class="iconfont icon-wenjian"></span>
-          </label>
-          <label for="imgFile">
-            <span class="iconfont icon-tupian"></span>
-          </label>
-          <input type="file" name="" id="imgFile" @change="sendImg" accept="image/*" />
-          <input type="file" name="" id="docFile" @change="sendFile" accept="application/*,text/*" />
-        </div>
+    <!-- <div class="other-fun">
+      <label @click="snapchat">
+        <span class="iconfont icon-snapchat"></span>
+      </label>
+    </div> -->
     <div class="botoom">
       <div class="chat-content" id="chat-content" ref="scrollRef">
         <div class="chat-wrapper" v-for="(item, index) of dataSources" :key="index">
@@ -51,6 +43,10 @@
         <div class="emoji boxinput" @click="clickEmoji">
           <img src="@/assets/img/emoji/smiling-face.png" alt="" />
         </div>
+        <label class="emoji boxinput" for="imgFile"><span class="iconfont icon-tupian"></span></label>
+        <label class="emoji boxinput" for="docFile"><span class="iconfont icon-wenjian"></span></label>
+        <input v-show="false" type="file" name="" id="imgFile" @change="sendImg" accept="image/*" />
+        <input v-show="false" type="file" name="" id="docFile" @change="sendFile" accept="application/*,text/*" />
         <!--emo表情列表-->
         <div class="emoji-content" v-show="showEmoji">
           <Emoji v-show="showEmoji" @sendEmoji="sendEmoji" @closeEmoji="clickEmoji"></Emoji>
@@ -69,7 +65,8 @@
         ></el-input>
         <div>
           <div class="send boxinput" @click='handleSubmit'>
-            <img src="@/assets/img/emoji/rocket.png" alt="" />
+            <!-- <img src="@/assets/img/emoji/rocket.png" alt="" /> -->
+            <Promotion class="send-button"></Promotion>
           </div>
         </div>
       </div>
@@ -82,16 +79,17 @@ import html2canvas from 'html2canvas'
 import Emoji from "@/components/Emoji.vue"
 import FileCard from "@/components/FileCard.vue"
 import MarkdownView from './MarkdownView.vue';
-import { useChat } from '@/views/chat/hooks/useChat'
+import { useChat } from '@/hooks/useChat'
+import { Promotion } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 import { useChatStore, usePromptStore } from '@/store'
 import { fetchChatAPIProcess } from '@/api'
-// import { useUsingContext } from '@/views/chat/hooks/useUsingContext'
-import { useScroll } from '@/views/chat/hooks/useScroll'
+import { useScroll } from '@/hooks/useScroll'
 import { getFile, getFileMeta} from "@/hooks/useFile"
 import FileMeta from "@/hooks/useFile"
 import { Chat } from '@/typings/chat'
-import { createImage, createImageEdit, createImageVariations, createTranscription, createTranslation } from "@/hooks/getData"
+import { createImageEdit, createImageVariations} from "@/hooks/getData"
+import { createImage} from "@/api/index"
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const openLongReply = true
 
@@ -121,9 +119,6 @@ const conversationList = computed(() => dataSources.value.filter(item => (!item.
 const userMessageList = computed(() => dataSources.value.filter(item => (item.inversion && !item.error)))
 
 const apiKey = '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'
-
-// 全局保存的上下文
-// const { usingContext, toggleUsingContext } = useUsingContext()
 
 // 发送的消息
 const prompt = ref<string>('')
@@ -171,18 +166,11 @@ async function onConversation(chatMsg: ChatMsg) {
 
   controller = new AbortController()
 
-  let imageGenMode = false
-  let imageEditMode = false
-  let imageEditUrl :any = null
-
   if (userMessageList.value.length > 0) {
     const lastMessage: Chat.Chat | null | undefined = userMessageList.value[userMessageList.value.length - 1]
     if (lastMessage && lastMessage.messageType !== 0) {
       if(lastMessage.messageType === 2) {
         message += lastMessage.fileMeta?.fileContent
-      }else if(lastMessage.messageType == 1) {
-        imageEditMode = true
-        imageEditUrl = lastMessage.imageUrl
       }
     }
   }
@@ -439,6 +427,7 @@ const addChatMessage = (chatMsg: ChatMsg) => {
       imgType: imgType,
     },
   )
+  scrollToBottom()
 }
 
 //截图
@@ -865,18 +854,20 @@ textarea::-webkit-scrollbar-thumb {
       width: 90%;
       position: absolute;
       bottom: 0;
-      margin: 3%;
+      margin: 1% 0% 1% 0%;
       display: flex;
 
       .boxinput {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         background-color: rgb(50, 54, 68);
         border-radius: 15px;
         border: 1px solid rgb(80, 85, 103);
         box-shadow: 0px 0px 5px 0px rgb(0, 136, 255);
         position: relative;
         cursor: pointer;
+        margin-left: 5px;
+        transform: translate(0%, 10%);
 
         img {
           width: 30px;
@@ -886,6 +877,23 @@ textarea::-webkit-scrollbar-thumb {
           top: 50%;
           transform: translate(-50%, -50%);
         }
+
+        .iconfont {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        }
+        .send-button {
+          width: 30px;
+          height: 30px;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          color: #757889
+        }
+        
       }
 
       .emoji {
@@ -901,8 +909,8 @@ textarea::-webkit-scrollbar-thumb {
 
       .emoji {
         transition: 0.3s;
-        width: 50px;
-        min-width: 50px;
+        width: 40px;
+        min-width: 40px;
       }
 
       .luyin {
@@ -939,7 +947,6 @@ textarea::-webkit-scrollbar-thumb {
         border: 0;
         transition: 0.3s;
         box-shadow: 0px 0px 5px 0px rgb(32 32 33);
-
         &:hover {
           box-shadow: 0px 0px 10px 0px rgba(0, 136, 255);
         }
