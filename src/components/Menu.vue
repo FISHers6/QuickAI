@@ -14,23 +14,25 @@ const activeName = ref('chatgpt4')
 
 const menuData = ref([{
   label: 'ChatGPT 4.0',
-  name: 'chatgpt4',
+  name: '/home/chatgpt4',
 }, {
   label: '功能场景',
-  name: 'prompt',
+  name: '/home/prompt',
 },
 {
   label: '会话模式',
-  name: 'chatwin',
+  name: '/home/chatwin',
 },
 {
   label: '聊天',
-  name: 'gpt',
+  name: '/home/gpt',
 },
 ])
 
 const handleClick = (val: any) => {
-  router.push({ path: `${val.props.name}` })
+  console.log(val)
+  console.log(val.props)
+  router.push({ path: `${val.props.name}`, replace: true })
 }
 
 onBeforeMount(() => {

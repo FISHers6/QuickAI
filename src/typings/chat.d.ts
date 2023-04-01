@@ -1,3 +1,4 @@
+import FileMeta  from "@/hooks/useFile"
 declare namespace Chat {
 
 	interface Chat {
@@ -8,6 +9,11 @@ declare namespace Chat {
 		loading?: boolean
 		conversationOptions?: ConversationRequest | null
 		requestOptions: { prompt: string; options?: ConversationRequest | null }
+		messageType: number
+		imageUrl?: string,
+		imgType?: number,
+		fileType?: number,
+		fileMeta?: FileMeta,
 	}
 
 	interface History {

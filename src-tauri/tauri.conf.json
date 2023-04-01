@@ -46,7 +46,9 @@
         "title": "ChatGPT-PC",
         "width": 560,
         "height": 600,
-        "center": true
+        "center": true,
+        "skipTaskbar": true,
+        "decorations": false
       }
     ]
   }

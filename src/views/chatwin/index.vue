@@ -1,9 +1,11 @@
 <template lang='pug'>
-ChatWindow(ref="chatWindow" :frinedInfo="chatWindowInfo" :settingInfo="SettingInfo" :storeStatu="storeStatus")
+//- ChatWindow(ref="chatWindow" :frinedInfo="chatWindowInfo" :settingInfo="SettingInfo" :storeStatu="storeStatus")
+ChatMode
 </template>
     
 <script lang='ts' setup>
-import ChatWindow from '@/components/chatWindow.vue'
+// import ChatWindow from '@/components/chatWindow.vue'
+import { ChatMode } from '@/components/index'
 
 const chatWindowInfo = ref({
       img: "",

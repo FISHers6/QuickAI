@@ -25,11 +25,6 @@ export const routes: Array<RouteRecordRaw> = [
     name: '404',
     component: () => import('@/views/exception/404/index.vue'),
   },
-  // {
-  //   path: '/:pathMatch(.*)*',
-  //   name: 'notFound',
-  //   redirect: '/404',
-  // },
   {
     path: '/500',
     name: '500',
@@ -37,11 +32,8 @@ export const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/home',
-    redirect: '/home/chatgpt4',
-  },
-  {
-    path: '/home',
     component: Home,
+    redirect: '/home/chatgpt4',
     meta: {
       title: 'Home',
     },
@@ -71,10 +63,10 @@ export const routes: Array<RouteRecordRaw> = [
         path: 'gpt',
         name: 'gpt',
         component: ChatLayout,
-        redirect: '/chat',
+        redirect: '/home/gpt/chat',
         children: [
           {
-            path: '/chat/:uuid?',
+            path: 'chat/:uuid?',
             name: 'Chat',
             component: () => import('@/views/chat/index.vue'),
           },
@@ -82,7 +74,7 @@ export const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
-]
+];
 
 class Router {
   router: () => any
@@ -108,7 +100,7 @@ export const router = createRouter({
   scrollBehavior: () => ({ left: 0, top: 0 }),
 })
 
-setupPageGuard(router)
+// setupPageGuard(router)
 
 export async function setupRouter(app: App) {
   app.use(router)

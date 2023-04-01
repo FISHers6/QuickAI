@@ -9,33 +9,41 @@
     <img src="@/assets/img/fileImg/txt.png" alt="" v-else/>
     <div class="word">
       <span
-        >{{file.name || '未知'}}</span
+        >{{file ? file.name : '未知'}}</span
       >
-      <span>154kb</span>
+      <span>{{file ? file.size ? file.size/1000 + ' kb' : '0 kb' : '0 kb'}}</span>
     </div>
   </div>
 </template>
 
+
 <script lang='ts'>
-export default {
-  // props: ["fileType", "file"],
+export default defineComponent({
   props: {
-    fileType: Number,
-    file: File,
-    default() {
-      return {};
+    fileType: {
+      type: Number,
+      required: true,
+    },
+    file: {
+      type: File,
+      required: true,
     },
   },
-  watch: {
-    file() {
-      console.log(this.file);
-    },
-  },  
-  mounted() {
-    console.log(this.file);
-    console.log(this.fileType);
-  }
-};
+  setup(props) {
+    const file = props.file;
+
+    // watch file for changes
+    watch(() => props.file, () => {
+      console.log(file);
+    });
+
+    // log file and fileType on mount
+    onMounted(() => {
+      console.log(file);
+      console.log(props.fileType);
+    });
+  },
+});
 </script>
 
 <style lang="scss" scoped>

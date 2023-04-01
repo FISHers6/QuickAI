@@ -1,6 +1,6 @@
 <template>
   <div class="chat-window">
-    <!-- <div class="top">
+    <div class="top">
       <el-row style="height: 50px;">
 
         <el-col :span="personInfoSpan[0]">
@@ -32,7 +32,7 @@
         </el-col>
       </el-row>
 
-    </div> -->
+    </div>
     <div v-show="!acqStatus">
       <div class="line"></div>
     </div>
