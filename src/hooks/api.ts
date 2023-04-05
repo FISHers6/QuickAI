@@ -52,14 +52,19 @@ async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boo
         return accumulator;
       }
     }, '');
-    
-    await fetchChatAPIOnce(concatenatedContent, controller, result, options)
-  }
+    console.log(concatenatedContent)
 
+    try {
+      await fetchChatAPIOnce(concatenatedContent, controller, result, options)
+      loading.value = false
+    }catch(error: any) {
+      loading.value = false
+    }
+  }
 }
 
     // 文本对话 检查指令/image 生成图片
-async function fetchChatAPIOnce(message: string, controller:any, result: any, options: any){
+async function fetchChatAPIOnce(message: string, controller: AbortController, result: Ref<String>, options: any){
   await fetchChatAPIProcess<Chat.ConversationResponse>({
     prompt: message,
     options,
@@ -74,10 +79,11 @@ async function fetchChatAPIOnce(message: string, controller:any, result: any, op
         chunk = responseText.substring(lastIndex)
       try {
         const data = JSON.parse(chunk)
-        result = result + data.text ?? ''
+        console.log('data is', data)
+        result.value = result.value + data.text
       }
       catch (error) {
-      //
+        console.log(error)
       }
     },
   })

@@ -27,7 +27,6 @@ tauri-plugin-autostart = { git = "https://github.com/tauri-apps/plugins-workspac
 window-shadows = "0.2.1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-winapi = { version = "0.3.9", features = ["imm"] }
 
 [dependencies.windows-sys]
 version = "0.48"
