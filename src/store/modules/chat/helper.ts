@@ -1,5 +1,5 @@
 import { ss } from '@/utils/storage'
-
+import { Chat } from '@/typings/chat.d'
 const LOCAL_NAME = 'chatStorage'
 
 export function defaultState(): Chat.ChatState {

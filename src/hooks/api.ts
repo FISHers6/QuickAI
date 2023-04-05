@@ -1,9 +1,12 @@
 import { Ref } from 'vue'
 import type { ParsedEvent, ReconnectInterval } from "eventsource-parser"
 import { createParser } from "eventsource-parser"
+import { useSettings } from "@/hooks/useSettings"
 
 import {Chat} from '@/typings/chat'
 import { fetchChatAPIProcess } from '@/api'
+
+import type { SettingsState } from '@/store/modules/settings/helper'
 
 const baseURL = 'api.openai.com'
 
@@ -41,9 +44,14 @@ async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boo
           : error.message.replace(/(sk-\w{5})\w+/g, "$1")
     }
   }else {
-    let options=	{
-      conversationId: '',
-		  parentMessageId: ''
+    const {updateSetting, getSetting} = useSettings()
+    const setting: SettingsState = getSetting()
+    let options =	setting.useChatContext ? {
+      conversationId: setting.conversationRequest?.conversationId,
+      parentMessageId: setting.conversationRequest?.parentMessageId
+    } : {
+        conversationId: '',
+        parentMessageId: ''
     }
     const concatenatedContent = messages.reduce((accumulator, current) => {
       if (current.role === 'user') {
@@ -53,10 +61,26 @@ async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boo
       }
     }, '');
     console.log(concatenatedContent)
-
+    
     try {
-      await fetchChatAPIOnce(concatenatedContent, controller, result, options)
+      const {conversationId, parentMessageId} = await fetchChatAPIOnce(concatenatedContent, controller, result, options)
       loading.value = false
+      if(conversationId !== '' || parentMessageId !== '') {
+        if(setting.useChatContext) {
+          updateSetting({
+            systemMessage: setting.systemMessage,
+            language: setting.language,
+            apiKey: setting.apiKey,
+            proxy: setting.proxy,
+            isDarkMode: setting.isDarkMode,
+            useChatContext: setting.useChatContext,
+            conversationRequest: {
+              conversationId: conversationId,
+              parentMessageId: parentMessageId
+            }
+          })
+        }
+      }
     }catch(error: any) {
       loading.value = false
     }
@@ -65,6 +89,8 @@ async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boo
 
     // 文本对话 检查指令/image 生成图片
 async function fetchChatAPIOnce(message: string, controller: AbortController, result: Ref<String>, options: any){
+  let conversationId: string = ''
+  let parentMessageId: string = ''
   await fetchChatAPIProcess<Chat.ConversationResponse>({
     prompt: message,
     options,
@@ -81,12 +107,15 @@ async function fetchChatAPIOnce(message: string, controller: AbortController, re
         const data = JSON.parse(chunk)
         console.log('data is', data)
         result.value = result.value + data.text
+        conversationId = data.conversationId
+        parentMessageId = data.parentMessageId
       }
       catch (error) {
         console.log(error)
       }
     },
   })
+  return {conversationId, parentMessageId}
 }
 
 // App组件调用方来传参 如何不用Ref做参数也能做到传进一个响应式对象, 目前的实现是把Result和loading都写进来了

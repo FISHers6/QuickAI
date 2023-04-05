@@ -1,15 +1,30 @@
 import { ss } from '@/utils/storage'
+import { Chat } from '@/typings/chat.d'
 
 const LOCAL_NAME = 'settingsStorage'
 
 export interface SettingsState {
   systemMessage: string
+  language: string
+  apiKey: string
+  proxy: string
+  isDarkMode: boolean
+  useChatContext: boolean
+  conversationRequest?: Chat.ConversationRequest
 }
 
 export function defaultSetting(): SettingsState {
-  const currentDate = new Date().toISOString().split('T')[0]
   return {
-    systemMessage: `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.\nKnowledge cutoff: 2021-09-01\nCurrent date: ${currentDate}`,
+    systemMessage: '',
+    language: 'zh',
+    apiKey: '',
+    proxy: '',
+    isDarkMode: true,
+    useChatContext: true,
+    conversationRequest: {
+      conversationId: '',
+      parentMessageId: ''
+    }
   }
 }
 
