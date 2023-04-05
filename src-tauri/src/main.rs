@@ -5,13 +5,15 @@ mod command;
 mod event;
 mod select;
 mod shortcut;
-mod windows;
+mod tauri_windows;
+mod easy_thing;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::sync::Arc;
 use tauri::AppHandle;
 use tauri::Manager;
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -33,10 +35,13 @@ impl AppState {
 }
 
 fn main() {
+    tracing_subscriber::registry()
+    .with(fmt::layer())
+    .init();
+    tracing::info!(start = true);
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             println!("{}, {argv:?}, {cwd}", app.package_info().name);
-            // windows::chatgpt_windows();
         }))
         .invoke_handler(tauri::generate_handler![
             greet,

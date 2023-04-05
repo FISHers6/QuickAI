@@ -25,6 +25,30 @@ parking_lot = "0.12.1"
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 tauri-plugin-autostart = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 window-shadows = "0.2.1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+winapi = { version = "0.3.9", features = ["imm"] }
+
+[dependencies.windows-sys]
+version = "0.48"
+features = [
+    "Win32_UI_Input_Ime", 
+    "Win32_Foundation", 
+    "Win32_Globalization", 
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Foundation",
+    "Win32_UI_Input_KeyboardAndMouse",
+]
+
+[dependencies.windows]
+version = "0.48"
+features = [
+    "Data_Xml_Dom",
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Threading",
+    "Win32_UI_WindowsAndMessaging",
+]
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
