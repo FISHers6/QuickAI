@@ -20,16 +20,19 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
+use std::sync::atomic::AtomicIsize;
 
 pub static APP: OnceCell<AppHandle> = OnceCell::new();
 pub struct AppState {
     pub selected_content: Arc<RwLock<String>>,
+    pub foreground_handle: AtomicIsize,
 }
 
 impl AppState {
     pub fn new() -> Self {
         Self {
             selected_content: Arc::new(RwLock::new(String::new())),
+            foreground_handle: AtomicIsize::new(0),
         }
     }
 }
@@ -46,11 +49,13 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             command::get_selected_content,
+            command::set_size,
         ])
         .setup(|app| {
             APP.get_or_init(|| app.handle());
             let app_handle = app.handle();
             app_handle.manage(AppState::new());
+            
             // 注册全局快捷键
             let _ = shortcut::ShortcutRegister::register_shortcut(&app_handle);
             Ok(())

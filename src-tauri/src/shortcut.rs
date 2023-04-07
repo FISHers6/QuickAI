@@ -15,7 +15,7 @@ impl ShortcutRegister {
             .global_shortcut_manager()
             .register(shortcut, chatgpt::chatgpt_windows)?;
 
-        let easy_thing = "CommandOrControl+Q";
+        let easy_thing = "Shift+Space";
         handle
             .global_shortcut_manager()
             .register(easy_thing, search::search_windows)?;

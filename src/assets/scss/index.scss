@@ -1,0 +1,8 @@
+
+@import './default.scss';
+@import './dark.scss';
+
+html,
+body {
+  background-color: var(--color-ui-bg);
+}

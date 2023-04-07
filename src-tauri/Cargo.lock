@@ -21,6 +21,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "window-shadows",
+ "window-vibrancy",
  "windows 0.48.0",
  "windows-sys 0.48.0",
 ]
@@ -3392,6 +3393,18 @@ name = "window-shadows"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29d30320647cfc3dc45554c8ad825b84831def81f967a2f7589931328ff9b16d"
+dependencies = [
+ "cocoa",
+ "objc",
+ "raw-window-handle",
+ "windows-sys 0.42.0",
+]
+
+[[package]]
+name = "window-vibrancy"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f762d9cc392fb85e6b1b5eed1ef13d73fed5149a5cbb017a7137497d14ef612"
 dependencies = [
  "cocoa",
  "objc",
