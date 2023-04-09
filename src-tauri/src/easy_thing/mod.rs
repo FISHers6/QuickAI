@@ -1,3 +1,2 @@
-
-pub mod input;
 pub mod foreground;
+pub mod input;

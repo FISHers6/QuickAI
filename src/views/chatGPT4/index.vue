@@ -2,7 +2,7 @@
 #ChatGPT4
   .yq
     h4 Your question is:
-    el-input.textarea(:suffix-icon="loading ? Loading : Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown.stop="invokeEnter")
+    el-input.textarea(:suffix-icon="loading ? Loading : Promotion" v-model="question" placeholder="Say something & Enter ... " @keydown.enter.stop="invokeEnter")
   .yq
     .prompts
       el-tag(v-for="tag in promptTags", effect="plain", :key="tag.act", closable, :disable-transitions="false", @close="handleClose(tag)" :class="{ highlight: isSelected(tag) }" @click="handleSelectTag(tag)") {{ tag.act }}
@@ -20,8 +20,8 @@ import Loading from '@/components/loading.vue'
 import type { ElInput } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
-import askChatGPT from '@/hooks/api'
-import GPTParam from '@/hooks/api'
+import { askChatGPTV2 } from '@/hooks/api'
+import type { GPTParamV2 } from '@/hooks/api'
 import { invoke } from '@tauri-apps/api'
 import useClipboard from '@/hooks/useClipboard'
 import { onMounted } from 'vue';
@@ -32,6 +32,7 @@ import { usePromptModeStore } from '@/hooks/store'
 const { question, getSelectedContent } = useClipboard();
 const answer = ref('')
 const loading = ref(false)
+const controller = new AbortController()
 
 const inputValue = ref('')
 const inputVisible = ref(false)
@@ -99,38 +100,69 @@ const askTheQuestion = async () => {
     let AskGPTParam = {
       question: question.value,
       prompts: promptModeStore.getSelectedPrompt,
-      // apiKey: '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'
-      apiKey: ''
+      controller: controller,
     }
-    await askChatGPT(AskGPTParam, answer, loading)
+
+    const callback = (response: string) => {
+        if(loading.value) {
+            loading.value = false
+            if(response) {
+                answer.value = response
+            }
+        }else {
+            if(response) {
+                answer.value = response
+            }
+        }
+    }
+
+    const errorCallback = (error: any) => {
+        loading.value = false
+        console.log(error)
+        controller.abort()
+    }
+
+    await askChatGPTV2(AskGPTParam, callback, errorCallback)
     console.log('ask start end.')
 }
 
-const unlisten = listen('change-selected-content', (event) => {
-    const selected: string = (event.payload as string).trim();
+interface QuestionPayload {
+  question: string,
+  trigger: boolean,
+}
+
+const unlisten = listen('change-question-content', async (event) => {
+    console.log(event)
+    const questionPayload = (event.payload as QuestionPayload)
+    const selected: string = questionPayload.question.trim()
+    const trigger = questionPayload.trigger
+    console.log('selected: ' + selected);
+    console.log(trigger)
     if (selected && selected !== '') {
       question.value = selected
+        
+      if( trigger ) {
+        await askTheQuestion()
+      }
     }
 });
 
-onMounted(async () => {
-  try {
-    await getSelectedContent();
-    if(question.value != undefined && question.value !== '') {
-      // await askTheQuestion()
-    }
-  } catch (error) {
-    console.error(error);
-  }
-});
+// onMounted(async () => {
+//   try {
+//     await getSelectedContent();
+//     if(question.value != undefined && question.value !== '') {
+//       // await askTheQuestion()
+//     }
+//   } catch (error) {
+//     console.error(error);
+//   }
+// });
 
-watchEffect(() => {
-  if (question.value !== '') {
-    console.log(111)
-    console.log(question.value)
-    // await askTheQuestion()
-  }
-});
+// watchEffect(() => {
+//   if (question.value !== '') {
+//     console.log(question.value)
+//   }
+// });
 
 </script>
 

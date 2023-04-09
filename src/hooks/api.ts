@@ -15,82 +15,90 @@ interface GPTMessage {
     content: string
 }
 
-interface GPTParam {
+export interface GPTParam {
   question: string, 
   prompts: string, 
   apiKey: string,
 }
-async function askChatGPT(param: GPTParam, result: Ref<String>, loading: Ref<boolean>) {
+
+export interface GPTParamV2 {
+  question: string, 
+  prompts: string,
+  controller: AbortController,
+}
+
+export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorCallback: Function) {
+  // 判断空请求
   let question = param.question.trim()
   let prompts = param.prompts.trim()
-  if (!question || question === '\n' || question.length === 0) {
+  if (prompts.length === 0 && (question === '\n' || question.length === 0)) {
     return
   }
-  
-  const controller = new AbortController()
-  const messages: GPTMessage[] = [
-      {role: 'system', content: prompts},
-      {role: 'user', content: question}
-  ]
 
-  if(param.apiKey || param.apiKey!=='') {
-      try{
-        await askChatGPTCore(messages, param.apiKey, controller, result)
-        loading.value = false
-    }catch(error: any){
-        loading.value = false
-        result.value = error.message.includes("The user aborted a request")
-          ? ""
-          : error.message.replace(/(sk-\w{5})\w+/g, "$1")
+//   const _messages: GPTMessage[] = [
+//     {role: 'system', content: prompts},
+//     {role: 'user', content: question}
+// ]
+
+// const concatenatedContent = messages.reduce((accumulator, current) => {
+//   if (current.role === 'user') {
+//     return accumulator + current.content;
+//   } else {
+//     return accumulator;
+//   }
+// }, ''); 
+
+// if(param.apiKey || param.apiKey!=='') {
+//   try{
+//     await askChatGPTCore(messages, param.apiKey, controller, result)
+//     loading.value = false
+// }catch(error: any){
+//     loading.value = false
+//     result.value = error.message.includes("The user aborted a request")
+//       ? ""
+//       : error.message.replace(/(sk-\w{5})\w+/g, "$1")
+// }
+// }
+
+  const {updateSetting, getSetting} = useSettings()
+  const setting: SettingsState = getSetting()
+  const apiKey = setting.apiKey
+  const useChatContext = setting.useChatContext
+
+  let options =	useChatContext ? {
+    conversationId: setting.conversationRequest?.conversationId,
+    parentMessageId: setting.conversationRequest?.parentMessageId
+  } : {
+      conversationId: '',
+      parentMessageId: ''
+  }
+
+  const concatenatedContent = prompts.length === 0 ? question : prompts + '.' + question
+  try {
+    const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(concatenatedContent, apiKey, param.controller, options, callback, errorCallback)
+    if(useChatContext && (newConversationId !== '' || newParentMessageId !== '')) {
+        updateSetting({
+          systemMessage: setting.systemMessage,
+          language: setting.language,
+          apiKey: setting.apiKey,
+          proxy: setting.proxy,
+          isDarkMode: setting.isDarkMode,
+          useChatContext: setting.useChatContext,
+          conversationRequest: {
+            conversationId: newConversationId,
+            parentMessageId: newParentMessageId
+          }
+        })
     }
-  }else {
-    const {updateSetting, getSetting} = useSettings()
-    const setting: SettingsState = getSetting()
-    let options =	setting.useChatContext ? {
-      conversationId: setting.conversationRequest?.conversationId,
-      parentMessageId: setting.conversationRequest?.parentMessageId
-    } : {
-        conversationId: '',
-        parentMessageId: ''
-    }
-    const concatenatedContent = messages.reduce((accumulator, current) => {
-      if (current.role === 'user') {
-        return accumulator + current.content;
-      } else {
-        return accumulator;
-      }
-    }, '');
-    console.log(concatenatedContent)
-    
-    try {
-      const {conversationId, parentMessageId} = await fetchChatAPIOnce(concatenatedContent, controller, result, options)
-      loading.value = false
-      if(conversationId !== '' || parentMessageId !== '') {
-        if(setting.useChatContext) {
-          updateSetting({
-            systemMessage: setting.systemMessage,
-            language: setting.language,
-            apiKey: setting.apiKey,
-            proxy: setting.proxy,
-            isDarkMode: setting.isDarkMode,
-            useChatContext: setting.useChatContext,
-            conversationRequest: {
-              conversationId: conversationId,
-              parentMessageId: parentMessageId
-            }
-          })
-        }
-      }
-    }catch(error: any) {
-      loading.value = false
-    }
+  }catch(error: any) {
+    console.log(error)
   }
 }
 
-    // 文本对话 检查指令/image 生成图片
-async function fetchChatAPIOnce(message: string, controller: AbortController, result: Ref<String>, options: any){
-  let conversationId: string = ''
-  let parentMessageId: string = ''
+// 文本对话 检查指令/image 生成图片
+async function fetchChatAPIOnceV2(message: string, apiKey: string, controller: AbortController, options: Chat.ConversationRequest, callback: Function, errorCallback: Function){
+  let newConversationId: string = options.conversationId ? options.conversationId : ''
+  let newParentMessageId: string = options.parentMessageId ? options.parentMessageId : ''
   await fetchChatAPIProcess<Chat.ConversationResponse>({
     prompt: message,
     options,
@@ -105,17 +113,16 @@ async function fetchChatAPIOnce(message: string, controller: AbortController, re
         chunk = responseText.substring(lastIndex)
       try {
         const data = JSON.parse(chunk)
-        console.log('data is', data)
-        result.value = result.value + data.text
-        conversationId = data.conversationId
-        parentMessageId = data.parentMessageId
-      }
-      catch (error) {
+        newConversationId = data.conversationId
+        newParentMessageId = data.parentMessageId
+        callback(data.text)
+      }catch (error) {
         console.log(error)
+        errorCallback(error)
       }
     },
   })
-  return {conversationId, parentMessageId}
+  return {newConversationId, newParentMessageId}
 }
 
 // App组件调用方来传参 如何不用Ref做参数也能做到传进一个响应式对象, 目前的实现是把Result和loading都写进来了
@@ -229,5 +236,3 @@ async function askChatGPTAPI(messages: GPTMessage[], apiKey: string, controller:
 
     return new Response(stream) 
 }
-
-export default askChatGPT

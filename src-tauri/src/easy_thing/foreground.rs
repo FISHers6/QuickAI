@@ -1,12 +1,10 @@
-
-
 pub struct PlatformForeground;
 
 #[cfg(target_os = "windows")]
 mod windows {
     use super::PlatformForeground;
-    use windows_sys::Win32::UI::WindowsAndMessaging::{GetForegroundWindow,SetForegroundWindow};
     use windows_sys::Win32::UI::WindowsAndMessaging::GetWindowThreadProcessId;
+    use windows_sys::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, SetForegroundWindow};
 
     impl PlatformForeground {
         pub fn get_foreground_window() -> isize {
@@ -34,7 +32,4 @@ mod windows {
 }
 
 #[cfg(target_os = "macos")]
-mod mac {
-
-}
-
+mod mac {}

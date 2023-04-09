@@ -29,21 +29,42 @@ pub fn chatgpt_windows() {
     let mut trigger_selected_content_change_event = false;
     if !selected_text.is_empty() {
         let mut select_content_state = state.selected_content.write();
-        if *select_content_state != selected_text{
+        if *select_content_state != selected_text {
             *select_content_state = selected_text;
             trigger_selected_content_change_event = true;
         }
     }
+    let question = if trigger_selected_content_change_event {
+        Some(state.selected_content.read().clone())
+    } else {
+        None
+    };
+    show_quick_answer_window(question, false);
+    if trigger_selected_content_change_event {
+        let _err = crate::event::trigger_question_update(
+            handle,
+            state.selected_content.read().clone(),
+            true,
+        );
+    }
+}
+
+pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
+    let handle = APP.get().unwrap();
     match handle.get_window(CHATGPT_WINDOWS) {
         Some(window) => {
-            if let Ok((x, y)) = current_mouse_position_with_offset() {
-                if cfg!(target_os = "macos") {
-                    let _ = window.set_position(LogicalPosition::new(x as f64, y as f64));
-                } else {
-                    let _ = window.set_position(PhysicalPosition::new(x as f64, y as f64));
-                }
-            } else {
+            if is_center {
                 window.center().unwrap();
+            } else {
+                if let Ok((x, y)) = current_mouse_position_with_offset() {
+                    if cfg!(target_os = "macos") {
+                        let _ = window.set_position(LogicalPosition::new(x as f64, y as f64));
+                    } else {
+                        let _ = window.set_position(PhysicalPosition::new(x as f64, y as f64));
+                    }
+                } else {
+                    window.center().unwrap();
+                }
             }
 
             window.unminimize().unwrap();
@@ -51,29 +72,30 @@ pub fn chatgpt_windows() {
             window.show().unwrap();
         }
         None => {
+            tracing::info!("not found chatgpt window");
             let builder = tauri::WindowBuilder::new(
                 handle,
-                "main",
+                CHATGPT_WINDOWS,
                 tauri::WindowUrl::App("index.html".into()),
             )
             .inner_size(560.0, 600.0)
-            .always_on_top(true)
+            .always_on_top(false)
             .fullscreen(false)
             .decorations(false)
-            .skip_taskbar(true)
-            .focused(true)
-            .center()
-            .title("Ask ChatGPT~");
+            .skip_taskbar(false)
+            .center();
 
             let window = builder.build().unwrap();
-
             #[cfg(any(target_os = "macos", target_os = "windows"))]
             {
                 set_shadow(&window, true).unwrap_or_default();
             }
+            window.unminimize().unwrap();
+            window.set_focus().unwrap();
+            window.show().unwrap();
         }
     }
-    if trigger_selected_content_change_event {
-        let _err = crate::event::trigger_message_update(handle, state.selected_content.read().clone());
+    if let Some(question) = question {
+        let _err = crate::event::trigger_question_update(handle, question, true);
     }
 }
