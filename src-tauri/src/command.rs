@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tauri::{Manager, PhysicalSize, Size, Window, AppHandle};
+use tauri::{Manager, PhysicalSize, Size, Window};
 use tokio::sync::mpsc::UnboundedSender;
 
 #[tauri::command]
@@ -95,12 +95,12 @@ fn get_or_init_auto_input<'a>(state: &'a tauri::State<crate::AppState>) -> &'a U
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Answer {
+pub struct QuestionPayload {
     question: String,
 }
 
 #[tauri::command]
-pub fn run_quick_answer(window: Window, payload: Answer) -> Result<(), String> {
+pub fn run_quick_answer(window: Window, payload: QuestionPayload) -> Result<(), String> {
     tracing::info!(payload =? payload);
     let question = if payload.question.is_empty() {
         None
@@ -109,6 +109,26 @@ pub fn run_quick_answer(window: Window, payload: Answer) -> Result<(), String> {
     };
     let error = std::panic::catch_unwind(|| {
         crate::tauri_windows::chatgpt::show_quick_answer_window(question, true);
+    });
+    if let Err(error) = error {
+        tracing::warn!(panic =? error);
+    } else {
+        window.hide().map_err(|err| format!("{:?}", err))?;
+    }
+    Ok(())
+}
+
+
+#[tauri::command]
+pub fn run_chat_mode(window: Window, payload: QuestionPayload) -> Result<(), String> {
+    tracing::info!(payload =? payload);
+    let question = if payload.question.is_empty() {
+        None
+    } else {
+        Some(payload.question)
+    };
+    let error = std::panic::catch_unwind(|| {
+        crate::tauri_windows::chat::show_chat_windows(question);
     });
     if let Err(error) = error {
         tracing::warn!(panic =? error);

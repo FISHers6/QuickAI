@@ -66,6 +66,7 @@ fn main() {
             command::run_auto_input,
             command::send_auto_input_value,
             command::run_quick_answer,
+            command::run_chat_mode,
         ])
         .setup(|app| {
             tracing::info!(start = true);

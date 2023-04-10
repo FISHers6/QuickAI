@@ -21,6 +21,13 @@ export const useChatStore = defineStore('chat-store', {
         return state.chat.find(item => item.uuid === state.active)?.data ?? []
       }
     },
+
+    getLatestChatID(state: Chat.ChatState) {
+      return () => {
+        const maxUuid = state.chat.reduce((max, current) => Math.max(max, current.uuid || 0), 0);
+        return maxUuid
+      }
+    },
   },
 
   actions: {

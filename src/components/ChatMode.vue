@@ -78,7 +78,7 @@
 import html2canvas from 'html2canvas'
 import Emoji from "@/components/Emoji.vue"
 import FileCard from "@/components/FileCard.vue"
-import MarkdownView from './MarkdownView.vue';
+import MarkdownView from "@/components/MarkdownView.vue"
 import { useChat } from '@/hooks/useChat'
 import { Promotion } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
@@ -90,6 +90,8 @@ import FileMeta from "@/hooks/useFile"
 import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
 import { createImage} from "@/api/index"
+import { listen } from '@tauri-apps/api/event';
+
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const openLongReply = true
 
@@ -99,12 +101,16 @@ const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 // 消息发送控制停止
 let controller = new AbortController()
 
-// 会话id
-const route = useRoute()
-const { uuid } = route.params as { uuid: string }
 
 // 会话内存状态
 const chatStore = useChatStore()
+
+// 会话id
+// const route = useRoute()
+// const { uuid } = route.params as { uuid: string }
+const uuid: number = chatStore.getLatestChatID()
+console.log('uuid: ', uuid)
+
 // 消息内存状态
 const dataSources = computed(() => {
   let chatMessages = chatStore.getChatByUuid(+uuid)
@@ -149,6 +155,16 @@ onMounted(() => {
   console.log(chatContent.value?.scrollHeight)
   scrollToBottom()
 })
+
+const unlisten = listen('change-chat-question-content', async (event) => {
+    console.log(event)
+    const changed_question = (event.payload as string).trim()
+    console.log('trigger question: ' + changed_question);
+    if (changed_question &&changed_question !== '' && prompt.value !== changed_question) {
+      prompt.value = changed_question
+      handleSubmit()
+    }
+});
 
 // 创建会话
 async function onConversation(chatMsg: ChatMsg) {

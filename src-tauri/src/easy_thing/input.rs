@@ -8,11 +8,9 @@ mod windows {
         VK_RETURN, 
     };
     
-    use anyhow::{anyhow, Result};
-    use clipboard::ClipboardContext;
-    use clipboard::ClipboardProvider;
+    use anyhow::Result;
     impl PlatformInput {
-        pub fn send_content(text: &str) {
+        pub fn _send_content(text: &str) {
             unsafe {
                 for ch in text.chars() {
                     let mut input: Vec<INPUT> = Vec::new();
@@ -83,7 +81,7 @@ mod windows {
                 }
             }
         }
-        pub fn send_content_v2(text: &str) {
+        pub fn _send_content_v2(text: &str) {
             unsafe {
                 let mut input: Vec<INPUT> = Vec::new();
                 for ch in text.chars() {
@@ -161,7 +159,7 @@ mod windows {
                 let mut splits = text.split('\n').peekable();
                 while let Some(line) = splits.next() {
                     // 输入一行文本
-                    Self::copy_and_paste(line.to_string())?;
+                    crate::select::copy_and_paste(line.to_string())?;
                     if splits.peek().is_some() {
                         // 如果不是最后一行则输入回车换行符
                         unsafe {
@@ -203,23 +201,8 @@ mod windows {
                     }
                 }
             } else {
-                Self::copy_and_paste(text.to_string())?
+                crate::select::copy_and_paste(text.to_string())?
             };
-            Ok(())
-        }
-
-        pub fn copy_and_paste(text: String) -> Result<()> {
-            let mut cli_pboard: ClipboardContext =
-            ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
-             let old_text = cli_pboard
-                .get_contents()
-                .map_err(|_err| anyhow!("get clipboard content error"))?;
-            if let Ok(_) = cli_pboard.set_contents(text) {
-                std::thread::sleep(std::time::Duration::from_millis(30));
-                crate::select::paste();
-                // 将文本粘贴到当前焦点窗口中
-                cli_pboard.set_contents(old_text).map_err(|_err| anyhow!("set old clipboard error"))?;
-            }
             Ok(())
         }
 

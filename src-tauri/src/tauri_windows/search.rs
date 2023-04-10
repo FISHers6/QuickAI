@@ -10,7 +10,7 @@ use crate::easy_thing::foreground::PlatformForeground;
 use crate::APP;
 #[cfg(target_os = "macos")]
 use window_vibrancy::NSVisualEffectMaterial;
-pub const SEARCH_WINDOS: &str = "search_windows";
+pub const SEARCH_WINDOWS: &str = "search_windows";
 
 pub fn search_windows() {
     let foreground_handle = PlatformForeground::get_foreground_window();
@@ -22,7 +22,7 @@ pub fn search_windows() {
             .foreground_handle
             .store(foreground_handle, Ordering::SeqCst);
     }
-    match handle.get_window(SEARCH_WINDOS) {
+    match handle.get_window(SEARCH_WINDOWS) {
         Some(window) => {
             tracing::info!("has search window");
             window.unminimize().unwrap();
@@ -33,7 +33,7 @@ pub fn search_windows() {
             tracing::info!("not found search window");
             let windows = tauri::WindowBuilder::new(
                 handle,
-                SEARCH_WINDOS,
+                SEARCH_WINDOWS,
                 tauri::WindowUrl::App("search.html".into()),
             )
             .title("Search")

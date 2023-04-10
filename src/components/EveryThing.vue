@@ -105,8 +105,11 @@ const clickItem = async (item: SearchItem) => {
     if(item.name.includes('解放双手') || item.name.includes('自动输入') ) {
         await invokeEnter()
     }else if(item.name === '对话模式') {
+        if (question.value.trim().length > 0) {
+            invoke('run_chat_mode', { payload: { 'question': question.value } })
+        }
     }else if(item.name === '快捷问答') {
-        if (question.value.length > 0) {
+        if (question.value.trim().length > 0) {
             invoke('run_quick_answer', { payload: { 'question': question.value } })
         }else {
             // show tip
