@@ -20,8 +20,7 @@ pub fn show_chat_windows(question: Option<String>) {
             window.show().unwrap();
         }
         None => {
-            tracing::info!("not found chat window");
-            let windows = tauri::WindowBuilder::new(
+            let _windows = tauri::WindowBuilder::new(
                 handle,
                 CHAT_WINDOWS,
                 tauri::WindowUrl::App("chat.html".into()),
@@ -35,12 +34,18 @@ pub fn show_chat_windows(question: Option<String>) {
             .skip_taskbar(false)
             .inner_size(440.0, 540.0)
             .center()
+            .focused(true)
             .build()
             .unwrap();
         }
     }
     if let Some(question) = question {
-        let _err = crate::event::trigger_question_update(handle, question, true);
+        state.spawn_delay_task(async {
+            let handle = APP.get().unwrap();
+            if let Err(err) = crate::event::trigger_chat_question_update(handle, question) {
+                tracing::warn!(err =? err);
+            }
+        }, std::time::Duration::from_millis(2000));
     }
 }
 

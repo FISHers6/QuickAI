@@ -27,7 +27,6 @@
     "highlight.js": "^11.7.0",
     "katex": "^0.16.4",
     "markdown-it": "^13.0.1",
-    "naive-ui": "^2.34.3",
     "vue-i18n": "^9.2.2"
   },
   "devDependencies": {

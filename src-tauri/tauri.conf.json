@@ -13,7 +13,7 @@
   "tauri": {
     "macOSPrivateApi": true,
     "allowlist": {
-      "all": false,
+      "all": true,
       "shell": {
         "all": false,
         "open": true
@@ -48,7 +48,7 @@
         "width": 560,
         "height": 600,
         "center": true,
-        "decorations": true,
+        "decorations": false,
         "transparent": true
       }
     ]

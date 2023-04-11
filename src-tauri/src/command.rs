@@ -39,7 +39,7 @@ pub struct AutoInput {
 }
 
 #[tauri::command]
-pub fn run_auto_input(window: Window, payload: AutoInput) -> Result<(), String> {
+pub async fn run_auto_input(window: Window, payload: AutoInput) -> Result<(), String> {
     tracing::info!(payload =? payload);
     window.hide().map_err(|err| format!("{:?}", err))?;
     crate::tauri_windows::search::show_foreground_window();
@@ -54,7 +54,7 @@ pub fn run_auto_input(window: Window, payload: AutoInput) -> Result<(), String> 
 }
 
 #[tauri::command]
-pub fn send_auto_input_value(payload: AutoInput) -> Result<(), String> {
+pub async fn send_auto_input_value(payload: AutoInput) -> Result<(), String> {
     tracing::info!(payload =? payload);
     let handle = crate::APP.get().unwrap();
     let state: tauri::State<crate::AppState> = handle.state();
@@ -100,7 +100,7 @@ pub struct QuestionPayload {
 }
 
 #[tauri::command]
-pub fn run_quick_answer(window: Window, payload: QuestionPayload) -> Result<(), String> {
+pub async fn run_quick_answer(window: Window, payload: QuestionPayload) -> Result<(), String> {
     tracing::info!(payload =? payload);
     let question = if payload.question.is_empty() {
         None
@@ -120,7 +120,7 @@ pub fn run_quick_answer(window: Window, payload: QuestionPayload) -> Result<(), 
 
 
 #[tauri::command]
-pub fn run_chat_mode(window: Window, payload: QuestionPayload) -> Result<(), String> {
+pub async fn run_chat_mode(window: Window, payload: QuestionPayload) -> Result<(), String> {
     tracing::info!(payload =? payload);
     let question = if payload.question.is_empty() {
         None
@@ -136,4 +136,11 @@ pub fn run_chat_mode(window: Window, payload: QuestionPayload) -> Result<(), Str
         window.hide().map_err(|err| format!("{:?}", err))?;
     }
     Ok(())
+}
+
+#[tauri::command]
+pub async fn close_window(window: Window) {
+    if let Err(err) = window.close() {
+        tracing::warn!(close_window =? err)
+    }
 }

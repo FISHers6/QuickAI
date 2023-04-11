@@ -1,10 +1,12 @@
 <template lang='pug'>
 #Tools 
   el-button(type="primary") Plus
-  el-popover(popper-class="tools-list")
-    template(#reference)
-      el-icon.tool-more(color="var(--el-color-primary)" size="24" @click="dialogFormVisible = true")
-        MoreFilled
+  .tools-list
+    el-icon.tool-more(color="var(--el-color-primary)" size="24" @click="dialogFormVisible = true")
+      Setting
+  .tools-list
+    el-icon.tool-more(color="var(--el-color-primary)" size="24" @click="closeQuickAskWindow")
+      CircleClose
 #Setting 
   el-dialog.dialog(v-model="dialogFormVisible" title="设置")
     el-form.dialog-form(:model="form")
@@ -30,10 +32,11 @@
         el-button(type="primary" @click="submitSetting") 确认
 </template>
 <script lang='ts' setup>
-import { MoreFilled } from '@element-plus/icons-vue'
+import { MoreFilled, CircleClose, Setting  } from '@element-plus/icons-vue'
 import { setLink, removeLink } from '@/utils'
 import { reactive, ref } from 'vue'
 import { useSettings } from '@/hooks/useSettings'
+import { invoke } from '@tauri-apps/api'
 
 const { updateSetting, getSetting } = useSettings()
 
@@ -71,6 +74,10 @@ const submitSetting = () => {
     },
   }
   updateSetting(settings)
+}
+
+const closeQuickAskWindow = () => {
+  invoke('close_window')
 }
 
 </script>

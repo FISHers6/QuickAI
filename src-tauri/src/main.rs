@@ -15,7 +15,7 @@ use tauri::AppHandle;
 use tauri::Manager;
 use tokio::sync::mpsc::UnboundedSender;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
-
+use std::time::Duration;
 use std::sync::atomic::AtomicIsize;
 use tokio::runtime::Runtime;
 use tokio::task::JoinHandle;
@@ -52,6 +52,17 @@ impl AppState {
     {
         self.runtime.spawn(async move { task() })
     }
+
+    pub fn spawn_delay_task<F>(&self, future: F, delay_time: Duration) -> JoinHandle<F::Output>
+    where
+        F: std::future::Future + Send + 'static,
+        F::Output: Send + 'static,
+    {
+        self.runtime.spawn(async move {
+            tokio::time::sleep(delay_time).await;
+            future.await
+        })
+    }
 }
 
 fn main() {
@@ -67,6 +78,7 @@ fn main() {
             command::send_auto_input_value,
             command::run_quick_answer,
             command::run_chat_mode,
+            command::close_window,
         ])
         .setup(|app| {
             tracing::info!(start = true);

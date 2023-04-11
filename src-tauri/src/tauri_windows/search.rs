@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering;
 
 use crate::AppState;
-use tauri::Manager;
+use tauri::{Manager, WindowEvent};
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use window_shadows::set_shadow;
 use window_vibrancy;
@@ -44,6 +44,7 @@ pub fn search_windows() {
             .maximized(false)
             .skip_taskbar(true)
             .inner_size(400.0, 199.0)
+            .focused(true)
             .center()
             .build()
             .unwrap();
@@ -61,6 +62,7 @@ pub fn search_windows() {
             {
                 set_shadow(&windows, true).unwrap_or_default();
             }
+            windows.on_window_event(hide_window_when_lose_focused);
         }
     }
 
@@ -74,4 +76,16 @@ pub fn show_foreground_window() {
     let state: tauri::State<AppState> = handle.state();
     let foreground_handle = state.foreground_handle.load(Ordering::SeqCst);
     PlatformForeground::set_foreground_window(foreground_handle);
+}
+
+
+fn hide_window_when_lose_focused(event: &WindowEvent) {
+    if let WindowEvent::Focused(focused) = event {
+        if !focused {
+            let handle = APP.get().unwrap();
+            if let Some(window) = handle.get_window(SEARCH_WINDOWS) {
+                let _ = window.hide();
+            }
+        }
+    }
 }

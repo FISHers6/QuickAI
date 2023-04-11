@@ -16,3 +16,9 @@ pub fn trigger_question_update(handle: &AppHandle, question: String, trigger: bo
     tracing::info!("trigger changed");
     Ok(())
 }
+
+pub fn trigger_chat_question_update(handle: &AppHandle, question: String) -> Result<()> {
+    handle.emit_all("change-chat-question-content", question)?;
+    tracing::info!("trigger changed");
+    Ok(())
+}

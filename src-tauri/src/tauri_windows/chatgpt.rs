@@ -51,6 +51,7 @@ pub fn chatgpt_windows() {
 
 pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
     let handle = APP.get().unwrap();
+    let state: tauri::State<AppState> = handle.state();
     match handle.get_window(CHATGPT_WINDOWS) {
         Some(window) => {
             if is_center {
@@ -95,7 +96,13 @@ pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
             window.show().unwrap();
         }
     }
+
     if let Some(question) = question {
-        let _err = crate::event::trigger_question_update(handle, question, true);
+        state.spawn_delay_task(async {
+            let handle = APP.get().unwrap();
+            if let Err(err) = crate::event::trigger_question_update(handle, question, true) {
+                tracing::warn!(err =? err);
+            }
+        }, std::time::Duration::from_millis(2000));
     }
 }

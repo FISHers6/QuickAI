@@ -1,5 +1,5 @@
 <template>
-    <div class="SearchBox">
+    <div class="SearchBox" data-tauri-drag-region>
         <!-- 添加图标click事件 -->
         <el-input  class="searchInput" v-model="question" :suffix-icon="loading ? Loading : Promotion"  placeholder="Say something & Enter ... " @keydown.enter.stop="invokeEnter"></el-input>
         <div class="searchResults">
