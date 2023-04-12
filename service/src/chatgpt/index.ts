@@ -144,7 +144,7 @@ async function chatReplyProcess(options: RequestOptions) {
       user_proxy_api = api
     }
 
-    const response = await api.sendMessage(message, {
+    const response = await user_proxy_api.sendMessage(message, {
       ...options,
       onProgress: (partialResponse) => {
         process?.(partialResponse)

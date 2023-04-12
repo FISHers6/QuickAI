@@ -20,8 +20,9 @@ import Loading from '@/components/loading.vue'
 import type { ElInput } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
-import { askChatGPTV2 } from '@/hooks/api'
+import { askChatGPTV2, } from '@/hooks/api'
 import type { GPTParamV2 } from '@/hooks/api'
+import type { GPTResponse } from '@/hooks/api'
 import { invoke } from '@tauri-apps/api'
 import useClipboard from '@/hooks/useClipboard'
 import { onMounted } from 'vue';
@@ -103,16 +104,14 @@ const askTheQuestion = async () => {
       controller: controller,
     }
 
-    const callback = (response: string) => {
+    const callback = (response: GPTResponse) => {
         if(loading.value) {
             loading.value = false
             if(response) {
-                answer.value = response
+                answer.value = response.content
             }
         }else {
-            if(response) {
-                answer.value = response
-            }
+            answer.value = response.content
         }
     }
 

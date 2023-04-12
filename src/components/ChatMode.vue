@@ -91,6 +91,9 @@ import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
 import { createImage} from "@/api/index"
 import { listen } from '@tauri-apps/api/event';
+import { askChatGPTV2 } from '@/hooks/api'
+import type { GPTParamV2 } from '@/hooks/api'
+import type { GPTResponse } from '@/hooks/api'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const openLongReply = true
@@ -268,60 +271,99 @@ async function onConversation(chatMsg: ChatMsg) {
       })
     }
 
+    /*
     // 文本对话 检查指令/image 生成图片
-    const fetchChatAPIOnce = async () => {
-      await fetchChatAPIProcess<Chat.ConversationResponse>({
-        prompt: message,
-        options,
-        signal: controller.signal,
-        onDownloadProgress: ({ event }) => {
-          const xhr = event.target
-          const { responseText } = xhr
-          // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
-          try {
-            const data = JSON.parse(chunk)
-            updateChat(
-              +uuid,
-              dataSources.value.length - 1,
-              {
-                dateTime: new Date().toLocaleString(),
-                text: lastText + data.text ?? '',
-                inversion: false,
-                messageType: 0,
-                error: false,
-                loading: false,
-                conversationOptions: { conversationId: data.conversationId, parentMessageId: data.id },
-                requestOptions: { prompt: message, options: { ...options } },
-              },
-            )
+      const fetchChatAPIOnce = async () => {
+        await fetchChatAPIProcess<Chat.ConversationResponse>({
+          prompt: message,
+          options,
+          signal: controller.signal,
+          onDownloadProgress: ({ event }) => {
+            const xhr = event.target
+            const { responseText } = xhr
+            // Always process the final line
+            const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
+            let chunk = responseText
+            if (lastIndex !== -1)
+              chunk = responseText.substring(lastIndex)
+            try {
+              const data = JSON.parse(chunk)
+              updateChat(
+                +uuid,
+                dataSources.value.length - 1,
+                {
+                  dateTime: new Date().toLocaleString(),
+                  text: lastText + data.text ?? '',
+                  inversion: false,
+                  messageType: 0,
+                  error: false,
+                  loading: false,
+                  conversationOptions: { conversationId: data.conversationId, parentMessageId: data.id },
+                  requestOptions: { prompt: message, options: { ...options } },
+                },
+              )
 
-            if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
-              options.parentMessageId = data.id
-              lastText = data.text
-              message = ''
-              return fetchChatAPIOnce()
+              if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
+                options.parentMessageId = data.id
+                lastText = data.text
+                message = ''
+                return fetchChatAPIOnce()
+              }
+
+              scrollToBottomIfAtBottom()
             }
-
-            scrollToBottomIfAtBottom()
-          }
-          catch (error) {
-          //
-          }
-        },
-      })
-    }
-
+            catch (error) {
+            //
+            }
+          },
+        })
+      }
+    */
     // 图片: 调用改图api 
 
     // 文件: 解析成文本, 再调用文本对话
     if(message.startsWith('/image') || message.startsWith('/img') || message.startsWith('/生成图片') || message.startsWith('/图片生成') || message.startsWith('/图片 ')) {
       genImageAPI(message, 1, "240x240")
     }else {
-      await fetchChatAPIOnce()
+      const param: GPTParamV2 = {
+        question: message,
+        prompts: '',
+        controller: controller,
+    }
+
+    const callback = (response: GPTResponse) => {
+        if(loading.value) {
+          loading.value = false
+        }
+        console.log(response)
+        lastText = response.content
+        updateChat(
+          +uuid,
+          dataSources.value.length - 1,
+          {
+            dateTime: new Date().toLocaleString(),
+            text: response.content,
+            inversion: false,
+            messageType: 0,
+            error: false,
+            loading: false,
+            conversationOptions: { conversationId: response.newConversationId, parentMessageId: response.newParentMessageId },
+            requestOptions: { prompt: message, options: { ...options } },
+          },
+        )
+        options.conversationId = response.newParentMessageId
+        options.parentMessageId = response.newParentMessageId
+        scrollToBottomIfAtBottom()
+    }
+
+      const errorCallback = (error: any) => {
+          console.log(error)
+          controller.abort()
+          loading.value = false
+      }
+
+      // 文本对话
+      await askChatGPTV2(param, callback, errorCallback)
     }
   }
   catch (error: any) {

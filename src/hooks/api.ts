@@ -27,6 +27,12 @@ export interface GPTParamV2 {
   controller: AbortController,
 }
 
+export interface GPTResponse {
+  content: string,
+  newConversationId: string,
+  newParentMessageId: string,
+}
+
 export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorCallback: Function) {
   // 判断空请求
   let question = param.question.trim()
@@ -77,7 +83,7 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
   if(apiKey.trim().length === 0) {
     question = prompts.length === 0 ? question : prompts + '.' + question
   }
-  
+
   try {
     const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(question, prompts, apiKey, param.controller, options, callback, errorCallback)
     if(useChatContext && (newConversationId !== '' || newParentMessageId !== '')) {
@@ -121,7 +127,13 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
         const data = JSON.parse(chunk)
         newConversationId = data.conversationId
         newParentMessageId = data.parentMessageId
-        callback(data.text)
+        let content = data.text
+        let response: GPTResponse =  {
+          content: content,
+          newConversationId: newConversationId, 
+          newParentMessageId: newParentMessageId,
+        }
+        callback(response)
       }catch (error) {
         console.log(error)
         errorCallback(error)

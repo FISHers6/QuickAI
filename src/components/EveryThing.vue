@@ -18,6 +18,8 @@ import SearchList from '@/components/SearchList.vue'
 import smilingFaceWithSunglasses from "@/assets/img/emoji/smiling-face-with-sunglasses.png"
 import { askChatGPTV2 } from '@/hooks/api'
 import type { GPTParamV2 } from '@/hooks/api'
+import type { GPTResponse } from '@/hooks/api'
+
 import { ElMessage } from 'element-plus'
 
 interface Icon {
@@ -142,12 +144,12 @@ const invokeEnter = async () => {
     }
     let hasError = false
     
-    const callback = (response: string) => {
+    const callback = (response: GPTResponse) => {
         if(loading.value) {
             loading.value = false
             console.log(response)
             if(response) {
-                answer.value = response
+                answer.value = response.content
                 try {
                     invoke('run_auto_input', { payload: { response } })
                 }catch(error: any) {
@@ -160,7 +162,7 @@ const invokeEnter = async () => {
             }
         }else {
             if(response) {
-                answer.value = response
+                answer.value = response.content
                 try {
                     invoke('send_auto_input_value', { payload: { response } })
                     question.value = ''
