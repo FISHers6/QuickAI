@@ -348,7 +348,11 @@ async function onConversation(chatMsg: ChatMsg) {
             error: false,
             loading: false,
             conversationOptions: { conversationId: response.newConversationId, parentMessageId: response.newParentMessageId },
-            requestOptions: { prompt: message, options: { ...options } },
+            requestOptions: { prompt: message, options: {
+              conversationId: response.newConversationId,
+		          parentMessageId: response.newParentMessageId
+            }
+            },
           },
         )
         options.conversationId = response.newParentMessageId
@@ -406,7 +410,7 @@ async function onConversation(chatMsg: ChatMsg) {
         inversion: false,
         error: true,
         loading: false,
-        conversationOptions: null,
+        conversationOptions: { ...options },
         requestOptions: { prompt: message, options: { ...options } },
         messageType: 0,
       },
