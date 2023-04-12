@@ -23,18 +23,19 @@ export interface GPTParam {
 
 export interface GPTParamV2 {
   question: string, 
-  prompts: string,
+  prompts?: string, // not use
   controller: AbortController,
 }
 
 export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorCallback: Function) {
   // 判断空请求
   let question = param.question.trim()
-  let prompts = param.prompts.trim()
+  let prompts: string = param.prompts ? param.prompts.trim() : ''
   if (prompts.length === 0 && (question === '\n' || question.length === 0)) {
     return
   }
 
+// client fetch request
 //   const _messages: GPTMessage[] = [
 //     {role: 'system', content: prompts},
 //     {role: 'user', content: question}
@@ -73,9 +74,12 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
       parentMessageId: ''
   }
 
-  const concatenatedContent = prompts.length === 0 ? question : prompts + '.' + question
+  if(apiKey.trim().length === 0) {
+    question = prompts.length === 0 ? question : prompts + '.' + question
+  }
+  
   try {
-    const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(concatenatedContent, apiKey, param.controller, options, callback, errorCallback)
+    const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(question, prompts, apiKey, param.controller, options, callback, errorCallback)
     if(useChatContext && (newConversationId !== '' || newParentMessageId !== '')) {
         updateSetting({
           systemMessage: setting.systemMessage,
@@ -96,12 +100,14 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
 }
 
 // 文本对话 检查指令/image 生成图片
-async function fetchChatAPIOnceV2(message: string, apiKey: string, controller: AbortController, options: Chat.ConversationRequest, callback: Function, errorCallback: Function){
+async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: string, controller: AbortController, options: Chat.ConversationRequest, callback: Function, errorCallback: Function){
   let newConversationId: string = options.conversationId ? options.conversationId : ''
   let newParentMessageId: string = options.parentMessageId ? options.parentMessageId : ''
   await fetchChatAPIProcess<Chat.ConversationResponse>({
-    prompt: message,
+    question: question,
+    prompt: prompt,
     options,
+    apiKey: apiKey,
     signal: controller.signal,
     onDownloadProgress: ({ event }) => {
       const xhr = event.target

@@ -5,4 +5,5 @@ export interface RequestOptions {
   lastContext?: { conversationId?: string; parentMessageId?: string }
   process?: (chat: ChatMessage) => void
   systemMessage?: string
+  apiKey?: string
 }

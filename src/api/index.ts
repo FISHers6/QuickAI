@@ -1,6 +1,6 @@
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
 import { post } from '@/utils/request'
-import { useSettingStore } from '@/store'
+// import { useSettingStore } from '@/store'
 
 // 根据提示创建图像
 // export const createImage = (params, token) => {
@@ -101,16 +101,18 @@ export function fetchChatConfig<T = any>() {
 
 export function fetchChatAPIProcess<T = any>(
   params: {
+    question: string,
     prompt: string
     options?: { conversationId?: string; parentMessageId?: string }
+    apiKey?: string
     signal?: GenericAbortSignal
-    onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void },
+    onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void 
+  },
 ) {
-  const settingStore = useSettingStore()
 
   return post<T>({
     url: '/chat-process',
-    data: { prompt: params.prompt, options: params.options, systemMessage: settingStore.systemMessage },
+    data: { prompt: params.question, options: params.options, systemMessage: params.prompt, apiKey: params.apiKey},
     signal: params.signal,
     onDownloadProgress: params.onDownloadProgress,
   })

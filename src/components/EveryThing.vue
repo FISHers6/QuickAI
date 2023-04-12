@@ -187,15 +187,15 @@ const invokeEnter = async () => {
 
     // 文本对话
     await askChatGPTV2(param, callback, errorCallback)
-    if(!hasError && answer.value.length > 0) {
-        let response = answer.value
+    // if(!hasError && answer.value.length > 0) {
+        // let response = answer.value
         // invoke('send_auto_input_value', { payload: { response } })
         // 设置粘贴板
         // ElMessage({
         //     message: '已将回答拷贝到粘贴板~',
         //     type: 'success',
         // })
-    }
+    // }
 }
 
 </script>
