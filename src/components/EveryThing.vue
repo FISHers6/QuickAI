@@ -16,9 +16,9 @@ import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import SearchList from '@/components/SearchList.vue'
 import smilingFaceWithSunglasses from "@/assets/img/emoji/smiling-face-with-sunglasses.png"
-import { askChatGPTV2 } from '@/hooks/api'
-import type { GPTParamV2 } from '@/hooks/api'
-import type { GPTResponse } from '@/hooks/api'
+import { askChatGPTV2 } from '@/hooks/useApi'
+import type { GPTParamV2 } from '@/hooks/useApi'
+import type { GPTResponse } from '@/hooks/useApi'
 
 import { ElMessage } from 'element-plus'
 

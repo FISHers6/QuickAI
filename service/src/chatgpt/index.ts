@@ -4,7 +4,9 @@ import type { ChatGPTAPIOptions, ChatMessage, SendMessageOptions } from 'chatgpt
 import { ChatGPTAPI, ChatGPTUnofficialProxyAPI } from 'chatgpt'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import httpsProxyAgent from 'https-proxy-agent'
+import proxy from "https-proxy-agent";
 import fetch from 'node-fetch'
+import nodeFetch from "node-fetch"
 import axios from 'axios'
 import { sendResponse } from '../utils'
 import { isNotEmptyString } from '../utils/is'
@@ -33,6 +35,7 @@ if (!isNotEmptyString(process.env.OPENAI_API_KEY) && !isNotEmptyString(process.e
 
   
 const OPENAI_API_BASE_URL = process.env.OPENAI_API_BASE_URL
+const OPENAI_API_PROXY = process.env.API_PROXY
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 (async () => {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
@@ -66,8 +69,19 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
       options.apiBaseUrl = `${OPENAI_API_BASE_URL}/v1`
 
     setupProxy(options)
+    api = new ChatGPTAPI({     
+      fetch: isNotEmptyString(OPENAI_API_PROXY) ? (url, options = {}) => {
+        const defaultOptions = {
+          agent: proxy(OPENAI_API_PROXY),
+        };
 
-    api = new ChatGPTAPI({ ...options })
+        const mergedOptions = {
+          ...defaultOptions,
+          ...options,
+        };
+
+      return nodeFetch(url, mergedOptions);
+    }: fetch, ...options })
     apiModel = 'ChatGPTAPI'
   }
   else {
@@ -90,7 +104,7 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 })()
 
 async function chatReplyProcess(options: RequestOptions) {
-  const { message, lastContext, process, systemMessage, apiKey } = options
+  const { message, lastContext, process, systemMessage, apiKey, userProxy } = options
   try {
     let options: SendMessageOptions = { timeoutMs }
 
@@ -138,7 +152,27 @@ async function chatReplyProcess(options: RequestOptions) {
       console.log('use user api key')
       console.log(options)
 
-      user_proxy_api = new ChatGPTAPI({ ...options })
+      let user_agent_proxy: null | string = null
+      if(isNotEmptyString(userProxy)) {
+        user_agent_proxy = userProxy
+      }else {
+        user_agent_proxy = isNotEmptyString(OPENAI_API_PROXY) ? OPENAI_API_PROXY : null
+      }
+      console.log('user_agent_proxy', user_agent_proxy)
+
+      user_proxy_api = new ChatGPTAPI({     
+        fetch: isNotEmptyString(user_agent_proxy) ? (url, options = {}) => {
+          const defaultOptions = {
+            agent: proxy(user_agent_proxy),
+          };
+  
+          const mergedOptions = {
+            ...defaultOptions,
+            ...options,
+          };
+  
+        return nodeFetch(url, mergedOptions);
+      }: fetch, ...options })
     }else {
       console.log('use backend api key')
       user_proxy_api = api

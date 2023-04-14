@@ -91,9 +91,9 @@ import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
 import { createImage} from "@/api/index"
 import { listen } from '@tauri-apps/api/event';
-import { askChatGPTV2 } from '@/hooks/api'
-import type { GPTParamV2 } from '@/hooks/api'
-import type { GPTResponse } from '@/hooks/api'
+import { askChatGPTV2 } from '@/hooks/useApi'
+import type { GPTParamV2 } from '@/hooks/useApi'
+import type { GPTResponse } from '@/hooks/useApi'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const openLongReply = true
@@ -364,6 +364,23 @@ async function onConversation(chatMsg: ChatMsg) {
           console.log(error)
           controller.abort()
           loading.value = false
+          console.log('error callback: ' + error)
+
+          updateChat(
+            +uuid,
+            dataSources.value.length - 1,
+            {
+              dateTime: new Date().toLocaleString(),
+              text: error as string,
+              inversion: false,
+              error: true,
+              loading: false,
+              conversationOptions: { ...options },
+              requestOptions: { prompt: message, options: { ...options } },
+              messageType: 0,
+            },
+          )
+          scrollToBottomIfAtBottom()
       }
 
       // 文本对话

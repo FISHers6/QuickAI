@@ -5,6 +5,7 @@ export interface RequestProps {
   options?: ChatContext
   systemMessage: string
   apiKey?: string
+  userProxy?: string
 }
 
 export interface ChatContext {

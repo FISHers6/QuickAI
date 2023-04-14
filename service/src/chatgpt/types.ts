@@ -6,4 +6,5 @@ export interface RequestOptions {
   process?: (chat: ChatMessage) => void
   systemMessage?: string
   apiKey?: string
+  userProxy?: string
 }

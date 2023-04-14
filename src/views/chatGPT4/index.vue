@@ -20,16 +20,19 @@ import Loading from '@/components/loading.vue'
 import type { ElInput } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
-import { askChatGPTV2, } from '@/hooks/api'
-import type { GPTParamV2 } from '@/hooks/api'
-import type { GPTResponse } from '@/hooks/api'
+import { askChatGPTV2,  } from '@/hooks/useApi'
+import { askChatGPTCore  } from '@/hooks/useApi'
+
+import type { GPTParamV2 } from '@/hooks/useApi'
+import type { GPTResponse } from '@/hooks/useApi'
 import { invoke } from '@tauri-apps/api'
 import useClipboard from '@/hooks/useClipboard'
 import { onMounted } from 'vue';
 import { listen } from '@tauri-apps/api/event';
 
 import { usePromptModeStore } from '@/hooks/store'
-
+import { useSettings } from "@/hooks/useSettings"
+import type { SettingsState } from '@/store/modules/settings/helper'
 const { question, getSelectedContent } = useClipboard();
 const answer = ref('')
 const loading = ref(false)
@@ -118,11 +121,35 @@ const askTheQuestion = async () => {
     const errorCallback = (error: any) => {
         loading.value = false
         console.log(error)
+        answer.value = error as string
         controller.abort()
     }
 
     await askChatGPTV2(AskGPTParam, callback, errorCallback)
     console.log('ask start end.')
+}
+
+const client_request_api = async () => {
+  const messages = [
+      {role: 'system', content: promptModeStore.getSelectedPrompt},
+      {role: 'user', content: question.value}
+    ]
+
+    const {getSetting} = useSettings()
+    const setting: SettingsState = getSetting()
+    const apiKey = setting.apiKey
+
+    if (apiKey && apiKey!=='') {
+      try{
+        await askChatGPTCore(messages, apiKey, controller, answer)
+        loading.value = false
+      }catch(error: any){
+        loading.value = false
+        answer.value = error.message.includes("The user aborted a request")
+          ? ""
+          : error.message.replace(/(sk-\w{5})\w+/g, "$1")
+      }
+    }
 }
 
 interface QuestionPayload {

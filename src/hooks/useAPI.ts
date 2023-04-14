@@ -34,43 +34,17 @@ export interface GPTResponse {
 }
 
 export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorCallback: Function) {
-  // 判断空请求
   let question = param.question.trim()
   let prompts: string = param.prompts ? param.prompts.trim() : ''
   if (prompts.length === 0 && (question === '\n' || question.length === 0)) {
     return
   }
 
-// client fetch request
-//   const _messages: GPTMessage[] = [
-//     {role: 'system', content: prompts},
-//     {role: 'user', content: question}
-// ]
-
-// const concatenatedContent = messages.reduce((accumulator, current) => {
-//   if (current.role === 'user') {
-//     return accumulator + current.content;
-//   } else {
-//     return accumulator;
-//   }
-// }, ''); 
-
-// if(param.apiKey || param.apiKey!=='') {
-//   try{
-//     await askChatGPTCore(messages, param.apiKey, controller, result)
-//     loading.value = false
-// }catch(error: any){
-//     loading.value = false
-//     result.value = error.message.includes("The user aborted a request")
-//       ? ""
-//       : error.message.replace(/(sk-\w{5})\w+/g, "$1")
-// }
-// }
-
   const {updateSetting, getSetting} = useSettings()
   const setting: SettingsState = getSetting()
   const apiKey = setting.apiKey
   const useChatContext = setting.useChatContext
+  const userProxy = setting.proxy
 
   let options =	useChatContext ? {
     conversationId: setting.conversationRequest?.conversationId,
@@ -81,11 +55,11 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
   }
 
   if(apiKey.trim().length === 0) {
-    question = prompts.length === 0 ? question : prompts + '.' + question
+    question = prompts.trim().length === 0 ? question : prompts.trim() + '.' + question
   }
 
   try {
-    const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(question, prompts, apiKey, param.controller, options, callback, errorCallback)
+    const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(question, prompts, apiKey, userProxy, param.controller, options, callback, errorCallback)
     if(useChatContext && (newConversationId !== '' || newParentMessageId !== '')) {
         updateSetting({
           systemMessage: setting.systemMessage,
@@ -106,7 +80,7 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
 }
 
 // 文本对话 检查指令/image 生成图片
-async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: string, controller: AbortController, options: Chat.ConversationRequest, callback: Function, errorCallback: Function){
+async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: string, userProxy: string, controller: AbortController, options: Chat.ConversationRequest, callback: Function, errorCallback: Function){
   let newConversationId: string = options.conversationId ? options.conversationId : ''
   let newParentMessageId: string = options.parentMessageId ? options.parentMessageId : ''
   await fetchChatAPIProcess<Chat.ConversationResponse>({
@@ -114,6 +88,7 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
     prompt: prompt,
     options,
     apiKey: apiKey,
+    userProxy: userProxy,
     signal: controller.signal,
     onDownloadProgress: ({ event }) => {
       const xhr = event.target
@@ -123,8 +98,13 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
       let chunk = responseText
       if (lastIndex !== -1)
         chunk = responseText.substring(lastIndex)
+      console.log(chunk)
       try {
         const data = JSON.parse(chunk)
+        if(data.status === "Fail") {
+          errorCallback(data.message)
+          return
+        }
         newConversationId = data.conversationId
         newParentMessageId = data.parentMessageId
         let content = data.text
@@ -144,7 +124,7 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
 }
 
 // App组件调用方来传参 如何不用Ref做参数也能做到传进一个响应式对象, 目前的实现是把Result和loading都写进来了
-async function askChatGPTCore(messages: GPTMessage[], apiKey: string, controller: AbortController, result: Ref<String>) {  
+  export async function askChatGPTCore(messages: GPTMessage[], apiKey: string, controller: AbortController, result: Ref<String>) {  
   let response = await askChatGPTAPI(messages, apiKey, controller)
     if (!response.ok) {
         const res = await response.json()

@@ -32,7 +32,7 @@
         el-button(type="primary" @click="submitSetting") 确认
 </template>
 <script lang='ts' setup>
-import { MoreFilled, CircleClose, Setting  } from '@element-plus/icons-vue'
+import { MoreFilled, CircleClose, Setting } from '@element-plus/icons-vue'
 import { setLink, removeLink } from '@/utils'
 import { reactive, ref } from 'vue'
 import { useSettings } from '@/hooks/useSettings'
