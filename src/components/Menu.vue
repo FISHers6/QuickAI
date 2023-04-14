@@ -10,11 +10,11 @@ import { useRoute, useRouter } from 'vue-router';
 const router = useRouter()
 const route = useRoute()
 
-const activeName = ref('chatgpt4')
+const activeName = ref('quickask')
 
 const menuData = ref([{
-  label: 'ChatGPT 4.0',
-  name: '/home/chatgpt4',
+  label: '快捷提问',
+  name: '/home/quickask',
 }, {
   label: '快捷指令',
   name: '/home/prompt',

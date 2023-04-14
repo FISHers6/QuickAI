@@ -2,50 +2,11 @@
 <template lang="pug">
 #Home
   Layouts
-  //- el-container.bg-slate-50
-    el-header.header-border
-      el-menu.menu-style(:default-active='activeIndex', mode='horizontal', :ellipsis='false', @select='handleMenuSelect')
-        el-menu-item(index='0') ChatGPT 4.0
-        //- .flex-grow
-        el-menu-item(index='1') Edit Prompts
-        el-sub-menu(index='2')
-          template(#title) More
-          el-menu-item(index='2-1') API Key
-          el-sub-menu(index='2-2')
-            template(#title) Dark
-            el-menu-item(index='2-2-1') Light
-            el-menu-item(index='2-2-2') Dark
-    //- el-main
-      .textarea-container
-        .textarea-tip Your selected context is copied below:
-        el-row(justify='start')
-          el-input.textarea-bg(v-model='textarea', :autosize='{ minRows: 2, maxRows: 4 }', type='textarea', placeholder='Your selected content').
-      .prompt-container.border-slate-300.rounded-lg
-        el-row(justify='start')
-          el-col
-            el-autocomplete(v-model='state1', :fetch-suggestions='querySearch', clearable, placeholder='Ask ChatGPT. Ex: Write an email reply in yoda style', @select='handleSelect').
-        el-row(justify='start')
-          el-col.prompt-button-container
-            //- el-button.prompt-button(v-for='button in buttons', :key='button.text', :type='button.type', text, bg) {{ button.text }}
-      .result-container
-        el-row.say-tip(justify='space-between')
-          el-col(:span='20') ChatGPT Says:
-          el-col(:span='4')
-            el-icon
-              Refresh
-            el-icon
-              CopyDocument
-        el-row(justify='start')
-          //  <el-empty description="description" /> 
-          el-skeleton(v-if='loading', :rows='4', animated)
-          el-text.mx-1.result-text(v-else) {{response}}
-  </template>
+</template>
   
   
   
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import { Edit, Search, Share, Setting, CopyDocument, Refresh, SetUp } from '@element-plus/icons-vue'
 import Layouts from '@/layouts/index.vue'
 

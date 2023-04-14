@@ -83,7 +83,7 @@ import { useChat } from '@/hooks/useChat'
 import { Promotion } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 import { useChatStore, usePromptStore } from '@/store'
-import { fetchChatAPIProcess } from '@/api'
+import { fetchChatAPIProcess } from '@/hooks/useAPI'
 import { useScroll } from '@/hooks/useScroll'
 import { getFile, getFileMeta} from "@/hooks/useFile"
 import FileMeta from "@/hooks/useFile"
@@ -91,9 +91,9 @@ import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
 import { createImage} from "@/api/index"
 import { listen } from '@tauri-apps/api/event';
-import { askChatGPTV2 } from '@/hooks/useApi'
-import type { GPTParamV2 } from '@/hooks/useApi'
-import type { GPTResponse } from '@/hooks/useApi'
+import { askChatGPTV2 } from '@/hooks/useAPI'
+import type { GPTParamV2 } from '@/hooks/useAPI'
+import type { GPTResponse } from '@/hooks/useAPI'
 
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const openLongReply = true

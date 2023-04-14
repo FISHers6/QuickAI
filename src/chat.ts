@@ -1,6 +1,6 @@
 
 import { createApp } from "vue";
-import App from "@/ChatWindow.vue"
+import App from "@/views/singalChat/index.vue"
 import ElementPlus from 'element-plus'
 import VueHighlightJS from 'vue3-highlightjs'
 
