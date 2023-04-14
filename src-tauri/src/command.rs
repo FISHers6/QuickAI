@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tauri::{Manager, PhysicalSize, Size, Window};
+use tauri::{Manager, Size, Window, LogicalSize};
 use tokio::sync::mpsc::UnboundedSender;
 
 #[tauri::command]
@@ -26,11 +26,11 @@ pub struct SetSizePayload {
 pub fn set_size(window: Window, payload: SetSizePayload) {
     tracing::info!(payload =? payload);
     window
-        .set_size(Size::Physical(PhysicalSize::new(
-            payload.width,
-            payload.height,
-        )))
-        .unwrap();
+    .set_size(Size::Logical(LogicalSize::new(
+        payload.width as f64,
+        payload.height as f64,
+    )))
+    .unwrap();
 }
 
 #[derive(Serialize, Deserialize, Debug)]

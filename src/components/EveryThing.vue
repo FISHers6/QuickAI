@@ -123,6 +123,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
     const width = body.clientWidth;
     const height = body.clientHeight;
+    console.log(width, height)
     invoke('set_size', { payload: { width, height } });
 });
 
