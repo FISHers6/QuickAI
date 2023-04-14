@@ -4,15 +4,16 @@
     "beforeBuildCommand": "npm run build",
     "devPath": "http://localhost:1420",
     "distDir": "../dist",
-    "withGlobalTauri": false
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "ChatGPT-PC",
     "version": "0.0.0"
   },
   "tauri": {
+    "macOSPrivateApi": true,
     "allowlist": {
-      "all": false,
+      "all": true,
       "shell": {
         "all": false,
         "open": true
@@ -43,10 +44,12 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "ChatGPT-PC",
+        "title": "QuickAI",
         "width": 560,
         "height": 600,
-        "center": true
+        "center": true,
+        "decorations": false,
+        "transparent": true
       }
     ]
   }

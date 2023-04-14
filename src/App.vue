@@ -1,9 +1,21 @@
-<template lang='pug'>
-router-view 
+
+<template>
+  <RouterView />
 </template>
 
 <script setup lang="ts">
-  onMounted(() => {
-    // if (localStorage?.mode == 'lignt') document.documentElement.classList.add('theme-light')
-  })
 </script>
+
+<style lang="scss">
+@import url(./assets/font/iconfont.css);
+.iconfont {
+  font-family: "iconfont" !important;
+  font-style: normal;
+  font-size: 25px;
+  vertical-align: middle;
+  color: rgb(117,120,137);
+  transition: .3s;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>

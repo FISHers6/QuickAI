@@ -1,4 +1,4 @@
-use crate::windows;
+use crate::tauri_windows::{chatgpt, search, chat};
 use anyhow::Result;
 use tauri::AppHandle;
 use tauri::GlobalShortcutManager;
@@ -13,7 +13,18 @@ impl ShortcutRegister {
         let shortcut = "CommandOrControl+D";
         handle
             .global_shortcut_manager()
-            .register(shortcut, windows::chatgpt_windows)?;
+            .register(shortcut, chatgpt::chatgpt_windows)?;
+
+        let easy_thing = "Shift+Space";
+        handle
+            .global_shortcut_manager()
+            .register(easy_thing, search::search_windows)?;
+
+        let chat_shortcut = "Shift+C";
+        handle
+            .global_shortcut_manager()
+            .register(chat_shortcut, chat::chat_windows)?;
+
         Ok(())
     }
 }

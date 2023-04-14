@@ -95,14 +95,14 @@ const handleSelectItem = (item: any) => {
 
 const openPromptNotification = (mode: string) => {
   ElMessage({
-    message: 'enable ' + mode,
+    message: '开启指令: ' + mode,
     type: 'success',
   })
 }
 
 const closePromptNotification = (mode: string) => {
   ElMessage({
-    message: 'close ' + mode,
+    message: '关闭指令: ' + mode,
     type: 'warning',
   })
 }

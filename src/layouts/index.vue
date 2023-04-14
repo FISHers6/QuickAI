@@ -1,5 +1,5 @@
 <template lang='pug'>
-el-container#Layouts
+el-container#Layouts.titlebar(data-tauri-drag-region)
   Header
   Main
 </template>

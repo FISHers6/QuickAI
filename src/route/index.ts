@@ -6,43 +6,50 @@ import {
 } from 'vue-router'
 
 import Home from '@/views/home/index.vue'
+import quickAsk from '@/views/quickAsk/index.vue'
+import Prompt from '@/views/prompt/index.vue'
+import Chat from '@/views/chatwin/index.vue'
 
-import ChatGPT4 from '@/views/chatGPT4/index.vue'
-import Test from '@/views/testPage/index.vue'
+import type { App } from 'vue'
+import { setupPageGuard } from './permission'
 
 export const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/home/chatgpt4',
-  },
-  {
-    path: '/home',
-    redirect: '/home/chatgpt4',
+    redirect: '/home/quickask',
   },
   {
     path: '/home',
     component: Home,
+    redirect: '/home/quickask',
     meta: {
       title: 'Home',
     },
     children: [
       {
-        path: 'chatgpt4',
-        component: ChatGPT4,
+        path: 'quickask',
+        component: quickAsk,
         meta: {
-          title: 'ChatGPT4.0',
+          title: '快捷提问',
         },
       },
       {
         path: 'prompt',
-        component: Test,
+        component: Prompt,
         meta: {
           title: '功能场景',
         },
       },
+      {
+        path: 'chatwin',
+        component: Chat,
+        meta: {
+          title: '对话模式',
+        },
+      },
     ],
   },
-]
+];
 
 class Router {
   router: () => any
@@ -62,4 +69,15 @@ class Router {
   }
 }
 
-export default new Router().router()
+export const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+  scrollBehavior: () => ({ left: 0, top: 0 }),
+})
+
+// setupPageGuard(router)
+
+export async function setupRouter(app: App) {
+  app.use(router)
+  await router.isReady()
+}

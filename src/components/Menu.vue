@@ -10,19 +10,25 @@ import { useRoute, useRouter } from 'vue-router';
 const router = useRouter()
 const route = useRoute()
 
-const activeName = ref('chatgpt4')
+const activeName = ref('quickask')
 
 const menuData = ref([{
-  label: 'ChatGPT 4.0',
-  name: 'chatgpt4',
+  label: '快捷提问',
+  name: '/home/quickask',
 }, {
-  label: '功能场景',
-  name: 'prompt',
+  label: '快捷指令',
+  name: '/home/prompt',
+},
+{
+  label: '会话模式',
+  name: '/home/chatwin',
 },
 ])
 
 const handleClick = (val: any) => {
-  router.push({ path: `${val.props.name}` })
+  console.log(val)
+  console.log(val.props)
+  router.push({ path: `${val.props.name}`, replace: true })
 }
 
 onBeforeMount(() => {
