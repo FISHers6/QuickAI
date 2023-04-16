@@ -8,7 +8,8 @@ import {
 import Home from '@/views/home/index.vue'
 
 import ChatGPT4 from '@/views/chatGPT4/index.vue'
-import Test from '@/views/testPage/index.vue'
+import Func from '@/views/testPage/index.vue'
+import Test from '@/views/test.vue'
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -35,13 +36,18 @@ export const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'prompt',
-        component: Test,
+        component: Func,
         meta: {
           title: '功能场景',
         },
       },
+      {
+        path: 'test',
+        component: Test,
+      },
     ],
   },
+
 ]
 
 class Router {
