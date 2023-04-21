@@ -140,7 +140,7 @@ pub async fn run_chat_mode(window: Window, payload: QuestionPayload) -> Result<(
 
 #[tauri::command]
 pub async fn close_window(window: Window) {
-    if let Err(err) = window.close() {
+    if let Err(err) = window.hide() {
         tracing::warn!(close_window =? err)
     }
 }

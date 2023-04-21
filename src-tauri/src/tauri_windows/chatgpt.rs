@@ -10,7 +10,7 @@ use mouse_position::mouse_position::Mouse;
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use window_shadows::set_shadow;
 
-const CHATGPT_WINDOWS: &'static str = "main";
+pub const CHATGPT_WINDOWS: &'static str = "main";
 const MOUSE_OFFSET_X: i32 = 20;
 const MOUSE_OFFSET_Y: i32 = 0;
 

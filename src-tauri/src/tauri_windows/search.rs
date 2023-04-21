@@ -47,10 +47,10 @@ pub fn search_windows() {
             .focused(true)
             .center()
             .build()
-            .unwrap();
+            .expect("build windows error not happened");
             // 仅在 macOS 下执行
             #[cfg(target_os = "macos")]
-            window_vibrancy::apply_vibrancy(&windows, NSVisualEffectMaterial::FullScreenUI)
+            window_vibrancy::apply_vibrancy(&windows, NSVisualEffectMaterial::UltraDark, None, None)
                 .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
 
             // 仅在 windows 下执行
@@ -65,10 +65,6 @@ pub fn search_windows() {
             windows.on_window_event(hide_window_when_lose_focused);
         }
     }
-
-    // let content = "public class Main {\npublic static void main(String[] args) {\nSystem.out.println(\"Hello, world!\");\n}\n}";
-    // PlatformForeground::set_foreground_window(foreground_handle);
-    // PlatformInput::send_content(content);
 }
 
 pub fn show_foreground_window() {

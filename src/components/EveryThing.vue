@@ -152,6 +152,7 @@ const invokeEnter = async () => {
             if(response) {
                 answer.value = response.content
                 try {
+                    let response = answer.value
                     invoke('run_auto_input', { payload: { response } })
                 }catch(error: any) {
                     hasError = true
@@ -165,6 +166,7 @@ const invokeEnter = async () => {
             if(response) {
                 answer.value = response.content
                 try {
+                    let response = answer.value
                     invoke('send_auto_input_value', { payload: { response } })
                     question.value = ''
                 }catch(error: any) {

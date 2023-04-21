@@ -7,6 +7,7 @@ mod event;
 mod select;
 mod shortcut;
 mod tauri_windows;
+mod task;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
@@ -90,14 +91,14 @@ fn main() {
 
             // 注册全局快捷键
             let _ = shortcut::ShortcutRegister::register_shortcut(&app_handle);
-
+            task::register_task(&app_handle);
             Ok(())
         })
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
         .run(|app_handle, event| match event {
             tauri::RunEvent::WindowEvent { label, event, .. } => {
-                if label == "main" {
+                if label == crate::tauri_windows::chatgpt::CHATGPT_WINDOWS {
                     if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                         tracing::info!(label = label, prevent_close = true);
                         if let Some(main_window) = app_handle.get_window(&label) {
