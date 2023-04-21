@@ -62,7 +62,7 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
 
   try {
     const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(question, prompts, apiKey, userProxy, param.controller, options, callback, errorCallback)
-    if(useChatContext && (newConversationId !== '' || newParentMessageId !== '')) {
+    if(useChatContext && newConversationId && newParentMessageId && (newConversationId !== '' || newParentMessageId !== '')) {
         updateSetting({
           systemMessage: setting.systemMessage,
           language: setting.language,
@@ -103,13 +103,14 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
       console.log(chunk)
       try {
         const data = JSON.parse(chunk)
-        if(data.status === "Fail") {
+        if(data.status === "Fail" || !data.parentMessageId || data.parentMessageId === '') {
           errorCallback(data.message)
           return
         }
-        newConversationId = data.conversationId
+        newConversationId = data.id
         newParentMessageId = data.parentMessageId
         let content = data.text
+        console.log('content: ', content)
         let response: GPTResponse =  {
           content: content,
           newConversationId: newConversationId, 

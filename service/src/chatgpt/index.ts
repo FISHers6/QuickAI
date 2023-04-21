@@ -105,6 +105,16 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
 async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage, apiKey, userProxy } = options
+
+  let user_agent_proxy: null | string = null
+  if(isNotEmptyString(userProxy)) {
+    user_agent_proxy = userProxy
+  }else {
+    user_agent_proxy = isNotEmptyString(OPENAI_API_PROXY) ? OPENAI_API_PROXY : null
+  }
+
+  // add visit url custom in options
+  
   try {
     let options: SendMessageOptions = { timeoutMs }
 
@@ -151,14 +161,6 @@ async function chatReplyProcess(options: RequestOptions) {
 
       console.log('use user api key')
       console.log(options)
-
-      let user_agent_proxy: null | string = null
-      if(isNotEmptyString(userProxy)) {
-        user_agent_proxy = userProxy
-      }else {
-        user_agent_proxy = isNotEmptyString(OPENAI_API_PROXY) ? OPENAI_API_PROXY : null
-      }
-      console.log('user_agent_proxy', user_agent_proxy)
 
       user_proxy_api = new ChatGPTAPI({     
         fetch: isNotEmptyString(user_agent_proxy) ? (url, options = {}) => {
