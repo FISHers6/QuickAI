@@ -106,13 +106,6 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 async function chatReplyProcess(options: RequestOptions) {
   const { message, lastContext, process, systemMessage, apiKey, userProxy } = options
 
-  let user_agent_proxy: null | string = null
-  if(isNotEmptyString(userProxy)) {
-    user_agent_proxy = userProxy
-  }else {
-    user_agent_proxy = isNotEmptyString(OPENAI_API_PROXY) ? OPENAI_API_PROXY : null
-  }
-
   // add visit url custom in options
   
   try {
@@ -158,14 +151,16 @@ async function chatReplyProcess(options: RequestOptions) {
       
       if (isNotEmptyString(OPENAI_API_BASE_URL))
         options.apiBaseUrl = `${OPENAI_API_BASE_URL}/v1`
+      if (isNotEmptyString(userProxy))
+        options.apiBaseUrl = `${userProxy}/v1`
 
       console.log('use user api key')
       console.log(options)
 
       user_proxy_api = new ChatGPTAPI({     
-        fetch: isNotEmptyString(user_agent_proxy) ? (url, options = {}) => {
+        fetch: isNotEmptyString(OPENAI_API_PROXY) ? (url, options = {}) => {
           const defaultOptions = {
-            agent: proxy(user_agent_proxy),
+            agent: proxy(OPENAI_API_PROXY),
           };
   
           const mergedOptions = {
