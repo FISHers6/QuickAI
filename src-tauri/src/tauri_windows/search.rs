@@ -26,8 +26,8 @@ pub fn search_windows() {
         Some(window) => {
             tracing::info!("has search window");
             window.unminimize().unwrap();
-            window.set_focus().unwrap();
             window.show().unwrap();
+            window.set_focus().unwrap();
         }
         None => {
             tracing::info!("not found search window");
@@ -62,7 +62,6 @@ pub fn search_windows() {
             {
                 set_shadow(&windows, true).unwrap_or_default();
             }
-            windows.on_window_event(hide_window_when_lose_focused);
         }
     }
 }
@@ -72,16 +71,4 @@ pub fn show_foreground_window() {
     let state: tauri::State<AppState> = handle.state();
     let foreground_handle = state.foreground_handle.load(Ordering::SeqCst);
     PlatformForeground::set_foreground_window(foreground_handle);
-}
-
-
-fn hide_window_when_lose_focused(event: &WindowEvent) {
-    if let WindowEvent::Focused(focused) = event {
-        if !focused {
-            let handle = APP.get().unwrap();
-            if let Some(window) = handle.get_window(SEARCH_WINDOWS) {
-                let _ = window.hide();
-            }
-        }
-    }
 }

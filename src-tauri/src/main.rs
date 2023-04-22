@@ -11,6 +11,7 @@ mod task;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
+use tauri::WindowEvent;
 use std::sync::Arc;
 use tauri::AppHandle;
 use tauri::Manager;
@@ -105,6 +106,16 @@ fn main() {
                             let _ = main_window.hide();
                         }
                         api.prevent_close()
+                    }
+                }else if label == crate::tauri_windows::select::SELECT_WINDOWS 
+                    || label == crate::tauri_windows::search::SEARCH_WINDOWS {
+                    if let WindowEvent::Focused(focused) = event {
+                        tracing::info!(label = label, focused = focused);
+                        if !focused {
+                            if let Some(window) = app_handle.get_window(&label) {
+                                let _ = window.hide();
+                            }
+                        }
                     }
                 }
             }
