@@ -81,6 +81,9 @@ fn main() {
             command::run_quick_answer,
             command::run_chat_mode,
             command::close_window,
+            command::open_setting_window,
+            command::hide_select_window,
+            command::copy_select_content,
         ])
         .setup(|app| {
             tracing::info!(start = true);

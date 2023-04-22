@@ -2,14 +2,8 @@ use std::sync::atomic::Ordering;
 
 use crate::AppState;
 use tauri::{Manager, WindowEvent, LogicalPosition, PhysicalPosition};
-#[cfg(any(target_os = "macos", target_os = "windows"))]
-use window_shadows::set_shadow;
-use window_vibrancy;
-
 use crate::easy_thing::foreground::PlatformForeground;
 use crate::APP;
-#[cfg(target_os = "macos")]
-use window_vibrancy::NSVisualEffectMaterial;
 pub const SELECT_WINDOWS: &str = "select_windows";
 pub const SELECT_WINDOWS_WIDTH: f64 = 240.0;
 pub const SELECT_WINDOWS_HEIGHT: f64 = 80.0;
@@ -69,4 +63,16 @@ fn hide_window_when_lose_focused(event: &WindowEvent) {
             }
         }
     }
+}
+
+
+pub fn hide_select_window() {
+    let handle = APP.get().unwrap();
+    if let Some(window) = handle.get_window(SELECT_WINDOWS) {
+       let _ = window.hide();
+    }
+}
+
+pub fn copy_select_content() {
+    
 }

@@ -11,6 +11,7 @@ export interface SettingsState {
   isDarkMode: boolean
   useChatContext: boolean
   conversationRequest?: Chat.ConversationRequest
+  mode: string
 }
 
 export function defaultSetting(): SettingsState {
@@ -24,7 +25,8 @@ export function defaultSetting(): SettingsState {
     conversationRequest: {
       conversationId: '',
       parentMessageId: ''
-    }
+    },
+    mode: '快捷提问'
   }
 }
 

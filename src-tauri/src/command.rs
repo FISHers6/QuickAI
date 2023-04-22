@@ -144,3 +144,18 @@ pub async fn close_window(window: Window) {
         tracing::warn!(close_window =? err)
     }
 }
+
+#[tauri::command]
+pub async fn open_setting_window(_window: Window) {
+    crate::tauri_windows::settings::build_setting_window();
+}
+
+#[tauri::command]
+pub async fn hide_select_window(_window: Window) {
+    crate::tauri_windows::select::hide_select_window();
+}
+
+#[tauri::command]
+pub async fn copy_select_content(_window: Window) {
+    crate::tauri_windows::select::copy_select_content();
+}

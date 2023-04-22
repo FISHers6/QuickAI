@@ -21,6 +21,8 @@ pub fn register_task(handle: &AppHandle) {
                 match event.event_type {
                     EventType::ButtonPress(Button::Left) => {
                         if let Ok((mouse_position_x, mouse_position_y)) = get_mouse_position() {
+                            
+                            tracing::info!(mouse_position_x = mouse_position_x);
                             select_listen.last_mouse_position_x = mouse_position_x;
                             select_listen.last_mouse_position_y = mouse_position_y;
                         }
