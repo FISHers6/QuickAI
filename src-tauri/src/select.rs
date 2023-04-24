@@ -138,3 +138,9 @@ pub fn copy_and_paste(text: String) -> Result<()> {
     }
     Ok(())
 }
+
+pub fn copy_content(content: String) -> Result<()>{
+    let mut cli_pboard: ClipboardContext = ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
+    cli_pboard.set_contents(content).map_err(|err| anyhow!(format!("copy content failed: {}", err)))?;
+    Ok(())
+}

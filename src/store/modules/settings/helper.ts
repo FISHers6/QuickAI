@@ -12,6 +12,9 @@ export interface SettingsState {
   useChatContext: boolean
   conversationRequest?: Chat.ConversationRequest
   mode: string
+  quickAskShortcut: string,
+  searchShortcut: string,
+  chatShortcut: string,
 }
 
 export function defaultSetting(): SettingsState {
@@ -26,7 +29,10 @@ export function defaultSetting(): SettingsState {
       conversationId: '',
       parentMessageId: ''
     },
-    mode: '快捷提问'
+    mode: '快捷提问',
+    quickAskShortcut: "CommandOrControl+Alt+D",
+    searchShortcut: "Shift+Alt+Space",
+    chatShortcut: "Shift+Alt+C",
   }
 }
 

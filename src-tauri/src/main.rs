@@ -8,6 +8,7 @@ mod select;
 mod shortcut;
 mod tauri_windows;
 mod task;
+mod app_config;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
@@ -84,6 +85,9 @@ fn main() {
             command::open_setting_window,
             command::hide_select_window,
             command::copy_select_content,
+            command::update_shortcut,
+            command::update_app_config,
+            command::trigger_select_click,
         ])
         .setup(|app| {
             tracing::info!(start = true);

@@ -31,6 +31,7 @@ import _ from 'lodash'
 import { useSettings } from '@/hooks/useSettings'
 import { invoke } from '@tauri-apps/api'
 import { ElMessage } from 'element-plus'
+import { fromJSON } from 'postcss'
 
 const { updateSetting, getSetting } = useSettings()
 
@@ -65,9 +66,27 @@ const debouncedSubmitSetting = _.debounce(() => {
     language: form.language,
     systemMessage: form.systemMessage,
     isDarkMode: form.isDarkMode,
-    mode: form.mode
+    mode: form.mode,
+    quickAskShortcut: "CommandOrControl+Alt+D",
+    searchShortcut: "Shift+Alt+Space",
+    chatShortcut: "Shift+Alt+C",
   }
   updateSetting(settings)
+  let appConfig: AppConfig = {
+    quickAskShortcut: settings.quickAskShortcut,
+    searchShortcut: settings.searchShortcut,
+    chatShortcut: settings.chatShortcut,
+    mode: settings.mode,
+    isDarkMode: settings.isDarkMode,
+    language: settings.language,
+    apiKey: settings.apiKey,
+    proxy: settings.proxy,
+    useChatContext: settings.useChatContenxt,
+  };
+  // 修改配置
+  invoke('update_app_config',  { payload: appConfig})
+  // 修改快捷键
+  invoke('update_shortcut')
   ElMessage({
     message: '修改成功' ,
     type: 'success',
@@ -75,22 +94,18 @@ const debouncedSubmitSetting = _.debounce(() => {
 }, 800) // 在这里设置了一个500毫秒的时间窗口
 
 
-const submitSetting = () => {
-  let settings = {
-    apiKey: form.api_key,
-    proxy: form.proxy,
-    useChatContenxt: form.useChatContenxt,
-    language: form.language,
-    systemMessage: form.systemMessage,
-    isDarkMode: form.isDarkMode,
-    mode: form.mode
-  }
-  updateSetting(settings)
-  ElMessage({
-    message: '修改成功' ,
-    type: 'success',
-  })
+interface AppConfig {
+  quickAskShortcut: String | null,
+  searchShortcut: String | null,
+  chatShortcut: String | null,
+  mode: String | null,
+  isDarkMode: boolean,
+  language: String,
+  apiKey: String,
+  proxy: String,
+  useChatContext: boolean,
 }
+
 
 const closeQuickAskWindow = () => {
   invoke('close_window')

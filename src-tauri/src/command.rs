@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tauri::{Manager, Size, Window, LogicalSize};
+use tauri::{Size, Window, LogicalSize};
 use tokio::sync::mpsc::UnboundedSender;
 
 #[tauri::command]
@@ -42,31 +42,18 @@ pub struct AutoInput {
 pub async fn run_auto_input(window: Window, payload: AutoInput) -> Result<(), String> {
     tracing::info!(payload =? payload);
     window.hide().map_err(|err| format!("{:?}", err))?;
-    crate::tauri_windows::search::show_foreground_window();
-
-    let handle = crate::APP.get().unwrap();
-    let state: tauri::State<crate::AppState> = handle.state();
-    let answer_sender = get_or_init_auto_input(&state);
-    answer_sender
-        .send(payload.response)
-        .map_err(|err| format!("{:?}", err))?;
+    crate::easy_thing::send_auto_input_value(payload.response)?;
     Ok(())
 }
 
 #[tauri::command]
 pub async fn send_auto_input_value(payload: AutoInput) -> Result<(), String> {
     tracing::info!(payload =? payload);
-    let handle = crate::APP.get().unwrap();
-    let state: tauri::State<crate::AppState> = handle.state();
-    let answer_sender = get_or_init_auto_input(&state);
-    answer_sender
-        .send(payload.response)
-        .map_err(|err| format!("{:?}", err))?;
+        crate::easy_thing::send_auto_input_value(payload.response)?;
     Ok(())
 }
 
-
-fn get_or_init_auto_input<'a>(state: &'a tauri::State<crate::AppState>) -> &'a UnboundedSender<String> {
+pub fn get_or_init_auto_input<'a>(state: &'a tauri::State<crate::AppState>) -> &'a UnboundedSender<String> {
     let answer_sender = state.auto_input_sender.get_or_init(|| {
         let (answer_sender, mut answer_receiver) = tokio::sync::mpsc::unbounded_channel::<String>();
         let _ = state.spawn_future(async move {
@@ -156,6 +143,27 @@ pub async fn hide_select_window(_window: Window) {
 }
 
 #[tauri::command]
-pub async fn copy_select_content(_window: Window) {
-    crate::tauri_windows::select::copy_select_content();
+pub async fn copy_select_content(payload: String) -> Result<(), String> {
+    crate::select::copy_content(payload).map_err(|err| format!("{:?}", err))
+}
+
+
+#[tauri::command]
+pub fn update_shortcut() -> Result<(), String> {
+    let handle = crate::APP.get().ok_or("can't get app handle")?;
+    crate::shortcut::ShortcutRegister::register_shortcut(handle).map_err(|err| format!("register short cut error :{}", err))?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn update_app_config(payload: crate::app_config::AppConfig) -> Result<(), String> {
+    tracing::info!(app_config =? payload);
+    crate::app_config::save_app_config(&payload)
+}
+
+#[tauri::command] 
+pub async fn trigger_select_click(handle: tauri::AppHandle, payload: crate::tauri_windows::select::SelectPayload) -> Result<(), String> {
+    tracing::info!(select_click_payload =?payload);
+    crate::tauri_windows::select::click_select(&handle, payload).map_err(|err| format!("trigger select click error {:?}", err))?;
+    Ok(())
 }

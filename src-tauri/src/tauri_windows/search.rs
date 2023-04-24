@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering;
 
 use crate::AppState;
-use tauri::{Manager, WindowEvent};
+use tauri::Manager;
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use window_shadows::set_shadow;
 use window_vibrancy;
