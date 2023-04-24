@@ -4,6 +4,54 @@
 </template>
 
 <script setup lang="ts">
+import { listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api'
+import { askChatGPTV2 } from '@/hooks/useAPI'
+import type { GPTParamV2 } from '@/hooks/useAPI'
+import type { GPTResponse } from '@/hooks/useAPI'
+
+interface TriggerChatAPI {
+  question: string,
+  prompt: string,
+}
+
+const unlisten = listen('trigger-send-chat-api', async (event) => {
+    console.log(event)
+    const payload = event.payload as TriggerChatAPI
+    let question = payload.question.trim()
+    if (question && question.length >= 2) {
+      send_chat_api(question, payload.prompt)
+    }
+});
+
+const send_chat_api =  async (question: string, prompts: string) => {
+    const controller = new AbortController()
+
+    const param: GPTParamV2 = {
+        question: question,
+        prompts: prompts,
+        controller: controller,
+    }
+    
+    const callback = (response: GPTResponse) => {
+          console.log(response)
+          if(response) {
+              try {
+                  invoke('run_auto_input', { payload: { 'response':  response.content } })
+              }catch(error: any) {
+                  controller.abort()
+              }
+              console.log(response.content)
+          }
+    }
+
+    const errorCallback = (error: any) => {
+        console.log(error)
+        controller.abort()
+    }
+
+    await askChatGPTV2(param, callback, errorCallback)
+}
 </script>
 
 <style lang="scss">

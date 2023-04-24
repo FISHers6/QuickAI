@@ -68,10 +68,6 @@ const submitSetting = () => {
     language: form.language,
     systemMessage: form.systemMessage,
     isDarkMode: isDarkMode.value,
-    conversationRequest: form.useChatContenxt ? currentSetting.conversationRequest : {
-      conversationId: '',
-		  parentMessageId: ''
-    },
   }
   updateSetting(settings)
 }

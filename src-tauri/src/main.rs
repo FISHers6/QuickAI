@@ -8,9 +8,11 @@ mod select;
 mod shortcut;
 mod tauri_windows;
 mod task;
+mod app_config;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
+use tauri::WindowEvent;
 use std::sync::Arc;
 use tauri::AppHandle;
 use tauri::Manager;
@@ -80,6 +82,12 @@ fn main() {
             command::run_quick_answer,
             command::run_chat_mode,
             command::close_window,
+            command::open_setting_window,
+            command::hide_select_window,
+            command::copy_select_content,
+            command::update_shortcut,
+            command::update_app_config,
+            command::trigger_select_click,
         ])
         .setup(|app| {
             tracing::info!(start = true);
@@ -105,6 +113,16 @@ fn main() {
                             let _ = main_window.hide();
                         }
                         api.prevent_close()
+                    }
+                }else if label == crate::tauri_windows::select::SELECT_WINDOWS 
+                    || label == crate::tauri_windows::search::SEARCH_WINDOWS {
+                    if let WindowEvent::Focused(focused) = event {
+                        tracing::info!(label = label, focused = focused);
+                        if !focused {
+                            if let Some(window) = app_handle.get_window(&label) {
+                                let _ = window.hide();
+                            }
+                        }
                     }
                 }
             }

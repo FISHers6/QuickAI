@@ -60,6 +60,27 @@ pub fn selected_text() -> Result<String> {
     }
 }
 
+pub fn get_selected_text() -> Result<String> {
+    let mut cli_pboard: ClipboardContext =
+        ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
+    let old_text = cli_pboard
+        .get_contents()
+        .map_err(|_err| anyhow!("get clipboard content error"))?;
+    copy();
+    if let Ok(new_text) = cli_pboard.get_contents() {
+        if old_text.trim() != new_text.trim() {
+            let _err = cli_pboard.set_contents(old_text);
+            Ok(new_text)
+        }else {
+            let _err = cli_pboard.set_contents(old_text);
+            Err(anyhow!("not found selected text"))
+        }
+    } else {
+        let _err = cli_pboard.set_contents(old_text.clone());
+        Err(anyhow!("not found selected text"))
+    }
+}
+
 
 #[cfg(target_os = "windows")]
 pub fn paste() {
@@ -115,5 +136,11 @@ pub fn copy_and_paste(text: String) -> Result<()> {
         // 将文本粘贴到当前焦点窗口中
         cli_pboard.set_contents(old_text).map_err(|_err| anyhow!("set old clipboard error"))?;
     }
+    Ok(())
+}
+
+pub fn copy_content(content: String) -> Result<()>{
+    let mut cli_pboard: ClipboardContext = ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
+    cli_pboard.set_contents(content).map_err(|err| anyhow!(format!("copy content failed: {}", err)))?;
     Ok(())
 }
