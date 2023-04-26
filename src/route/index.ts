@@ -9,9 +9,10 @@ import Home from '@/views/home/index.vue'
 import quickAsk from '@/views/quickAsk/index.vue'
 import Prompt from '@/views/prompt/index.vue'
 import Chat from '@/views/chatwin/index.vue'
-
+import Test from '@/views/test.vue'
 import type { App } from 'vue'
 import { setupPageGuard } from './permission'
+
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -45,6 +46,13 @@ export const routes: Array<RouteRecordRaw> = [
         component: Chat,
         meta: {
           title: '对话模式',
+        },
+      },
+      {
+        path: 'test',
+        component: Test,
+        meta: {
+          title: 'test',
         },
       },
     ],
