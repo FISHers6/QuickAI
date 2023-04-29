@@ -29,15 +29,17 @@ pub struct AppState {
     pub foreground_handle: AtomicIsize,
     runtime: Runtime,
     pub auto_input_sender: OnceCell<UnboundedSender<String>>,
+    pub screen_size: (f64, f64), // (width, height)
 }
 
 impl AppState {
-    pub fn new(runtime: Runtime) -> Self {
+    pub fn new(runtime: Runtime, screen_size: (f64, f64)) -> Self {
         Self {
             selected_content: Arc::new(RwLock::new(String::new())),
             foreground_handle: AtomicIsize::new(0),
             runtime,
             auto_input_sender: OnceCell::new(),
+            screen_size,
         }
     }
 
@@ -67,9 +69,18 @@ impl AppState {
         })
     }
 }
-
 fn main() {
     tracing_subscriber::registry().with(fmt::layer()).init();
+    // get screen size
+    let screen_size = {
+        let event_loop = winit::event_loop::EventLoop::new();
+        let monitor = event_loop.primary_monitor().unwrap(); // 获取主监视器信息
+        let _monitor_scale_factor = monitor.scale_factor();
+        let size = monitor.size();
+        (size.width as f64, size.height as f64)
+    };
+    
+    tracing::info!(screen_size =? screen_size);
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::info!("{}, {argv:?}, {cwd}", app.package_info().name);
@@ -88,13 +99,15 @@ fn main() {
             command::update_shortcut,
             command::update_app_config,
             command::trigger_select_click,
+            command::get_selected_content_from_cache,
         ])
-        .setup(|app| {
+        .setup(move |app| {
             tracing::info!(start = true);
             APP.get_or_init(|| app.handle());
             let app_handle = app.handle();
             app_handle.manage(AppState::new(
                 tokio::runtime::Runtime::new().expect("build tokio runtime error"),
+                screen_size,
             ));
 
             // 注册全局快捷键

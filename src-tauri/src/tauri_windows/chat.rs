@@ -16,10 +16,15 @@ pub fn show_chat_windows(question: Option<String>) {
         Some(window) => {
             tracing::info!("has chat window");
             window.unminimize().unwrap();
-            window.set_focus().unwrap();
             window.show().unwrap();
+            window.set_focus().unwrap();
         }
         None => {
+            let window_width = 440.0;
+            let window_height = 540.0;
+            let pos_x = state.screen_size.0 - window_width - 30.0;
+            let pos_y = (state.screen_size.1 - window_width) / 2.8;
+
             let _windows = tauri::WindowBuilder::new(
                 handle,
                 CHAT_WINDOWS,
@@ -32,8 +37,8 @@ pub fn show_chat_windows(question: Option<String>) {
             .always_on_top(true)
             .maximized(false)
             .skip_taskbar(false)
-            .inner_size(440.0, 540.0)
-            .center()
+            .inner_size(window_width, window_height)
+            .position(pos_x, pos_y)
             .focused(true)
             .build()
             .unwrap();
@@ -44,8 +49,12 @@ pub fn show_chat_windows(question: Option<String>) {
             let handle = APP.get().unwrap();
             if let Err(err) = crate::event::trigger_chat_question_update(handle, question) {
                 tracing::warn!(err =? err);
+            }else {
+                if let Some(windows) = handle.get_window(CHAT_WINDOWS) {
+                    let _ = windows.set_focus();
+                }
             }
-        }, std::time::Duration::from_millis(2000));
+        }, std::time::Duration::from_millis(500));
     }
 }
 

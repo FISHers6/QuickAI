@@ -20,7 +20,7 @@ const menuData = ref([{
   name: '/home/prompt',
 },
 {
-  label: '会话模式',
+  label: '对话模式',
   name: '/home/chatwin',
 },
 ])

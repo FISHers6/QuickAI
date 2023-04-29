@@ -69,8 +69,8 @@ pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
             }
 
             window.unminimize().unwrap();
-            window.set_focus().unwrap();
             window.show().unwrap();
+            window.set_focus().unwrap();
         }
         None => {
             tracing::info!("not found chatgpt window");
@@ -92,8 +92,8 @@ pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
                 set_shadow(&window, true).unwrap_or_default();
             }
             window.unminimize().unwrap();
-            window.set_focus().unwrap();
             window.show().unwrap();
+            window.set_focus().unwrap();
         }
     }
 
@@ -103,6 +103,6 @@ pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
             if let Err(err) = crate::event::trigger_question_update(handle, question, true) {
                 tracing::warn!(err =? err);
             }
-        }, std::time::Duration::from_millis(2000));
+        }, std::time::Duration::from_millis(500));
     }
 }

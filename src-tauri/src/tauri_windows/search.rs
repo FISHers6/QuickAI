@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering;
 
 use crate::AppState;
-use tauri::Manager;
+use tauri::{Manager, WindowEvent};
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use window_shadows::set_shadow;
 use window_vibrancy;
@@ -31,6 +31,12 @@ pub fn search_windows() {
         }
         None => {
             tracing::info!("not found search window");
+            let window_width = 400.0;
+            let window_height = 60.0;
+            let offset_y = 300.0; // 向上偏移 300 个像素
+            let pos_x = (state.screen_size.0 - window_width) / 2.0;
+            let pos_y = ((state.screen_size.1 - window_height) / 2.0 - offset_y).min(state.screen_size.1 / 2.0);
+
             let windows = tauri::WindowBuilder::new(
                 handle,
                 SEARCH_WINDOWS,
@@ -43,9 +49,9 @@ pub fn search_windows() {
             .always_on_top(true)
             .maximized(false)
             .skip_taskbar(true)
-            .inner_size(400.0, 199.0)
+            .inner_size(window_width, window_height)
             .focused(true)
-            .center()
+            .position(pos_x, pos_y)
             .build()
             .expect("build windows error not happened");
             // 仅在 macOS 下执行
@@ -62,6 +68,7 @@ pub fn search_windows() {
             {
                 set_shadow(&windows, true).unwrap_or_default();
             }
+            windows.on_window_event(hide_window_when_lose_focused);
         }
     }
 }
@@ -71,4 +78,15 @@ pub fn show_foreground_window() {
     let state: tauri::State<AppState> = handle.state();
     let foreground_handle = state.foreground_handle.load(Ordering::SeqCst);
     PlatformForeground::set_foreground_window(foreground_handle);
+}
+
+fn hide_window_when_lose_focused(event: &WindowEvent) {
+    if let WindowEvent::Focused(focused) = event {
+        if !focused {
+            let handle = APP.get().unwrap();
+            if let Some(window) = handle.get_window(SEARCH_WINDOWS) {
+                let _ = window.hide();
+            }
+        }
+    }
 }

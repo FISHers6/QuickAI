@@ -23,8 +23,7 @@ pub fn trigger_chat_question_update(handle: &AppHandle, question: String) -> Res
     Ok(())
 }
 
-
-pub fn trigger_selected_content_update(handle: &AppHandle, selected: String) -> Result<()> {
+pub fn _trigger_selected_content_update(handle: &AppHandle, selected: String) -> Result<()> {
     handle.emit_all(
         "change-select-content",
         selected,

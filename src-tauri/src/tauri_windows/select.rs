@@ -1,6 +1,6 @@
 use std::sync::atomic::Ordering;
 use crate::AppState;
-use tauri::{Manager, WindowEvent, LogicalPosition, PhysicalPosition};
+use tauri::{Manager, WindowEvent, LogicalPosition, PhysicalPosition, AppHandle};
 use crate::easy_thing::foreground::PlatformForeground;
 use serde::{Deserialize, Serialize};
 use crate::APP;
@@ -8,12 +8,11 @@ pub const SELECT_WINDOWS: &str = "select_windows";
 pub const SELECT_WINDOWS_WIDTH: f64 = 320.0;
 pub const SELECT_WINDOWS_HEIGHT: f64 = 80.0;
 
-pub fn build_select_windows(content: &str, window_position_x: f64, window_position_y: f64) {
+pub fn build_select_windows(handle: &AppHandle, content: &str, window_position_x: f64, window_position_y: f64) {
     let foreground_handle = PlatformForeground::get_foreground_window();
     tracing::info!(foreground_handle = foreground_handle);
-    let handle = APP.get().unwrap();
     let state: tauri::State<AppState> = handle.state();
-    let selected = content.trim().to_string();
+    let _selected = content.to_string();
     if foreground_handle != 0 {
         state
             .foreground_handle
@@ -53,12 +52,13 @@ pub fn build_select_windows(content: &str, window_position_x: f64, window_positi
             windows.on_window_event(hide_window_when_lose_focused);
         }
     }
-    let _ = state.spawn_delay_task(async move {
-        let handle = APP.get().unwrap();
-        if let Err(err) = crate::event::trigger_selected_content_update(handle, selected) {
-            tracing::warn!(err =? err);
-        }
-    }, std::time::Duration::from_millis(500));
+    // not used, because async task may word early than windows build
+    // let _ = state.spawn_delay_task(async move {
+    //     let handle = APP.get().unwrap();
+    //     if let Err(err) = crate::event::trigger_selected_content_update(handle, selected) {
+    //         tracing::warn!(err =? err);
+    //     }
+    // }, std::time::Duration::from_millis(500));
 }
 
 fn hide_window_when_lose_focused(event: &WindowEvent) {
@@ -71,7 +71,6 @@ fn hide_window_when_lose_focused(event: &WindowEvent) {
         }
     }
 }
-
 
 pub fn hide_select_window() {
     let handle = APP.get().unwrap();
@@ -100,7 +99,6 @@ pub fn click_select(handle: &tauri::AppHandle, payload: SelectPayload) -> anyhow
         },
         "自动输入" => {
             crate::event::trigger_send_chat_api(handle, payload.selected, payload.prompt)?;
-            // crate::easy_thing::send_auto_input_value(payload.selected).map_err(|err| anyhow::anyhow!(err))?;
         },
         _ => {
 
