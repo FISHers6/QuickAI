@@ -42,6 +42,7 @@ export function getLocalState(): SettingsState {
 }
 
 export function setLocalState(setting: SettingsState): void {
+  console.log('setLocal',setting)
   ss.set(LOCAL_NAME, setting)
 }
 

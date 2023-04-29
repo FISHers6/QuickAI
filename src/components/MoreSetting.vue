@@ -38,7 +38,7 @@ const { updateSetting, getSetting } = useSettings()
 const changeMode = (val: boolean) => {
   document.documentElement.classList[ val ? 'add' : 'remove' ]('theme-dark')
 }
-const currentSetting = getSetting()
+const currentSetting = getSetting();
 const form = reactive({
   mode: currentSetting.mode,
   api_key: currentSetting.apiKey,
@@ -53,10 +53,6 @@ const form = reactive({
 watch(form, (newValue, oldValue) => {
   debouncedSubmitSetting()
 }, { deep: true })
-
-// const isDarkMode = ref(form.isDarkMode)
-
-// watch(isDarkMode, changeMode, { immediate: true });
 
 const debouncedSubmitSetting = _.debounce(() => {
   let settings = {

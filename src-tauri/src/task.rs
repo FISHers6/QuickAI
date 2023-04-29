@@ -2,6 +2,7 @@ use std::time::Instant;
 
 use tauri::AppHandle;
 use tauri::Manager;
+use tauri::State;
 use crate::AppState;
 use crate::tauri_windows::select::SELECT_WINDOWS_HEIGHT;
 use crate::tauri_windows::select::SELECT_WINDOWS_WIDTH;
@@ -78,28 +79,32 @@ impl SelectListener {
             let trimed_selected_content = selected_content.trim();
             if !trimed_selected_content.is_empty() {
                 tracing::info!(selected_content = trimed_selected_content);
-                let mut position_y = if self.last_mouse_position_y < mouse_position_y {
-                    self.last_mouse_position_y
-                }else {
-                    mouse_position_y
-                };
-                position_y = position_y - SELECT_WINDOWS_HEIGHT - WINDOWS_POSITION_OFFSET;
-                if position_y < SELECT_WINDOWS_HEIGHT {
-                    position_y = SELECT_WINDOWS_HEIGHT;
+                if let Some(handle) = crate::APP.get() {
+                    let state: State<AppState> = handle.state();
+                    *state.selected_content.write() = trimed_selected_content.to_string();
+                    let mut position_y = if self.last_mouse_position_y < mouse_position_y {
+                        self.last_mouse_position_y
+                    }else {
+                        mouse_position_y
+                    };
+                    position_y = position_y - SELECT_WINDOWS_HEIGHT - WINDOWS_POSITION_OFFSET;
+                    if position_y < SELECT_WINDOWS_HEIGHT {
+                        position_y = SELECT_WINDOWS_HEIGHT;
+                    }
+                    let mut position_x = (self.last_mouse_position_x + mouse_position_x) / 2.0 - SELECT_WINDOWS_WIDTH / 2.0;
+                    let mut  min_position_x = if self.last_mouse_position_x > mouse_position_x {
+                        mouse_position_x
+                    }else {
+                        self.last_mouse_position_x
+                    };
+                    if min_position_x < SELECT_WINDOWS_WIDTH / 2.0 {
+                        min_position_x = SELECT_WINDOWS_WIDTH / 2.0;
+                    }
+                    if position_x < min_position_x {
+                        position_x = min_position_x;
+                    }
+                    crate::tauri_windows::select::build_select_windows(handle, trimed_selected_content, position_x, position_y);
                 }
-                let mut position_x = (self.last_mouse_position_x + mouse_position_x) / 2.0 - SELECT_WINDOWS_WIDTH / 2.0;
-                let mut  min_position_x = if self.last_mouse_position_x > mouse_position_x {
-                    mouse_position_x
-                }else {
-                    self.last_mouse_position_x
-                };
-                if min_position_x < SELECT_WINDOWS_WIDTH / 2.0 {
-                    min_position_x = SELECT_WINDOWS_WIDTH / 2.0;
-                }
-                if position_x < min_position_x {
-                    position_x = min_position_x;
-                }
-                crate::tauri_windows::select::build_select_windows(trimed_selected_content, position_x, position_y);
             }
         }
     }

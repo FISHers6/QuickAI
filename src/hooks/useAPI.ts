@@ -43,7 +43,7 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
   }
 
   const {updateSetting, getSetting} = useSettings()
-  const setting: SettingsState = getSetting()
+  const setting = getSetting()
   const apiKey = setting.apiKey
   const useChatContext = setting.useChatContext
   const userProxy = setting.proxy

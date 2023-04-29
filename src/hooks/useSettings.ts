@@ -1,7 +1,7 @@
 import { useSettingStore } from '@/store'
 import type { SettingsState } from '@/store/modules/settings/helper'
 import { getLocalState } from '@/store/modules/settings/helper'
- 
+
 export function useSettings() {
   const settingStore = useSettingStore()
 

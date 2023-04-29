@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
-use tauri::{Size, Window, LogicalSize};
+use tauri::{Size, Window, LogicalSize, AppHandle, Manager, State};
 use tokio::sync::mpsc::UnboundedSender;
+
+use crate::AppState;
 
 #[tauri::command]
 pub fn get_selected_content() -> Result<String, String> {
@@ -15,6 +17,20 @@ pub fn get_selected_content() -> Result<String, String> {
         },
     )
 }
+
+#[tauri::command]
+pub fn get_selected_content_from_cache(handle: AppHandle) -> Result<String, String> {
+    let state: State<AppState> = handle.state();
+    let selected_content = state.selected_content.read().clone();
+    let selected_content = selected_content.trim();
+    tracing::info!(selected_content = selected_content);
+    if selected_content.is_empty() {
+        Err("empty selected conent".to_string())
+    }else {
+        Ok(selected_content.to_string())
+    }
+}
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SetSizePayload {

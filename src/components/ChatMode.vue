@@ -40,8 +40,8 @@
       </div>
       <div class="chatInputs">
         <!--表情-->
-        <div class="emoji boxinput" @click="clickEmoji">
-          <img src="@/assets/img/emoji/smiling-face.png" alt="" />
+        <div class="emoji boxinput" @click="clickEmoji"> 
+          <img src="@/assets/img/emoji/smiling-face-with-sunglasses.png" alt="" />
         </div>
         <label class="emoji boxinput" for="imgFile"><span class="iconfont icon-tupian"></span></label>
         <label class="emoji boxinput" for="docFile"><span class="iconfont icon-wenjian"></span></label>
@@ -57,11 +57,11 @@
           id="textareaMsg"
           ref="inputRef"
           v-model="prompt"
-          :autosize="{}"
-          class="textarea"
+          :autosize="{ minRows: 1, maxRows: 1 }"
+          class="textarea no-scroll-bar"
           maxlength="2000"
           placeholder="请输入你的问题~"
-          style="margin-left: 2%;margin-top: 3px;min-height: 51px;max-height:400px;max-width: 80%;min-width: 45%;  height: auto;" 
+          style="margin-left: 2%;margin-top: 3px;min-height: 51px;max-height:400px;max-width: 80%;min-width: 45%;" 
         ></el-input>
         <div>
           <div class="send boxinput" @click='handleSubmit'>
@@ -86,7 +86,7 @@ import { useChatStore, usePromptStore } from '@/store'
 import { fetchChatAPIProcess } from '@/hooks/useAPI'
 import { useScroll } from '@/hooks/useScroll'
 import { getFile, getFileMeta} from "@/hooks/useFile"
-import FileMeta from "@/hooks/useFile"
+import type FileMeta from "@/hooks/useFile"
 import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
 import { createImage} from "@/api/index"
@@ -94,7 +94,7 @@ import { listen } from '@tauri-apps/api/event';
 import { askChatGPTV2 } from '@/hooks/useAPI'
 import type { GPTParamV2 } from '@/hooks/useAPI'
 import type { GPTResponse } from '@/hooks/useAPI'
-
+import { ElMessage } from 'element-plus'
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const openLongReply = true
 
@@ -594,6 +594,13 @@ const loadImageAsync =  (filesdata) => {
 
 //发送本地图片
 const sendImg = (e) => {
+  // 暂时不可用
+  ElMessage({
+    message: '功能暂时不开放~',
+    type: 'warning',
+    duration: 2000,
+  })
+  return 
   // acqStatus = false
   //获取文件
   const file = e.target.files[0];
@@ -678,18 +685,17 @@ const sendImg = (e) => {
 
 :deep(.el-textarea__inner){
   background-color: rgb(48 51 59);
-    border-radius: 15px;
-    border: 2px solid rgb(49 50 51);
-    /* padding: 10px; */
-    box-sizing: border-box;
-    transition: 0.2s;
-    font-size: 20px;
-    color: #fff;
-    font-weight: 100;
-    /* margin: 0 20px; */
-    width: 98%;
-    height: 100%;
-
+  border-radius: 15px;
+  border: 2px solid rgb(49 50 51);
+  /* padding: 10px; */
+  box-sizing: border-box;
+  transition: 0.2s;
+  font-size: 18px;
+  color: #fff !important;
+  font-weight: 100;
+  /* margin: 0 20px; */
+  width: 98%;
+  height: 100%;
 }
 
 .botoom {
@@ -699,18 +705,6 @@ const sendImg = (e) => {
 .emoji-message {
   width: 50px; 
   height: 50px
-}
-
-textarea::-webkit-scrollbar {
-  width: 3px;
-  /* 设置滚动条宽度 */
-}
-
-textarea::-webkit-scrollbar-thumb {
-  background-color: rgb(66, 70, 86);
-  /* 设置滚动条滑块的背景色 */
-  border-radius: 50%;
-  /* 设置滑块的圆角 */
 }
 
 .spinner {

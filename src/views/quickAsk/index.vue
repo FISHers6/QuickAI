@@ -136,7 +136,7 @@ const client_request_api = async () => {
     ]
 
     const {getSetting} = useSettings()
-    const setting: SettingsState = getSetting()
+    const setting = getSetting()
     const apiKey = setting.apiKey
 
     if (apiKey && apiKey!=='') {

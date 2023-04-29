@@ -85,15 +85,33 @@ const modes = ref([
 
 const selected_content = ref("");
 
-const unlisten = listen("change-select-content", async (event) => {
-  console.log(event);
-  const selected = (event.payload as string).trim();
-  if (selected && selected !== "") {
-    selected_content.value = selected;
-  }
-});
+onMounted(async () => {
+  await get_selected_content()
+})
 
-const triggerSelectClick = (label: string, prompt: string) => {
+const get_selected_content = async () => {
+  try {
+    let message = await invoke('get_selected_content_from_cache')
+    console.log(message)
+    selected_content.value = message as string
+  }catch(e) {
+    console.log(e)
+  }
+}
+ 
+// 
+// not used
+// const unlisten = listen("change-select-content", async (event) => {
+//   console.log(event);
+//   const selected = (event.payload as string).trim();
+//   if (selected && selected !== "") {
+//     selected_content.value = selected;
+//   }
+// });
+
+const triggerSelectClick = async (label: string, prompt: string) => {
+  await get_selected_content()
+  console.log('trigger select click', selected_content.value)
   let payload = {
     label: label,
     prompt: prompt,
@@ -114,17 +132,18 @@ const openSettingsWindow = () => {
   });
 };
 
-const copySelectContent = () => {
+const copySelectContent = async () => {
+  await get_selected_content()
   let selected = selected_content.value;
   invoke("copy_select_content", { payload: selected });
   ElMessage({
     message: "已复制",
     type: "success",
-    duration: 800,
+    duration: 500,
   });
   setTimeout(() => {
     closeSelectWindow();
-  }, 1000);
+  }, 700);
 };
 </script>
 
