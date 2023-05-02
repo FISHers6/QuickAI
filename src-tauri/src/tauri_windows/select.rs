@@ -9,7 +9,7 @@ pub const SELECT_WINDOWS_WIDTH: f64 = 320.0;
 pub const SELECT_WINDOWS_HEIGHT: f64 = 80.0;
 
 pub fn build_select_windows(handle: &AppHandle, content: &str, window_position_x: f64, window_position_y: f64) {
-    let foreground_handle = PlatformForeground::get_foreground_window();
+    let foreground_handle = PlatformForeground::get_foreground_window().unwrap_or_default();
     tracing::info!(foreground_handle = foreground_handle);
     let state: tauri::State<AppState> = handle.state();
     let _selected = content.to_string();

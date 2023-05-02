@@ -144,3 +144,39 @@ pub fn copy_content(content: String) -> Result<()>{
     cli_pboard.set_contents(content).map_err(|err| anyhow!(format!("copy content failed: {}", err)))?;
     Ok(())
 }
+
+#[cfg(target_os = "windows")]
+pub fn press_enter() {
+    use enigo::*;
+    let mut enigo = Enigo::new();
+    enigo.key_up(Key::Control);
+    enigo.key_up(Key::Alt);
+    enigo.key_up(Key::Shift);
+    enigo.key_up(Key::Space);
+    enigo.key_click(Key::Return);
+}
+
+#[cfg(target_os = "macos")]
+pub fn press_enter() {
+    use enigo::*;
+    let mut enigo = Enigo::new();
+    enigo.key_up(Key::Control);
+    enigo.key_up(Key::Meta);
+    enigo.key_up(Key::Alt);
+    enigo.key_up(Key::Shift);
+    enigo.key_up(Key::Space);
+    enigo.key_up(Key::Tab);
+    enigo.key_up(Key::Option);
+    enigo.key_click(Key::Return);
+}
+
+#[cfg(target_os = "linux")]
+pub fn press_enter() {
+    use enigo::*;
+    let mut enigo = Enigo::new();
+    enigo.key_up(Key::Control);
+    enigo.key_up(Key::Alt);
+    enigo.key_up(Key::Shift);
+    enigo.key_up(Key::Space);
+    enigo.key_click(Key::Return);
+}

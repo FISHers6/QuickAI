@@ -69,6 +69,7 @@ pub async fn send_auto_input_value(payload: AutoInput) -> Result<(), String> {
     Ok(())
 }
 
+/// get or init input sender which sends content to other windows
 pub fn get_or_init_auto_input<'a>(state: &'a tauri::State<crate::AppState>) -> &'a UnboundedSender<String> {
     let answer_sender = state.auto_input_sender.get_or_init(|| {
         let (answer_sender, mut answer_receiver) = tokio::sync::mpsc::unbounded_channel::<String>();
@@ -79,13 +80,13 @@ pub fn get_or_init_auto_input<'a>(state: &'a tauri::State<crate::AppState>) -> &
                     tracing::info!(split_suffix = true);
                     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
                     // crate::easy_thing::input::PlatformInput::send_content_v2(suffix);
-                    if let Err(err) = crate::easy_thing::input::PlatformInput::auto_input_text_using_copy(suffix) {
+                    if let Err(err) = crate::easy_thing::input::CrossformInput::auto_input_text_using_copy(suffix) {
                         tracing::warn!(err =? err);
                     }
                 }else {
                     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
                     tracing::info!(split_suffix = false);
-                    if let Err(err) = crate::easy_thing::input::PlatformInput::auto_input_text_using_copy(&answer) {
+                    if let Err(err) = crate::easy_thing::input::CrossformInput::auto_input_text_using_copy(&answer) {
                         tracing::warn!(err =? err);
                     }
                 }

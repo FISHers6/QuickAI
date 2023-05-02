@@ -7,8 +7,10 @@ mod event;
 mod select;
 mod shortcut;
 mod tauri_windows;
+#[cfg(target_os="windows")]
 mod task;
 mod app_config;
+mod utils;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
@@ -72,14 +74,7 @@ impl AppState {
 fn main() {
     tracing_subscriber::registry().with(fmt::layer()).init();
     // get screen size
-    let screen_size = {
-        let event_loop = winit::event_loop::EventLoop::new();
-        let monitor = event_loop.primary_monitor().unwrap(); // 获取主监视器信息
-        let _monitor_scale_factor = monitor.scale_factor();
-        let size = monitor.size();
-        (size.width as f64, size.height as f64)
-    };
-    
+    let screen_size = crate::utils::get_screen_size().unwrap_or((1920.0, 1080.0));
     tracing::info!(screen_size =? screen_size);
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
@@ -112,6 +107,7 @@ fn main() {
 
             // 注册全局快捷键
             let _ = shortcut::ShortcutRegister::register_shortcut(&app_handle);
+            #[cfg(not(target_os="macos"))]
             task::register_task(&app_handle);
             Ok(())
         })
