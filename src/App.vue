@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import { listen } from '@tauri-apps/api/event';
+import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api'
 import { askChatGPTV2 } from '@/hooks/useAPI'
 import type { GPTParamV2 } from '@/hooks/useAPI'

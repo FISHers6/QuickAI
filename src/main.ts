@@ -8,8 +8,8 @@
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
  */
-import { createApp } from "vue";
-import App from "./App.vue";
+import { createApp } from 'vue'
+import App from "./App.vue"
 import ElementPlus from 'element-plus'
 import VueHighlightJS from 'vue3-highlightjs'
 

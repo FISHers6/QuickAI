@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import { loadEnv } from 'vite'
+import babel from '@rollup/plugin-babel'
 
 const mobile =
   process.env.TAURI_PLATFORM === 'android' ||
@@ -18,6 +19,10 @@ export default defineConfig(async (env) => {
         imports: ['vue'],
         dts: 'src/auto-import.d.ts',
       }),
+      babel({
+        presets: ['@babel/preset-env'],
+        extensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx']
+      })
     ],
     resolve: {
       //设置路径别名
@@ -53,3 +58,4 @@ export default defineConfig(async (env) => {
     },
   }
 })
+
