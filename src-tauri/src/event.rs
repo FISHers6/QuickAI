@@ -38,6 +38,7 @@ pub struct ChatPayload {
     prompt: String,
 }
 
+#[cfg(not(target_os="macos"))]
 pub fn trigger_send_chat_api(handle: &AppHandle, question: String, prompt: String) -> Result<()> {
     handle.emit_all(
         "trigger-send-chat-api",

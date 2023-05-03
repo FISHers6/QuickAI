@@ -7,7 +7,7 @@ mod event;
 mod select;
 mod shortcut;
 mod tauri_windows;
-#[cfg(target_os="windows")]
+#[cfg(not(target_os="macos"))]
 mod task;
 mod app_config;
 mod utils;
@@ -76,7 +76,7 @@ fn main() {
     // get screen size
     let screen_size = crate::utils::get_screen_size().unwrap_or((1920.0, 1080.0));
     tracing::info!(screen_size =? screen_size);
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::info!("{}, {argv:?}, {cwd}", app.package_info().name);
         }))
@@ -89,56 +89,59 @@ fn main() {
             command::run_chat_mode,
             command::close_window,
             command::open_setting_window,
-            command::hide_select_window,
             command::copy_select_content,
             command::update_shortcut,
             command::update_app_config,
-            command::trigger_select_click,
             command::get_selected_content_from_cache,
-        ])
-        .setup(move |app| {
-            tracing::info!(start = true);
-            APP.get_or_init(|| app.handle());
-            let app_handle = app.handle();
-            app_handle.manage(AppState::new(
-                tokio::runtime::Runtime::new().expect("build tokio runtime error"),
-                screen_size,
-            ));
+        ]);
+    #[cfg(not(target_os="macos"))]
+    let builder = builder.invoke_handler(tauri::generate_handler![
+        command::hide_select_window,
+        command::trigger_select_click,
+    ]);
+    builder.setup(move |app| {
+        tracing::info!(start = true);
+        APP.get_or_init(|| app.handle());
+        let app_handle = app.handle();
+        app_handle.manage(AppState::new(
+            tokio::runtime::Runtime::new().expect("build tokio runtime error"),
+            screen_size,
+        ));
 
-            // 注册全局快捷键
-            let _ = shortcut::ShortcutRegister::register_shortcut(&app_handle);
-            #[cfg(not(target_os="macos"))]
-            task::register_task(&app_handle);
-            Ok(())
-        })
-        .build(tauri::generate_context!())
-        .expect("error while running tauri application")
-        .run(|app_handle, event| match event {
-            tauri::RunEvent::WindowEvent { label, event, .. } => {
-                if label == crate::tauri_windows::chatgpt::CHATGPT_WINDOWS {
-                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                        tracing::info!(label = label, prevent_close = true);
-                        if let Some(main_window) = app_handle.get_window(&label) {
-                            let _ = main_window.hide();
-                        }
-                        api.prevent_close()
+        // 注册全局快捷键
+        let _ = shortcut::ShortcutRegister::register_shortcut(&app_handle);
+        #[cfg(not(target_os="macos"))]
+        task::register_task(&app_handle);
+        Ok(())
+    })
+    .build(tauri::generate_context!())
+    .expect("error while running tauri application")
+    .run(|app_handle, event| match event {
+        tauri::RunEvent::WindowEvent { label, event, .. } => {
+            if label == crate::tauri_windows::chatgpt::CHATGPT_WINDOWS {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    tracing::info!(label = label, prevent_close = true);
+                    if let Some(main_window) = app_handle.get_window(&label) {
+                        let _ = main_window.hide();
                     }
-                }else if label == crate::tauri_windows::select::SELECT_WINDOWS 
-                    || label == crate::tauri_windows::search::SEARCH_WINDOWS {
-                    if let WindowEvent::Focused(focused) = event {
-                        tracing::info!(label = label, focused = focused);
-                        if !focused {
-                            if let Some(window) = app_handle.get_window(&label) {
-                                let _ = window.hide();
-                            }
+                    api.prevent_close()
+                }
+            }else if label == crate::tauri_windows::SELECT_WINDOWS 
+                || label == crate::tauri_windows::search::SEARCH_WINDOWS {
+                if let WindowEvent::Focused(focused) = event {
+                    tracing::info!(label = label, focused = focused);
+                    if !focused {
+                        if let Some(window) = app_handle.get_window(&label) {
+                            let _ = window.hide();
                         }
                     }
                 }
             }
-            tauri::RunEvent::ExitRequested { api, .. } => {
-                tracing::info!("exit");
-                api.prevent_exit();
-            }
-            _ => {}
-        });
+        }
+        tauri::RunEvent::ExitRequested { api, .. } => {
+            tracing::info!("exit");
+            api.prevent_exit();
+        }
+        _ => {}
+    });
 }

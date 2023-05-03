@@ -104,21 +104,15 @@ pub struct QuestionPayload {
 }
 
 #[tauri::command]
-pub async fn run_quick_answer(window: Window, payload: QuestionPayload) -> Result<(), String> {
+pub async fn run_quick_answer(handle: AppHandle, window: Window, payload: QuestionPayload) -> Result<(), String> {
     tracing::info!(payload =? payload);
     let question = if payload.question.is_empty() {
         None
     } else {
         Some(payload.question)
     };
-    let error = std::panic::catch_unwind(|| {
-        crate::tauri_windows::chatgpt::show_quick_answer_window(question, true);
-    });
-    if let Err(error) = error {
-        tracing::warn!(panic =? error);
-    } else {
-        window.hide().map_err(|err| format!("{:?}", err))?;
-    }
+    crate::tauri_windows::chatgpt::show_quick_answer_window(&handle, question, true);
+    window.hide().map_err(|err| format!("{:?}", err))?;
     Ok(())
 }
 
@@ -154,6 +148,7 @@ pub async fn open_setting_window(_window: Window) {
     crate::tauri_windows::settings::build_setting_window();
 }
 
+#[cfg(not(target_os="macos"))]
 #[tauri::command]
 pub async fn hide_select_window(_window: Window) {
     crate::tauri_windows::select::hide_select_window();
@@ -178,6 +173,7 @@ pub fn update_app_config(payload: crate::app_config::AppConfig) -> Result<(), St
     crate::app_config::save_app_config(&payload)
 }
 
+#[cfg(not(target_os="macos"))]
 #[tauri::command] 
 pub async fn trigger_select_click(handle: tauri::AppHandle, payload: crate::tauri_windows::select::SelectPayload) -> Result<(), String> {
     tracing::info!(select_click_payload =?payload);

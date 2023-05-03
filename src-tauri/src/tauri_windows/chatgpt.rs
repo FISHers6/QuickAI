@@ -1,3 +1,4 @@
+use tauri::AppHandle;
 use tauri::LogicalPosition;
 use tauri::Manager;
 use tauri::PhysicalPosition;
@@ -22,7 +23,7 @@ fn current_mouse_position_with_offset() -> Result<(i32, i32)> {
     }
 }
 
-pub fn chatgpt_windows() {
+pub fn chatgpt_shortcut() {
     let handle = APP.get().unwrap();
     let selected_text = select::selected_text().unwrap_or_default();
     let state: tauri::State<AppState> = handle.state();
@@ -31,26 +32,24 @@ pub fn chatgpt_windows() {
         let mut select_content_state = state.selected_content.write();
         if *select_content_state != selected_text {
             *select_content_state = selected_text;
-            trigger_selected_content_change_event = true;
         }
+        trigger_selected_content_change_event = true;
     }
     let question = if trigger_selected_content_change_event {
         Some(state.selected_content.read().clone())
     } else {
         None
     };
-    show_quick_answer_window(question, false);
+    chatgpt_windows(handle, question, trigger_selected_content_change_event);
+}
+
+pub fn chatgpt_windows(handle: &AppHandle, question: Option<String>,trigger_selected_content_change_event: bool ) {
     if trigger_selected_content_change_event {
-        let _err = crate::event::trigger_question_update(
-            handle,
-            state.selected_content.read().clone(),
-            true,
-        );
+        show_quick_answer_window(handle, question, false);
     }
 }
 
-pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
-    let handle = APP.get().unwrap();
+pub fn show_quick_answer_window(handle: &AppHandle, question: Option<String>, is_center: bool) {
     let state: tauri::State<AppState> = handle.state();
     match handle.get_window(CHATGPT_WINDOWS) {
         Some(window) => {
@@ -103,6 +102,6 @@ pub fn show_quick_answer_window(question: Option<String>, is_center: bool) {
             if let Err(err) = crate::event::trigger_question_update(handle, question, true) {
                 tracing::warn!(err =? err);
             }
-        }, std::time::Duration::from_millis(500));
+        }, std::time::Duration::from_millis(800));
     }
 }

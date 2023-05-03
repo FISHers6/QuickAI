@@ -4,7 +4,7 @@ use tauri::{Manager, WindowEvent, LogicalPosition, PhysicalPosition, AppHandle};
 use crate::easy_thing::foreground::PlatformForeground;
 use serde::{Deserialize, Serialize};
 use crate::APP;
-pub const SELECT_WINDOWS: &str = "select_windows";
+pub use super::SELECT_WINDOWS;
 pub const SELECT_WINDOWS_WIDTH: f64 = 320.0;
 pub const SELECT_WINDOWS_HEIGHT: f64 = 80.0;
 
@@ -92,7 +92,7 @@ pub fn click_select(handle: &tauri::AppHandle, payload: SelectPayload) -> anyhow
     tracing::info!(mode = mode);
     match mode.as_str() {
         "快捷提问" => {
-            crate::tauri_windows::chatgpt::show_quick_answer_window(Some(format!("{}: {}", payload.prompt ,payload.selected)), true);
+            crate::tauri_windows::chatgpt::show_quick_answer_window(handle, Some(format!("{}: {}", payload.prompt ,payload.selected)), true);
         },
         "对话模式" => {
             crate::tauri_windows::chat::show_chat_windows(Some(format!("{}: {}", payload.prompt ,payload.selected)));
