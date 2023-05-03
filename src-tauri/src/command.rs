@@ -55,17 +55,17 @@ pub struct AutoInput {
 }
 
 #[tauri::command]
-pub async fn run_auto_input(window: Window, payload: AutoInput) -> Result<(), String> {
+pub async fn run_auto_input(handle: AppHandle, window: Window, payload: AutoInput) -> Result<(), String> {
     tracing::info!(payload =? payload);
     window.hide().map_err(|err| format!("{:?}", err))?;
-    crate::easy_thing::send_auto_input_value(payload.response)?;
+    crate::easy_thing::send_auto_input_value(&handle, payload.response)?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn send_auto_input_value(payload: AutoInput) -> Result<(), String> {
+pub async fn send_auto_input_value(handle: AppHandle, payload: AutoInput) -> Result<(), String> {
     tracing::info!(payload =? payload);
-        crate::easy_thing::send_auto_input_value(payload.response)?;
+    crate::easy_thing::send_auto_input_value(&handle, payload.response)?;
     Ok(())
 }
 

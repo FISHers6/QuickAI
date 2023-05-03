@@ -52,13 +52,6 @@ pub fn build_select_windows(handle: &AppHandle, content: &str, window_position_x
             windows.on_window_event(hide_window_when_lose_focused);
         }
     }
-    // not used, because async task may word early than windows build
-    // let _ = state.spawn_delay_task(async move {
-    //     let handle = APP.get().unwrap();
-    //     if let Err(err) = crate::event::trigger_selected_content_update(handle, selected) {
-    //         tracing::warn!(err =? err);
-    //     }
-    // }, std::time::Duration::from_millis(500));
 }
 
 fn hide_window_when_lose_focused(event: &WindowEvent) {
