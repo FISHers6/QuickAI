@@ -127,6 +127,9 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
   return {newConversationId, newParentMessageId}
 }
 
+const OPEN_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+const URL_PROXY = import.meta.env.VITE_URL_PROXY;
+
 // App组件调用方来传参 如何不用Ref做参数也能做到传进一个响应式对象, 目前的实现是把Result和loading都写进来了
   export async function askChatGPTCore(param: GPTParamV2, controller: AbortController, callback: Function, errorCallback: Function) {  
     let question = param.question.trim()
@@ -137,10 +140,22 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
   
     const {updateSetting, getSetting} = useSettings()
     const setting = getSetting()
-    const apiKey = setting.apiKey
+    const apiKey = (setting.apiKey && setting.apiKey !== '') ?  setting.apiKey : OPEN_API_KEY
     const useChatContext = setting.useChatContext
-    const userProxy = setting.proxy
-  
+    let userProxy = (setting.proxy && setting.proxy !== '') ? setting.proxy : URL_PROXY
+
+    console.log('apiKey', apiKey)
+    console.log('OPEN_API_KEY', OPEN_API_KEY)
+    console.log('userProxy', userProxy)
+    console.log('URL_PROXY', URL_PROXY)
+    if (!apiKey) {
+      throw new Error("请在设置页面中, 填写OpenAI API key; 内测版免费无需API Key, 请加群下载")
+    }
+
+    if (!userProxy) {
+      userProxy = baseURL
+    }
+
     let options =	useChatContext ? {
       conversationId: setting.conversationRequest?.conversationId,
       parentMessageId: setting.conversationRequest?.parentMessageId
@@ -156,7 +171,7 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
     }
   
     try {
-      let response = await askChatGPTAPI(param, controller, options, useChatContext)
+      let response = await askChatGPTAPI(param, controller, options, useChatContext, apiKey, userProxy)
       if (!response.ok) {
           const res = await response.json()
           errorCallback(res.error.message)
@@ -255,20 +270,17 @@ function generateUuid(): number {
   return Math.floor(Math.random() * maxInt);
 }
 
-async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, options: Chat.ConversationRequest, useChatContext: boolean) {
+async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, options: Chat.ConversationRequest, useChatContext: boolean, apiKey: string, user_proxy: string) {
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
-    const {updateSetting, getSetting} = useSettings()
-    let user_settings = getSetting()
-    console.log(user_settings.proxy)
 
-    if (!user_settings.apiKey) {
+    if (!apiKey) {
       throw new Error("请在设置页面中, 填写OpenAI API key; 内测版免费无需API Key, 请加群下载")
     }
 
     let proxyUrl: null | string = null
-    if (user_settings.proxy) {
-      proxyUrl = user_settings.proxy;
+    if (user_proxy) {
+      proxyUrl = user_proxy
       if (!/^https?:\/\//i.test(proxyUrl)) {
         proxyUrl = `https://${proxyUrl}/v1/chat/completions`;
       } else {
@@ -326,7 +338,7 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
     const requestOptions = {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${user_settings.apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
       },

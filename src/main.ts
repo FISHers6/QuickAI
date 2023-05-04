@@ -19,6 +19,8 @@ import '@/assets/scss/global.scss'
 import '@/assets/scss/index.scss'
 import 'element-plus/dist/index.css'
 import 'highlight.js/styles/atom-one-dark.css'
+// import * as dotenv from 'dotenv';
+// dotenv.config();
 
 async function bootstrap() {
     const app = createApp(App)
