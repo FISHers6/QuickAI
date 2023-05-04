@@ -55,7 +55,6 @@
     "axios": "^1.3.4",
     "babel-loader": "^9.1.2",
     "crypto-js": "^4.1.1",
-    "dotenv": "^16.0.3",
     "eslint": "^8.35.0",
     "husky": "^8.0.3",
     "less": "^4.1.3",
