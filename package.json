@@ -47,7 +47,8 @@
     "@types/katex": "^0.16.0",
     "@types/markdown-it": "^12.2.3",
     "@types/markdown-it-link-attributes": "^3.0.1",
-    "@types/node": "^18.7.10",
+    "@types/node": "^18.16.3",
+    "@types/uuid": "^9.0.1",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/compiler-sfc": "^3.2.47",
     "autoprefixer": "^10.4.13",
@@ -70,6 +71,7 @@
     "vite": "^4.3.4",
     "vite-babel-plugin": "^0.0.2",
     "vite-plugin-pwa": "^0.14.4",
+    "vite-plugin-wasm": "^3.2.2",
     "vue": "^3.2.47",
     "vue-tsc": "^1.0.11"
   }

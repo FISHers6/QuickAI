@@ -32,6 +32,7 @@ import { listen } from '@tauri-apps/api/event';
 
 import { usePromptModeStore } from '@/hooks/store'
 import { useSettings } from "@/hooks/useSettings"
+import { useRecord } from "@/hooks/useRecord"
 import type { SettingsState } from '@/store/modules/settings/helper'
 const { question, getSelectedContent } = useClipboard();
 const answer = ref('')
@@ -125,7 +126,9 @@ const askTheQuestion = async () => {
         controller.abort()
     }
 
-    await askChatGPTV2(AskGPTParam, callback, errorCallback)
+    await askChatGPTCore(AskGPTParam, controller, callback, errorCallback)
+
+    // await askChatGPTV2(AskGPTParam, callback, errorCallback)
     console.log('ask start end.')
 }
 
