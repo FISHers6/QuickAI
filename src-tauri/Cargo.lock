@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "ChatGPT-PC"
+name = "QuickAI"
 version = "0.0.0"
 dependencies = [
  "anyhow",

@@ -4,8 +4,6 @@ import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import { loadEnv } from 'vite'
 import babel from '@rollup/plugin-babel'
-// import wasmPlugin from 'vite-plugin-wasm'
-import wasm from 'vite-plugin-wasm'
 
 const mobile =
   process.env.TAURI_PLATFORM === 'android' ||
@@ -25,8 +23,6 @@ export default defineConfig(async (env) => {
         presets: ['@babel/preset-env'],
         extensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx']
       }),
-      // wasmPlugin(),
-      wasm(),
     ],
     resolve: {
       //设置路径别名
