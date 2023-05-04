@@ -3,7 +3,6 @@
  * @Date: 2023-03-23 00:16:14
  * @LastEditors: Joe
  * @LastEditTime: 2023-03-23 00:19:19
- * @FilePath: /ChatGPT-PC/src/utils/index.ts
  * @Description: 
  * 
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved. 
