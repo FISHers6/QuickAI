@@ -144,10 +144,6 @@ const URL_PROXY = import.meta.env.VITE_URL_PROXY;
     const useChatContext = setting.useChatContext
     let userProxy = (setting.proxy && setting.proxy !== '') ? setting.proxy : URL_PROXY
 
-    console.log('apiKey', apiKey)
-    console.log('OPEN_API_KEY', OPEN_API_KEY)
-    console.log('userProxy', userProxy)
-    console.log('URL_PROXY', URL_PROXY)
     if (!apiKey) {
       throw new Error("请在设置页面中, 填写OpenAI API key; 内测版免费无需API Key, 请加群下载")
     }
