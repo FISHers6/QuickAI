@@ -22,7 +22,7 @@ export function defaultSetting(): SettingsState {
     systemMessage: '',
     language: 'zh',
     apiKey: '',
-    proxy: 'https://proxy2-1ce.pages.dev',
+    proxy: 'https://proxy3.pages.dev',
     isDarkMode: true,
     useChatContext: true,
     conversationRequest: {
