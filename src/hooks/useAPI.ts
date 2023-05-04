@@ -276,12 +276,26 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
       }
     }
     let url = `https://${baseURL}/v1/chat/completions`
-    let gptMessage: GPTMessage[] = [
-      {
-        role: 'user',
-        content: messages.question,
-      },
-    ]
+    let gptMessage: GPTMessage[] = []
+
+    let chatId = options.conversationId
+
+    if (useChatContext && chatId) {
+      console.log('useChatContext, getRecord,', chatId, parseNumber(chatId))
+      const { getRecordMessages } = useRecord()
+      let chatMessages = getRecordMessages(parseNumber(chatId) as number)
+      console.log('chatMessages', chatMessages)
+      if(chatMessages) {
+        for (const message of chatMessages) {
+          const role = message.bot === true ? 'assistant' : 'user';
+          gptMessage.push({
+              role: role,
+              content: message.text
+          });
+      }
+      }
+    }
+
     if(messages.prompts) {
       gptMessage.push(
         {
@@ -290,33 +304,14 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
         }
       )
     }
+    const systemMessageOffset = gptMessage.length
+    gptMessage.push({
+      role: 'user',
+      content: messages.question,
+    })
 
-    let chatId = options.conversationId
-    let parentMessageId = options.parentMessageId
+    console.log('gptMessage', gptMessage)
 
-    if (useChatContext && chatId) {
-      console.log('useChatContext, getRecord,', chatId, parseNumber(chatId))
-      const { getRecordMessages } = useRecord()
-      let chatMessages = getRecordMessages(parseNumber(chatId) as number)
-      console.log('chatMessages', chatMessages)
-      if(chatMessages) {
-        for (let i = 0; i < chatMessages.length; i++) {
-          if (chatMessages[i] && chatMessages[i].text) {
-            if (chatMessages[i].bot) {
-              gptMessage.push({
-                role: 'assistant',
-                content: chatMessages[i].text,
-              });
-            }else {
-              gptMessage.push({
-                role: 'user',
-                content: chatMessages[i].text,
-              });
-            }
-          }
-        }
-      }
-    }
 
     let newChatID: null | number = null
     console.log(chatId)

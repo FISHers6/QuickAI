@@ -20,7 +20,7 @@ import Loading from '@/components/loading.vue'
 import type { ElInput } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
-import { askChatGPTV2,  } from '@/hooks/useAPI'
+import { askChatGPTV2  } from '@/hooks/useAPI'
 import { askChatGPTCore  } from '@/hooks/useAPI'
 
 import type { GPTParamV2 } from '@/hooks/useAPI'
@@ -127,8 +127,6 @@ const askTheQuestion = async () => {
     }
 
     await askChatGPTCore(AskGPTParam, controller, callback, errorCallback)
-
-    // await askChatGPTV2(AskGPTParam, callback, errorCallback)
     console.log('ask start end.')
 }
 

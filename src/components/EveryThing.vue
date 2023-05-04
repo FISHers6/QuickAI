@@ -16,7 +16,7 @@ import { ref, Ref } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import SearchList from "@/components/SearchList.vue";
 import smilingFaceWithSunglasses from "@/assets/img/emoji/smiling-face-with-sunglasses.png";
-import { askChatGPTV2 } from "@/hooks/useAPI";
+import { askChatGPTCore } from "@/hooks/useAPI";
 import type { GPTParamV2 } from "@/hooks/useAPI";
 import type { GPTResponse } from "@/hooks/useAPI";
 import multiInput from "@/components/multiInput/index.vue";
@@ -260,7 +260,7 @@ const invokeEnter = async (multiInputValue: MultiInputValue | null) => {
   };
 
   // 文本对话
-  await askChatGPTV2(param, callback, errorCallback);
+  await askChatGPTCore(param, controller, callback, errorCallback);
   // if(!hasError && answer.value.length > 0) {
   // let response = answer.value
   // invoke('send_auto_input_value', { payload: { response } })
