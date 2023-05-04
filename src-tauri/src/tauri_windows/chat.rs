@@ -54,7 +54,7 @@ pub fn show_chat_windows(question: Option<String>) {
                     let _ = windows.set_focus();
                 }
             }
-        }, std::time::Duration::from_millis(500));
+        }, std::time::Duration::from_millis(800));
     }
 }
 

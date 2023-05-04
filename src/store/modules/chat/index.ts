@@ -100,6 +100,18 @@ export const useChatStore = defineStore('chat-store', {
       return null
     },
 
+    getChatMessages(chatId: number) {
+      if (!chatId || chatId === 0) {
+        console.log('chatId is 0 or nuot found')
+        return null
+      }
+      const chatIndex = this.chat.findIndex(item => item.uuid === chatId)
+      console.log(chatIndex)
+      if (chatIndex !== -1)
+        return this.chat[chatIndex].data.filter(item => item.text !== '')
+      return null
+    },
+
     addChatByUuid(uuid: number, chat: Chat.Chat) {
       if (!uuid || uuid === 0) {
         if (this.history.length === 0) {

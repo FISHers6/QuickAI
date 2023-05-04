@@ -16,7 +16,6 @@ async function bootstrap() {
     app.use(VueHighlightJS)
     app.mount('#chatWindow')
 }
-  
 bootstrap()
   
 

@@ -91,7 +91,7 @@ import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
 import { createImage} from "@/api/index"
 import { listen } from '@tauri-apps/api/event';
-import { askChatGPTV2 } from '@/hooks/useAPI'
+import { askChatGPTCore } from '@/hooks/useAPI'
 import type { GPTParamV2 } from '@/hooks/useAPI'
 import type { GPTResponse } from '@/hooks/useAPI'
 import { ElMessage } from 'element-plus'
@@ -384,7 +384,7 @@ async function onConversation(chatMsg: ChatMsg) {
       }
 
       // 文本对话
-      await askChatGPTV2(param, callback, errorCallback)
+      await askChatGPTCore(param, controller, callback, errorCallback)
     }
   }
   catch (error: any) {

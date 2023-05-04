@@ -4,9 +4,9 @@
 </template>
 
 <script setup lang="ts">
-import { listen } from '@tauri-apps/api/event';
+import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api'
-import { askChatGPTV2 } from '@/hooks/useAPI'
+import { askChatGPTCore } from '@/hooks/useAPI'
 import type { GPTParamV2 } from '@/hooks/useAPI'
 import type { GPTResponse } from '@/hooks/useAPI'
 
@@ -50,7 +50,7 @@ const send_chat_api =  async (question: string, prompts: string) => {
         controller.abort()
     }
 
-    await askChatGPTV2(param, callback, errorCallback)
+    await askChatGPTCore(param, controller, callback, errorCallback)
 }
 </script>
 

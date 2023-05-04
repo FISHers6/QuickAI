@@ -40,7 +40,7 @@ import type { SettingsState } from '@/store/modules/settings/helper'
 
 const { updateSetting, getSetting } = useSettings()
 const labelPosition = ref('left')
-const dialogFormVisible = ref(true)
+const dialogFormVisible = ref(false)
 // not used
 const formLabelWidth = '140px'
 const changeMode = (val: boolean) => {

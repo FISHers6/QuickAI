@@ -6,10 +6,6 @@ use clipboard::ClipboardProvider;
 pub fn copy() {
     use enigo::*;
     let mut enigo = Enigo::new();
-    enigo.key_up(Key::Control);
-    enigo.key_up(Key::Alt);
-    enigo.key_up(Key::Shift);
-    enigo.key_up(Key::Space);
     enigo.key_down(Key::Control);
     enigo.key_click(Key::Layout('c'));
     enigo.key_up(Key::Control);
@@ -19,13 +15,6 @@ pub fn copy() {
 pub fn copy() {
     use enigo::*;
     let mut enigo = Enigo::new();
-    enigo.key_up(Key::Control);
-    enigo.key_up(Key::Meta);
-    enigo.key_up(Key::Alt);
-    enigo.key_up(Key::Shift);
-    enigo.key_up(Key::Space);
-    enigo.key_up(Key::Tab);
-    enigo.key_up(Key::Option);
     enigo.key_down(Key::Meta);
     enigo.key_click(Key::Layout('c'));
     enigo.key_up(Key::Meta);
@@ -35,10 +24,6 @@ pub fn copy() {
 pub fn copy() {
     use enigo::*;
     let mut enigo = Enigo::new();
-    enigo.key_up(Key::Control);
-    enigo.key_up(Key::Alt);
-    enigo.key_up(Key::Shift);
-    enigo.key_up(Key::Space);
     enigo.key_down(Key::Control);
     enigo.key_click(Key::Layout('c'));
     enigo.key_up(Key::Control);
@@ -60,6 +45,7 @@ pub fn selected_text() -> Result<String> {
     }
 }
 
+#[cfg(not(target_os="macos"))]
 pub fn get_selected_text() -> Result<String> {
     let mut cli_pboard: ClipboardContext =
         ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
@@ -86,10 +72,6 @@ pub fn get_selected_text() -> Result<String> {
 pub fn paste() {
     use enigo::*;
     let mut enigo = Enigo::new();
-    enigo.key_up(Key::Control);
-    enigo.key_up(Key::Alt);
-    enigo.key_up(Key::Shift);
-    enigo.key_up(Key::Space);
     enigo.key_down(Key::Control);
     enigo.key_click(Key::Layout('v'));
     enigo.key_up(Key::Control);
@@ -99,13 +81,6 @@ pub fn paste() {
 pub fn paste() {
     use enigo::*;
     let mut enigo = Enigo::new();
-    enigo.key_up(Key::Control);
-    enigo.key_up(Key::Meta);
-    enigo.key_up(Key::Alt);
-    enigo.key_up(Key::Shift);
-    enigo.key_up(Key::Space);
-    enigo.key_up(Key::Tab);
-    enigo.key_up(Key::Option);
     enigo.key_down(Key::Meta);
     enigo.key_click(Key::Layout('v'));
     enigo.key_up(Key::Meta);
@@ -115,10 +90,6 @@ pub fn paste() {
 pub fn paste() {
     use enigo::*;
     let mut enigo = Enigo::new();
-    enigo.key_up(Key::Control);
-    enigo.key_up(Key::Alt);
-    enigo.key_up(Key::Shift);
-    enigo.key_up(Key::Space);
     enigo.key_down(Key::Control);
     enigo.key_click(Key::Layout('v'));
     enigo.key_up(Key::Control);
@@ -143,4 +114,25 @@ pub fn copy_content(content: String) -> Result<()>{
     let mut cli_pboard: ClipboardContext = ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
     cli_pboard.set_contents(content).map_err(|err| anyhow!(format!("copy content failed: {}", err)))?;
     Ok(())
+}
+
+#[cfg(target_os = "windows")]
+pub fn press_enter() {
+    use enigo::*;
+    let mut enigo = Enigo::new();
+    enigo.key_click(Key::Return);
+}
+
+#[cfg(target_os = "macos")]
+pub fn press_enter() {
+    use enigo::*;
+    let mut enigo = Enigo::new();
+    enigo.key_click(Key::Return);
+}
+
+#[cfg(target_os = "linux")]
+pub fn press_enter() {
+    use enigo::*;
+    let mut enigo = Enigo::new();
+    enigo.key_click(Key::Return);
 }

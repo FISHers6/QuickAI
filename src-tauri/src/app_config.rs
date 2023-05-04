@@ -34,7 +34,7 @@ impl Default for AppConfig {
 #[tauri::command]
 pub fn get_app_config_json() -> String {
     if let Some(config_dir) = config_dir() {
-        let app_config_dir = config_dir.join("config.desk-ai");
+        let app_config_dir = config_dir.join("config.quick-ai");
         if !app_config_dir.exists() {
             std::fs::create_dir_all(&app_config_dir).expect("not failed");
         }
@@ -67,7 +67,7 @@ pub fn get_app_config() -> Result<AppConfig, Box<dyn std::error::Error>> {
 
 pub fn save_app_config(config: &AppConfig) -> Result<(), String> {
     if let Some(config_dir) = config_dir() {
-        let app_config_dir = config_dir.join("config.desk-ai");
+        let app_config_dir = config_dir.join("config.quick-ai");
         if !app_config_dir.exists() {
             std::fs::create_dir_all(&app_config_dir).expect("not failed");
         }

@@ -1,11 +1,10 @@
-use tauri::Manager;
+use tauri::{Manager, AppHandle};
 
 pub mod foreground;
 pub mod input;
 
 
-pub fn send_auto_input_value(content: String) -> Result<(), String> {
-    let handle = crate::APP.get().unwrap();
+pub fn send_auto_input_value(handle: &AppHandle, content: String) -> Result<(), String> {
     let state: tauri::State<crate::AppState> = handle.state();
     crate::tauri_windows::search::show_foreground_window();
     let answer_sender = crate::command::get_or_init_auto_input(&state);

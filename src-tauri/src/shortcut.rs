@@ -16,7 +16,7 @@ impl ShortcutRegister {
         if !shortcut.is_empty() {
             handle
             .global_shortcut_manager()
-            .register(&shortcut, chatgpt::chatgpt_windows)?;
+            .register(&shortcut, chatgpt::chatgpt_shortcut)?;
         }
 
         let easy_thing = app_config.search_shortcut.unwrap_or_default();

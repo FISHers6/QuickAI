@@ -7,6 +7,11 @@ export function useChat() {
     return chatStore.getChatByUuidAndIndex(uuid, index)
   }
 
+  const getChatMessages = (chatId: number) => {
+    console.log('getChatMessages chatId', chatId)
+    return chatStore.getChatMessages(chatId)
+  }
+
   const addChat = (uuid: number, chat: Chat.Chat) => {
     chatStore.addChatByUuid(uuid, chat)
   }
@@ -21,6 +26,7 @@ export function useChat() {
 
   return {
     addChat,
+    getChatMessages,
     updateChat,
     updateChatSome,
     getChatByUuidAndIndex,
