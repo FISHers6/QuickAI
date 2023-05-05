@@ -3,9 +3,8 @@
 
 [![GitHub license](https://img.shields.io/github/license/FISHers6/QuickAI?color=%238888FF)](https://github.com/FISHers6/QuickAI/blob/master/LICENSE) [![GitHub stars](https://img.shields.io/github/stars/FISHers6/QuickAI?color=yellow&style=social)](https://github.com/FISHers6/QuickAI/stargazers) [![GitHub issues](https://img.shields.io/github/issues/FISHers6/QuickAI?color=red)](https://github.com/FISHers6/QuickAI/issues) ![GitHub last commit](https://img.shields.io/github/last-commit/FISHers6/QuickAI?color=brightgreen)
 
-QuickAI是一款基于OpenAI开发的电脑版ChatGPT PC跨平台应用程序，它可以提供划词提问、快捷搜索、对话模式和快捷指令等多种功能。旨在为用户提供更便捷、更智能的PC桌面版AI使用体验。
-项目使用Rust Tauri、Typescript Vue3进行开发；支持Windows、MacOS和Linux三种主流操作系统，并在Web端提供部分功能的支持。通过Rust Tauri框架，QuickAI实现了跨平台设计，同时保证Web应用与PC客户端之间的互联性。
-在使用时无需下载额外软件，适用于各种场景，如代码自动编辑、文件自动输入、提问、聊天软件自动回复等。
+- QuickAI是一款基于OpenAI开发的电脑版ChatGPT PC跨平台应用程序，它可以提供划词提问、快捷搜索、对话模式和快捷指令等多种功能。旨在为用户提供更便捷、更智能的PC桌面版AI使用体验。在使用时无需下载额外软件，适用于各种场景，如代码自动编辑、文件自动输入、提问、聊天软件自动回复等。
+- 项目使用Rust Tauri、Typescript Vue3进行开发；支持Windows、MacOS和Linux三种主流操作系统，并在Web端提供部分功能的支持。通过Rust Tauri框架，QuickAI实现了跨平台设计，同时保证Web应用与PC客户端之间的互联性。
 
 ## 功能介绍 📝
 
