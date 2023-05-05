@@ -89,7 +89,6 @@ import { getFile, getFileMeta} from "@/hooks/useFile"
 import type FileMeta from "@/hooks/useFile"
 import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
-import { createImage} from "@/api/index"
 import { listen } from '@tauri-apps/api/event';
 import { askChatGPTCore } from '@/hooks/useAPI'
 import type { GPTParamV2 } from '@/hooks/useAPI'
@@ -256,19 +255,19 @@ async function onConversation(chatMsg: ChatMsg) {
         n: num,
         size: size
       }
-      createImage(params, apiKey).then(data => {
-        for (let imgInfo of data) {
-          let chatImgMsg = {
-            time: new Date().toLocaleString(),
-            msg: imgInfo.url,
-            messageType: 1, //信息类型，0文字，1图片 2文件
-            imgType: 2, //(1表情，2本地图片)
-            imageUrl: imgInfo.url
-          };
-          addChatMessage(chatImgMsg)
-          srcImgList.value.push(imgInfo.url)
-        }
-      })
+      // createImage(params, apiKey).then(data => {
+      //   for (let imgInfo of data) {
+      //     let chatImgMsg = {
+      //       time: new Date().toLocaleString(),
+      //       msg: imgInfo.url,
+      //       messageType: 1, //信息类型，0文字，1图片 2文件
+      //       imgType: 2, //(1表情，2本地图片)
+      //       imageUrl: imgInfo.url
+      //     };
+      //     addChatMessage(chatImgMsg)
+      //     srcImgList.value.push(imgInfo.url)
+      //   }
+      // })
     }
 
     /*

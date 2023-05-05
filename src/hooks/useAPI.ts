@@ -8,7 +8,6 @@ import { useChat } from "@/hooks/useChat"
 import { useRecord } from "@/hooks/useRecord"
 import type { Record } from "@/store/modules/record/helper"
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
-import { post } from '@/utils/request'
 import { getNowTime } from '@/utils/util'
 const baseURL = 'https://api.openai.com'
 
@@ -432,86 +431,9 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
     return new Response(stream) 
 }
 
-export function createImageVariations<T = any>(formData: FormData) {
-  return post<T>({
-    url: '/createImageVariations',
-    data: { formData },
-  })
-}
-
-export function createImageEdit<T = any>(formData: FormData) {
-  return post<T>({
-    url: '/createImageEdit',
-    data: { formData },
-  })
-}
-
 
 interface imageParams {
   prompt: string,
   n: number,
   size: string,
-}
-
-export function createImage<T = any>(params: imageParams, token: string) {
-  return post<T>({
-    url: '/createImage',
-    data: { 
-      prompt: params.prompt,
-      n: params.n,
-      size: params.size,
-      token: token,
-    },
-  })
-}
-
-export function fetchChatAPI<T = any>(
-  prompt: string,
-  options?: { conversationId?: string; parentMessageId?: string },
-  signal?: GenericAbortSignal,
-) {
-  return post<T>({
-    url: '/chat',
-    data: { prompt, options },
-    signal,
-  })
-}
-
-export function fetchChatConfig<T = any>() {
-  return post<T>({
-    url: '/config',
-  })
-}
-
-export function fetchChatAPIProcess<T = any>(
-  params: {
-    question: string,
-    prompt: string
-    options?: { conversationId?: string; parentMessageId?: string }
-    apiKey?: string
-    userProxy?: string
-    signal?: GenericAbortSignal
-    onDownloadProgress?: (progressEvent: AxiosProgressEvent) => void 
-  },
-) {
-
-  return post<T>({
-    url: '/chat-process',
-    data: { prompt: params.question, options: params.options, systemMessage: params.prompt, apiKey: params.apiKey, userProxy: params.userProxy},
-    signal: params.signal,
-    onDownloadProgress: params.onDownloadProgress,
-  })
-}
-
-export function fetchSession<T>() {
-  return post<T>({
-    url: '/session',
-  })
-}
-
-export function fetchVerify<T>(token: string) {
-  return post<T>({
-    url: '/verify',
-    data: { token },
-  })
 }
