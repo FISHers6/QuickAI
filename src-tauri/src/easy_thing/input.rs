@@ -21,5 +21,4 @@ impl CrossformInput {
         };
         Ok(())
     }
-
 }

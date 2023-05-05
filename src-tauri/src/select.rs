@@ -45,7 +45,7 @@ pub fn selected_text() -> Result<String> {
     }
 }
 
-#[cfg(not(target_os="macos"))]
+#[cfg(not(target_os = "macos"))]
 pub fn get_selected_text() -> Result<String> {
     let mut cli_pboard: ClipboardContext =
         ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
@@ -57,7 +57,7 @@ pub fn get_selected_text() -> Result<String> {
         if old_text.trim() != new_text.trim() {
             let _err = cli_pboard.set_contents(old_text);
             Ok(new_text)
-        }else {
+        } else {
             let _err = cli_pboard.set_contents(old_text);
             Err(anyhow!("not found selected text"))
         }
@@ -66,7 +66,6 @@ pub fn get_selected_text() -> Result<String> {
         Err(anyhow!("not found selected text"))
     }
 }
-
 
 #[cfg(target_os = "windows")]
 pub fn paste() {
@@ -97,22 +96,27 @@ pub fn paste() {
 
 pub fn copy_and_paste(text: String) -> Result<()> {
     let mut cli_pboard: ClipboardContext =
-    ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
-     let old_text = cli_pboard
+        ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
+    let old_text = cli_pboard
         .get_contents()
         .map_err(|_err| anyhow!("get clipboard content error"))?;
     if let Ok(_) = cli_pboard.set_contents(text) {
         std::thread::sleep(std::time::Duration::from_millis(30));
         paste();
         // 将文本粘贴到当前焦点窗口中
-        cli_pboard.set_contents(old_text).map_err(|_err| anyhow!("set old clipboard error"))?;
+        cli_pboard
+            .set_contents(old_text)
+            .map_err(|_err| anyhow!("set old clipboard error"))?;
     }
     Ok(())
 }
 
-pub fn copy_content(content: String) -> Result<()>{
-    let mut cli_pboard: ClipboardContext = ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
-    cli_pboard.set_contents(content).map_err(|err| anyhow!(format!("copy content failed: {}", err)))?;
+pub fn copy_content(content: String) -> Result<()> {
+    let mut cli_pboard: ClipboardContext =
+        ClipboardProvider::new().map_err(|_err| anyhow!("get clipboard error"))?;
+    cli_pboard
+        .set_contents(content)
+        .map_err(|err| anyhow!(format!("copy content failed: {}", err)))?;
     Ok(())
 }
 

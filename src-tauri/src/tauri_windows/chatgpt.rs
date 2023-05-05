@@ -43,7 +43,11 @@ pub fn chatgpt_shortcut() {
     chatgpt_windows(handle, question, trigger_selected_content_change_event);
 }
 
-pub fn chatgpt_windows(handle: &AppHandle, question: Option<String>,trigger_selected_content_change_event: bool ) {
+pub fn chatgpt_windows(
+    handle: &AppHandle,
+    question: Option<String>,
+    trigger_selected_content_change_event: bool,
+) {
     if trigger_selected_content_change_event {
         show_quick_answer_window(handle, question, false);
     }
@@ -97,11 +101,14 @@ pub fn show_quick_answer_window(handle: &AppHandle, question: Option<String>, is
     }
 
     if let Some(question) = question {
-        state.spawn_delay_task(async {
-            let handle = APP.get().unwrap();
-            if let Err(err) = crate::event::trigger_question_update(handle, question, true) {
-                tracing::warn!(err =? err);
-            }
-        }, std::time::Duration::from_millis(800));
+        state.spawn_delay_task(
+            async {
+                let handle = APP.get().unwrap();
+                if let Err(err) = crate::event::trigger_question_update(handle, question, true) {
+                    tracing::warn!(err =? err);
+                }
+            },
+            std::time::Duration::from_millis(800),
+        );
     }
 }

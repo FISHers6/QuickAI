@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tauri::{Size, Window, LogicalSize, AppHandle, Manager, State};
+use tauri::{AppHandle, LogicalSize, Manager, Size, State, Window};
 use tokio::sync::mpsc::UnboundedSender;
 
 use crate::AppState;
@@ -26,11 +26,10 @@ pub fn get_selected_content_from_cache(handle: AppHandle) -> Result<String, Stri
     tracing::info!(selected_content = selected_content);
     if selected_content.is_empty() {
         Err("empty selected conent".to_string())
-    }else {
+    } else {
         Ok(selected_content.to_string())
     }
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SetSizePayload {
@@ -42,11 +41,11 @@ pub struct SetSizePayload {
 pub fn set_size(window: Window, payload: SetSizePayload) {
     tracing::info!(payload =? payload);
     window
-    .set_size(Size::Logical(LogicalSize::new(
-        payload.width as f64,
-        payload.height as f64,
-    )))
-    .unwrap();
+        .set_size(Size::Logical(LogicalSize::new(
+            payload.width as f64,
+            payload.height as f64,
+        )))
+        .unwrap();
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -55,7 +54,11 @@ pub struct AutoInput {
 }
 
 #[tauri::command]
-pub async fn run_auto_input(handle: AppHandle, window: Window, payload: AutoInput) -> Result<(), String> {
+pub async fn run_auto_input(
+    handle: AppHandle,
+    window: Window,
+    payload: AutoInput,
+) -> Result<(), String> {
     tracing::info!(payload =? payload);
     window.hide().map_err(|err| format!("{:?}", err))?;
     crate::easy_thing::send_auto_input_value(&handle, payload.response)?;
@@ -70,7 +73,9 @@ pub async fn send_auto_input_value(handle: AppHandle, payload: AutoInput) -> Res
 }
 
 /// get or init input sender which sends content to other windows
-pub fn get_or_init_auto_input<'a>(state: &'a tauri::State<crate::AppState>) -> &'a UnboundedSender<String> {
+pub fn get_or_init_auto_input<'a>(
+    state: &'a tauri::State<crate::AppState>,
+) -> &'a UnboundedSender<String> {
     let answer_sender = state.auto_input_sender.get_or_init(|| {
         let (answer_sender, mut answer_receiver) = tokio::sync::mpsc::unbounded_channel::<String>();
         let _ = state.spawn_future(async move {
@@ -80,13 +85,19 @@ pub fn get_or_init_auto_input<'a>(state: &'a tauri::State<crate::AppState>) -> &
                     tracing::info!(split_suffix = true);
                     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
                     // crate::easy_thing::input::PlatformInput::send_content_v2(suffix);
-                    if let Err(err) = crate::easy_thing::input::CrossformInput::auto_input_text_using_copy(suffix) {
+                    if let Err(err) =
+                        crate::easy_thing::input::CrossformInput::auto_input_text_using_copy(suffix)
+                    {
                         tracing::warn!(err =? err);
                     }
-                }else {
+                } else {
                     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
                     tracing::info!(split_suffix = false);
-                    if let Err(err) = crate::easy_thing::input::CrossformInput::auto_input_text_using_copy(&answer) {
+                    if let Err(err) =
+                        crate::easy_thing::input::CrossformInput::auto_input_text_using_copy(
+                            &answer,
+                        )
+                    {
                         tracing::warn!(err =? err);
                     }
                 }
@@ -104,7 +115,11 @@ pub struct QuestionPayload {
 }
 
 #[tauri::command]
-pub async fn run_quick_answer(handle: AppHandle, window: Window, payload: QuestionPayload) -> Result<(), String> {
+pub async fn run_quick_answer(
+    handle: AppHandle,
+    window: Window,
+    payload: QuestionPayload,
+) -> Result<(), String> {
     tracing::info!(payload =? payload);
     let question = if payload.question.is_empty() {
         None
@@ -115,7 +130,6 @@ pub async fn run_quick_answer(handle: AppHandle, window: Window, payload: Questi
     window.hide().map_err(|err| format!("{:?}", err))?;
     Ok(())
 }
-
 
 #[tauri::command]
 pub async fn run_chat_mode(window: Window, payload: QuestionPayload) -> Result<(), String> {
@@ -148,7 +162,7 @@ pub async fn open_setting_window(_window: Window) {
     crate::tauri_windows::settings::build_setting_window();
 }
 
-#[cfg(not(target_os="macos"))]
+#[cfg(not(target_os = "macos"))]
 #[tauri::command]
 pub async fn hide_select_window(_window: Window) {
     crate::tauri_windows::select::hide_select_window();
@@ -159,11 +173,11 @@ pub async fn copy_select_content(payload: String) -> Result<(), String> {
     crate::select::copy_content(payload).map_err(|err| format!("{:?}", err))
 }
 
-
 #[tauri::command]
 pub fn update_shortcut() -> Result<(), String> {
     let handle = crate::APP.get().ok_or("can't get app handle")?;
-    crate::shortcut::ShortcutRegister::register_shortcut(handle).map_err(|err| format!("register short cut error :{}", err))?;
+    crate::shortcut::ShortcutRegister::register_shortcut(handle)
+        .map_err(|err| format!("register short cut error :{}", err))?;
     Ok(())
 }
 
@@ -173,10 +187,14 @@ pub fn update_app_config(payload: crate::app_config::AppConfig) -> Result<(), St
     crate::app_config::save_app_config(&payload)
 }
 
-#[cfg(not(target_os="macos"))]
-#[tauri::command] 
-pub async fn trigger_select_click(handle: tauri::AppHandle, payload: crate::tauri_windows::select::SelectPayload) -> Result<(), String> {
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+pub async fn trigger_select_click(
+    handle: tauri::AppHandle,
+    payload: crate::tauri_windows::select::SelectPayload,
+) -> Result<(), String> {
     tracing::info!(select_click_payload =?payload);
-    crate::tauri_windows::select::click_select(&handle, payload).map_err(|err| format!("trigger select click error {:?}", err))?;
+    crate::tauri_windows::select::click_select(&handle, payload)
+        .map_err(|err| format!("trigger select click error {:?}", err))?;
     Ok(())
 }

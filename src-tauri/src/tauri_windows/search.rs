@@ -14,13 +14,15 @@ pub const SEARCH_WINDOWS: &str = "search_windows";
 
 pub fn search_windows() {
     let foreground_handle = {
-        #[cfg(target_os="windows")]
+        #[cfg(target_os = "windows")]
         let hwnd = PlatformForeground::get_foreground_window();
-        #[cfg(target_os="macos")]
-        let hwnd = PlatformForeground::get_foreground_window().map_err(|err| {
-            tracing::warn!(err =?err);
-            err
-        }).unwrap_or_default();
+        #[cfg(target_os = "macos")]
+        let hwnd = PlatformForeground::get_foreground_window()
+            .map_err(|err| {
+                tracing::warn!(err =?err);
+                err
+            })
+            .unwrap_or_default();
         tracing::info!(hwnd = hwnd);
         hwnd
     };
@@ -45,7 +47,8 @@ pub fn search_windows() {
             let window_height = 60.0;
             let offset_y = 300.0; // 向上偏移 300 个像素
             let pos_x = (state.screen_size.0 - window_width) / 2.0;
-            let pos_y = ((state.screen_size.1 - window_height) / 2.0 - offset_y).min(state.screen_size.1 / 2.0);
+            let pos_y = ((state.screen_size.1 - window_height) / 2.0 - offset_y)
+                .min(state.screen_size.1 / 2.0);
 
             let windows = tauri::WindowBuilder::new(
                 handle,
@@ -67,8 +70,13 @@ pub fn search_windows() {
             // 仅在 macOS 下执行
             #[allow(deprecated)]
             #[cfg(target_os = "macos")]
-            let _ = window_vibrancy::apply_vibrancy(&windows, NSVisualEffectMaterial::UltraDark, None, None)
-                .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+            let _ = window_vibrancy::apply_vibrancy(
+                &windows,
+                NSVisualEffectMaterial::UltraDark,
+                None,
+                None,
+            )
+            .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
 
             // 仅在 windows 下执行
             #[cfg(target_os = "windows")]
@@ -80,6 +88,7 @@ pub fn search_windows() {
                 set_shadow(&windows, true).unwrap_or_default();
             }
             windows.on_window_event(hide_window_when_lose_focused);
+            let _ = windows.start_dragging();
         }
     }
 }

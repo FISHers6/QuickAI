@@ -1,11 +1,6 @@
 <template>
   <div class="chat-window">
-    <!-- <div class="other-fun">
-      <label @click="snapchat">
-        <span class="iconfont icon-snapchat"></span>
-      </label>
-    </div> -->
-    <div class="botoom">
+    <div class="botoom" data-tauri-drag-region>
       <div class="chat-content" id="chat-content" ref="scrollRef">
         <div class="chat-wrapper" v-for="(item, index) of dataSources" :key="index">
           <div :class="item.inversion ? 'chat-me': 'chat-friend'">

@@ -1,4 +1,3 @@
-
 use crate::AppState;
 use tauri::Manager;
 
@@ -25,7 +24,7 @@ pub fn show_chat_windows(question: Option<String>) {
             let pos_x = state.screen_size.0 - window_width - 30.0;
             let pos_y = (state.screen_size.1 - window_width) / 2.8;
 
-            let _windows = tauri::WindowBuilder::new(
+            let windows = tauri::WindowBuilder::new(
                 handle,
                 CHAT_WINDOWS,
                 tauri::WindowUrl::App("chat.html".into()),
@@ -42,19 +41,22 @@ pub fn show_chat_windows(question: Option<String>) {
             .focused(true)
             .build()
             .unwrap();
+            let _ = windows.start_dragging();
         }
     }
     if let Some(question) = question {
-        state.spawn_delay_task(async {
-            let handle = APP.get().unwrap();
-            if let Err(err) = crate::event::trigger_chat_question_update(handle, question) {
-                tracing::warn!(err =? err);
-            }else {
-                if let Some(windows) = handle.get_window(CHAT_WINDOWS) {
-                    let _ = windows.set_focus();
+        state.spawn_delay_task(
+            async {
+                let handle = APP.get().unwrap();
+                if let Err(err) = crate::event::trigger_chat_question_update(handle, question) {
+                    tracing::warn!(err =? err);
+                } else {
+                    if let Some(windows) = handle.get_window(CHAT_WINDOWS) {
+                        let _ = windows.set_focus();
+                    }
                 }
-            }
-        }, std::time::Duration::from_millis(800));
+            },
+            std::time::Duration::from_millis(800),
+        );
     }
 }
-

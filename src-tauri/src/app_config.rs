@@ -1,5 +1,5 @@
-use tauri::api::path::config_dir;
 use serde::{Deserialize, Serialize};
+use tauri::api::path::config_dir;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -17,16 +17,16 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
-        Self { 
-            quick_ask_shortcut: Some("CommandOrControl+Alt+D".to_string()), 
-            search_shortcut: Some("Shift+Alt+Space".to_string()), 
+        Self {
+            quick_ask_shortcut: Some("CommandOrControl+Alt+D".to_string()),
+            search_shortcut: Some("Shift+Alt+Space".to_string()),
             chat_shortcut: Some("Shift+Alt+C".to_string()),
             mode: Some("快捷提问".to_string()),
             is_dark_mode: true,
             language: "zh-cn".to_string(),
             api_key: None,
             proxy: None,
-            use_chat_context: true, 
+            use_chat_context: true,
         }
     }
 }
@@ -46,9 +46,9 @@ pub fn get_app_config_json() -> String {
             }
         } else {
             if let Ok(config_str) = serde_json::to_string(&AppConfig::default()) {
-                let _  = std::fs::write(config_path, config_str.clone());
+                let _ = std::fs::write(config_path, config_str.clone());
                 config_str
-            }else {
+            } else {
                 serde_json::to_string(&AppConfig::default()).expect("not failed")
             }
         }
@@ -57,13 +57,11 @@ pub fn get_app_config_json() -> String {
     }
 }
 
-
 pub fn get_app_config() -> Result<AppConfig, Box<dyn std::error::Error>> {
     let config_content = get_app_config_json();
     let config: AppConfig = serde_json::from_str(&config_content)?;
     Ok(config)
 }
-
 
 pub fn save_app_config(config: &AppConfig) -> Result<(), String> {
     if let Some(config_dir) = config_dir() {
@@ -73,14 +71,12 @@ pub fn save_app_config(config: &AppConfig) -> Result<(), String> {
         }
         let config_path = app_config_dir.join("config.json");
         if let Ok(config_str) = serde_json::to_string(config) {
-            std::fs::write(config_path, config_str).map_err(|err| {
-                format!("failed to write config {}", err)
-            })
-        }else {
+            std::fs::write(config_path, config_str)
+                .map_err(|err| format!("failed to write config {}", err))
+        } else {
             Err("serialize app config error".to_string())
         }
-    }else {
+    } else {
         Err("not found app config directory".to_string())
     }
 }
-
