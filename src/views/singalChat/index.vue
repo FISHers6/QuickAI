@@ -1,5 +1,5 @@
 <template lang='pug'>
-ChatMode(data-tauri-drag-region)
+ChatMode
 </template>
         
 <script lang='ts' setup>

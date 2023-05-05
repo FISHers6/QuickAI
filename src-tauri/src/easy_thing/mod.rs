@@ -1,8 +1,7 @@
-use tauri::{Manager, AppHandle};
+use tauri::{AppHandle, Manager};
 
 pub mod foreground;
 pub mod input;
-
 
 pub fn send_auto_input_value(handle: &AppHandle, content: String) -> Result<(), String> {
     let state: tauri::State<crate::AppState> = handle.state();

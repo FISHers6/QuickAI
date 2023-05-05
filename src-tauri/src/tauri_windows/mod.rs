@@ -1,7 +1,7 @@
+pub mod chat;
 pub mod chatgpt;
 pub mod search;
-pub mod chat;
-#[cfg(not(target_os="macos"))]
+#[cfg(not(target_os = "macos"))]
 pub mod select;
 pub mod settings;
 

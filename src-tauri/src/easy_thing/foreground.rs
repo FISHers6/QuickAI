@@ -33,21 +33,23 @@ mod windows {
 
 #[cfg(target_os = "macos")]
 mod mac {
-    use std::process::{Command, Output};
     use super::PlatformForeground;
-    
+    use std::process::{Command, Output};
+
     impl PlatformForeground {
         pub fn run_script(script: String) -> Result<String, String> {
             let output: Output = Command::new("osascript")
                 .args(&["-e", &script])
                 .output()
                 .map_err(|_| "Failed to execute command".to_string())?;
-    
+
             if !output.status.success() {
                 return Err(String::from_utf8_lossy(output.stderr.as_slice()).into());
             }
-    
-            Ok(String::from_utf8_lossy(output.stdout.as_slice()).trim().to_owned())
+
+            Ok(String::from_utf8_lossy(output.stdout.as_slice())
+                .trim()
+                .to_owned())
         }
 
         pub fn get_foreground_window() -> Result<isize, String> {
@@ -57,9 +59,10 @@ mod mac {
                                 return frontWinID as string
                             end tell "#;
             let hwnd = PlatformForeground::run_script(String::from(script))?;
-            hwnd.parse::<isize>().map_err(|_err| format!("parse hwnd error"))
+            hwnd.parse::<isize>()
+                .map_err(|_err| format!("parse hwnd error"))
         }
-    
+
         pub fn set_foreground_window(window_id: isize) -> Result<(), String> {
             let script = format!(
                 "tell application \"System Events\" to tell window id {} of (first application process whose frontmost is true)\n\
@@ -68,9 +71,8 @@ mod mac {
                  end tell",
                 window_id
             );
-    
+
             PlatformForeground::run_script(script).map(|_| ())
         }
     }
-
 }

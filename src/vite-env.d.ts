@@ -8,6 +8,3 @@ declare module "*.vue" {
 
 declare module 'vue3-markdown';
 declare module 'vue3-highlightjs';
-
-import * as ES6Promise from 'es6-promise';
-ES6Promise.polyfill();

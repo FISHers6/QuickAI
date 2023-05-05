@@ -1,4 +1,3 @@
-
 use crate::AppState;
 use tauri::Manager;
 
@@ -35,4 +34,3 @@ pub fn build_setting_window() {
         }
     }
 }
-

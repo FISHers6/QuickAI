@@ -1,4 +1,4 @@
-use crate::tauri_windows::{chatgpt, search, chat};
+use crate::tauri_windows::{chat, chatgpt, search};
 use anyhow::Result;
 use tauri::AppHandle;
 use tauri::GlobalShortcutManager;
@@ -15,22 +15,22 @@ impl ShortcutRegister {
         let shortcut = app_config.quick_ask_shortcut.unwrap_or_default();
         if !shortcut.is_empty() {
             handle
-            .global_shortcut_manager()
-            .register(&shortcut, chatgpt::chatgpt_shortcut)?;
+                .global_shortcut_manager()
+                .register(&shortcut, chatgpt::chatgpt_shortcut)?;
         }
 
         let easy_thing = app_config.search_shortcut.unwrap_or_default();
         if !easy_thing.is_empty() {
             handle
-            .global_shortcut_manager()
-            .register(&easy_thing, search::search_windows)?;
+                .global_shortcut_manager()
+                .register(&easy_thing, search::search_windows)?;
         }
 
         let chat_shortcut = app_config.chat_shortcut.unwrap_or_default();
         if !chat_shortcut.is_empty() {
             handle
-            .global_shortcut_manager()
-            .register(&chat_shortcut, chat::chat_windows)?;
+                .global_shortcut_manager()
+                .register(&chat_shortcut, chat::chat_windows)?;
         }
 
         Ok(())

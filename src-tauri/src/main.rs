@@ -1,29 +1,29 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod app_config;
 mod command;
 mod easy_thing;
 mod event;
 mod select;
 mod shortcut;
-mod tauri_windows;
-#[cfg(not(target_os="macos"))]
+#[cfg(not(target_os = "macos"))]
 mod task;
-mod app_config;
+mod tauri_windows;
 mod utils;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
-use tauri::WindowEvent;
+use std::sync::atomic::AtomicIsize;
 use std::sync::Arc;
+use std::time::Duration;
 use tauri::AppHandle;
 use tauri::Manager;
-use tokio::sync::mpsc::UnboundedSender;
-use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
-use std::time::Duration;
-use std::sync::atomic::AtomicIsize;
+use tauri::WindowEvent;
 use tokio::runtime::Runtime;
+use tokio::sync::mpsc::UnboundedSender;
 use tokio::task::JoinHandle;
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 pub static APP: OnceCell<AppHandle> = OnceCell::new();
 pub struct AppState {
@@ -76,72 +76,87 @@ fn main() {
     // get screen size
     let screen_size = crate::utils::get_screen_size().unwrap_or((1920.0, 1080.0));
     tracing::info!(screen_size =? screen_size);
-    let builder = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+    let builder =
+        tauri::Builder::default().plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             tracing::info!("{}, {argv:?}, {cwd}", app.package_info().name);
-        }))
-        .invoke_handler(tauri::generate_handler![
-            command::get_selected_content,
-            command::set_size,
-            command::run_auto_input,
-            command::send_auto_input_value,
-            command::run_quick_answer,
-            command::run_chat_mode,
-            command::close_window,
-            command::open_setting_window,
-            command::copy_select_content,
-            command::update_shortcut,
-            command::update_app_config,
-            command::get_selected_content_from_cache,
-        ]);
-    #[cfg(not(target_os="macos"))]
+        }));
+    #[cfg(target_os = "macos")]
     let builder = builder.invoke_handler(tauri::generate_handler![
+        command::get_selected_content,
+        command::set_size,
+        command::run_auto_input,
+        command::send_auto_input_value,
+        command::run_quick_answer,
+        command::run_chat_mode,
+        command::close_window,
+        command::open_setting_window,
+        command::copy_select_content,
+        command::update_shortcut,
+        command::update_app_config,
+        command::get_selected_content_from_cache,
+    ]);
+    #[cfg(not(target_os = "macos"))]
+    let builder = builder.invoke_handler(tauri::generate_handler![
+        command::get_selected_content,
+        command::set_size,
+        command::run_auto_input,
+        command::send_auto_input_value,
+        command::run_quick_answer,
+        command::run_chat_mode,
+        command::close_window,
+        command::open_setting_window,
+        command::copy_select_content,
+        command::update_shortcut,
+        command::update_app_config,
+        command::get_selected_content_from_cache,
         command::hide_select_window,
         command::trigger_select_click,
     ]);
-    builder.setup(move |app| {
-        tracing::info!(start = true);
-        APP.get_or_init(|| app.handle());
-        let app_handle = app.handle();
-        app_handle.manage(AppState::new(
-            tokio::runtime::Runtime::new().expect("build tokio runtime error"),
-            screen_size,
-        ));
+    builder
+        .setup(move |app| {
+            tracing::info!(start = true);
+            APP.get_or_init(|| app.handle());
+            let app_handle = app.handle();
+            app_handle.manage(AppState::new(
+                tokio::runtime::Runtime::new().expect("build tokio runtime error"),
+                screen_size,
+            ));
 
-        // 注册全局快捷键
-        let _ = shortcut::ShortcutRegister::register_shortcut(&app_handle);
-        #[cfg(not(target_os="macos"))]
-        task::register_task(&app_handle);
-        Ok(())
-    })
-    .build(tauri::generate_context!())
-    .expect("error while running tauri application")
-    .run(|app_handle, event| match event {
-        tauri::RunEvent::WindowEvent { label, event, .. } => {
-            if label == crate::tauri_windows::chatgpt::CHATGPT_WINDOWS {
-                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                    tracing::info!(label = label, prevent_close = true);
-                    if let Some(main_window) = app_handle.get_window(&label) {
-                        let _ = main_window.hide();
+            // 注册全局快捷键
+            let _ = shortcut::ShortcutRegister::register_shortcut(&app_handle);
+            #[cfg(not(target_os = "macos"))]
+            task::register_task(&app_handle);
+            Ok(())
+        })
+        .build(tauri::generate_context!())
+        .expect("error while running tauri application")
+        .run(|app_handle, event| match event {
+            tauri::RunEvent::WindowEvent { label, event, .. } => {
+                if label == crate::tauri_windows::chatgpt::CHATGPT_WINDOWS {
+                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                        tracing::info!(label = label, prevent_close = true);
+                        if let Some(main_window) = app_handle.get_window(&label) {
+                            let _ = main_window.hide();
+                        }
+                        api.prevent_close()
                     }
-                    api.prevent_close()
-                }
-            }else if label == crate::tauri_windows::SELECT_WINDOWS 
-                || label == crate::tauri_windows::search::SEARCH_WINDOWS {
-                if let WindowEvent::Focused(focused) = event {
-                    tracing::info!(label = label, focused = focused);
-                    if !focused {
-                        if let Some(window) = app_handle.get_window(&label) {
-                            let _ = window.hide();
+                } else if label == crate::tauri_windows::SELECT_WINDOWS
+                    || label == crate::tauri_windows::search::SEARCH_WINDOWS
+                {
+                    if let WindowEvent::Focused(focused) = event {
+                        tracing::info!(label = label, focused = focused);
+                        if !focused {
+                            if let Some(window) = app_handle.get_window(&label) {
+                                let _ = window.hide();
+                            }
                         }
                     }
                 }
             }
-        }
-        tauri::RunEvent::ExitRequested { api, .. } => {
-            tracing::info!("exit");
-            api.prevent_exit();
-        }
-        _ => {}
-    });
+            tauri::RunEvent::ExitRequested { api, .. } => {
+                tracing::info!("exit");
+                api.prevent_exit();
+            }
+            _ => {}
+        });
 }

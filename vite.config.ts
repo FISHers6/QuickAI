@@ -9,6 +9,11 @@ const mobile =
   process.env.TAURI_PLATFORM === 'android' ||
   process.env.TAURI_PLATFORM === 'ios'
 
+import path from 'path'
+
+// 获取当前项目路径
+const root = process.cwd()
+
 // https://vitejs.dev/config/
 export default defineConfig(async (env) => {
   const viteEnv = loadEnv(env.mode, __dirname)
@@ -20,8 +25,27 @@ export default defineConfig(async (env) => {
         dts: 'src/auto-import.d.ts',
       }),
       babel({
-        presets: ['@babel/preset-env'],
-        extensions: ['.js', '.jsx', '.es6', '.es', '.mjs', '.ts', '.tsx']
+        exclude: /node_modules/, // 排除 node_modules 文件夹
+        include: [/src\/.*\.js$/, /src\/.*\.ts$/], // 匹配 src 目录下所有 js 和 ts 文件
+        babelHelpers: 'runtime',
+        presets: [
+          [
+            '@babel/preset-env',
+            {
+              useBuiltIns: 'usage',
+              corejs: 3,
+            },
+          ],
+          '@babel/preset-typescript',
+        ],
+        plugins: [
+          [
+            '@babel/plugin-transform-runtime',
+            {
+              useESModules: true,
+            },
+          ],
+        ],
       }),
     ],
     resolve: {
@@ -37,13 +61,6 @@ export default defineConfig(async (env) => {
     server: {
       port: 1420,
       strictPort: true,
-            proxy: {
-          '/api': {
-            target: viteEnv.VITE_APP_API_BASE_URL,
-            changeOrigin: true, // 允许跨域
-            rewrite: path => path.replace('/api/', '/'),
-          },
-        },
     },
     // to make use of `TAURI_DEBUG` and other env variables
     // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
@@ -56,12 +73,6 @@ export default defineConfig(async (env) => {
       // produce sourcemaps for debug builds
       sourcemap: !!process.env.TAURI_DEBUG,
     },
-    optimizeDeps: {
-      include: [
-        // 添加需要包含到构建中的 ESM 格式的库或插件
-        'chatgpt'
-      ]
-    }
   }
 })
 

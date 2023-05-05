@@ -24,10 +24,7 @@ pub fn trigger_chat_question_update(handle: &AppHandle, question: String) -> Res
 }
 
 pub fn _trigger_selected_content_update(handle: &AppHandle, selected: String) -> Result<()> {
-    handle.emit_all(
-        "change-select-content",
-        selected,
-    )?;
+    handle.emit_all("change-select-content", selected)?;
     tracing::info!("trigger change-question-content");
     Ok(())
 }
@@ -38,12 +35,9 @@ pub struct ChatPayload {
     prompt: String,
 }
 
-#[cfg(not(target_os="macos"))]
+#[cfg(not(target_os = "macos"))]
 pub fn trigger_send_chat_api(handle: &AppHandle, question: String, prompt: String) -> Result<()> {
-    handle.emit_all(
-        "trigger-send-chat-api",
-        ChatPayload { question, prompt },
-    )?;
+    handle.emit_all("trigger-send-chat-api", ChatPayload { question, prompt })?;
     tracing::info!("trigger-send-chat-api");
     Ok(())
 }
