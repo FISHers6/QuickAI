@@ -51,6 +51,14 @@ export const useChatStore = defineStore('chat-store', {
       }
     },
 
+    clearChatMessage(chatID: number) {
+      const index = this.history.findIndex(item => item.uuid === chatID)
+      if (index !== -1) {
+        this.chat[index].data = []
+        this.recordState()
+      }
+    },
+
     async deleteHistory(index: number) {
       this.history.splice(index, 1)
       this.chat.splice(index, 1)

@@ -1,11 +1,9 @@
 use crate::AppState;
-use tauri::Manager;
+use tauri::{Manager, AppHandle};
 
-use crate::APP;
 pub const SETTING_WINDOWS: &str = "setting_windows";
 
-pub fn build_setting_window() {
-    let handle = APP.get().unwrap();
+pub fn build_setting_window(handle: &AppHandle) {
     let _state: tauri::State<AppState> = handle.state();
     match handle.get_window(SETTING_WINDOWS) {
         Some(window) => {
@@ -17,7 +15,7 @@ pub fn build_setting_window() {
             let _windows = tauri::WindowBuilder::new(
                 handle,
                 SETTING_WINDOWS,
-                tauri::WindowUrl::App("settings.html".into()),
+                tauri::WindowUrl::App("src/settings.html".into()),
             )
             .title("设置")
             .resizable(false)

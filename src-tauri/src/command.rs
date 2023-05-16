@@ -158,8 +158,8 @@ pub async fn close_window(window: Window) {
 }
 
 #[tauri::command]
-pub async fn open_setting_window(_window: Window) {
-    crate::tauri_windows::settings::build_setting_window();
+pub async fn open_setting_window(handle: AppHandle) {
+    crate::tauri_windows::settings::build_setting_window(&handle);
 }
 
 #[cfg(not(target_os = "macos"))]

@@ -54,20 +54,20 @@ const copyCode = (element: HTMLAnchorElement) => {
   document.body.removeChild(textarea)
 }
 
-onMounted(() => {
-  // 监听点击复制按钮事件
-  document.addEventListener('click', ({ target }: any) => {
-    if (target.className.indexOf('copy-code') > -1) {
-      const preBlock = target.parentNode.parentNode.parentNode
-      copyCode(preBlock)
-    }
-  })
-  const element: any = document.querySelector(".markdown-body") // 替换成你需要滚动的元素的ID
-  element.addEventListener("DOMSubtreeModified", () => {
-    element.scrollTop = element.scrollHeight
-  })
+// onMounted(() => {
+//   // 监听点击复制按钮事件
+//   document.addEventListener('click', ({ target }: any) => {
+//     if (target.className.indexOf('copy-code') > -1) {
+//       const preBlock = target.parentNode.parentNode.parentNode
+//       copyCode(preBlock)
+//     }
+//   })
+//   const element: any = document.querySelector(".markdown-body") // 替换成你需要滚动的元素的ID
+//   element.addEventListener("DOMSubtreeModified", () => {
+//     element.scrollTop = element.scrollHeight
+//   })
 
-})
+// })
 
 onUpdated(() => {
   addPreHeader()

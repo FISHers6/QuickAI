@@ -16,7 +16,7 @@ import { ref, Ref } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import SearchList from "@/components/SearchList.vue";
 import smilingFaceWithSunglasses from "@/assets/img/emoji/smiling-face-with-sunglasses.png";
-import { askChatGPTCore } from "@/hooks/useAPI";
+import { askChatGPTCore, askChatGPTIntegratorAPI } from "@/hooks/useAPI";
 import type { GPTParamV2 } from "@/hooks/useAPI";
 import type { GPTResponse } from "@/hooks/useAPI";
 import multiInput from "@/components/multiInput/index.vue";
@@ -46,7 +46,7 @@ const select = ref("");
 const loading = ref(false);
 const answer = ref("");
 // 消息发送控制停止
-let controller = new AbortController();
+let controller = ref(new AbortController());
 
 const searchText = ref("推荐使用");
 const showResults = computed(() => searchText.value.length > 0);
@@ -194,6 +194,7 @@ const enterPressedHandle = async (multiInputValue: MultiInputValue | null) => {
 
 
 const invokeEnter = async (multiInputValue: MultiInputValue | null) => {
+  controller.value = new AbortController()
   console.log('invokeEnter', multiInputValue)
   console.log("enter", question);
   loading.value = true;
@@ -205,10 +206,15 @@ const invokeEnter = async (multiInputValue: MultiInputValue | null) => {
   //  3.第一段结果出现时, 设置前台展示, 搜索窗口隐藏不展示, spawn一个异步任务处理前后台操作, 异步sleep一段时间, 上屏第一段result
   //  4.每产出一段result, buffer/Tokenlizer层进行缓存分词处理(目前可以不做, 逻辑放在Rust层完成), 调度层发送给tauri展示
 
+  const {updateSetting, getSetting} = useSettings()
+  const setting = getSetting()
+
   const param: GPTParamV2 = {
     question: question.value,
     prompts: "",
-    controller: controller,
+    controller: controller.value,
+    conversationID:  setting.conversationRequest?.conversationId,
+    parentMessageId: setting.conversationRequest?.parentMessageId
   };
   let hasError = false;
 
@@ -225,7 +231,7 @@ const invokeEnter = async (multiInputValue: MultiInputValue | null) => {
           hasError = true;
           loading.value = false;
           console.log(error);
-          controller.abort();
+          controller.value.abort();
         }
         console.log("first");
         console.log(answer.value);
@@ -241,7 +247,7 @@ const invokeEnter = async (multiInputValue: MultiInputValue | null) => {
           hasError = true;
           loading.value = false;
           console.log(error);
-          controller.abort();
+          controller.value.abort();
         }
         console.log(answer.value);
       }
@@ -250,7 +256,6 @@ const invokeEnter = async (multiInputValue: MultiInputValue | null) => {
 
   const errorCallback = (error: any) => {
     console.log(error);
-    controller.abort();
     loading.value = false;
     hasError = true;
     ElMessage({
@@ -259,8 +264,10 @@ const invokeEnter = async (multiInputValue: MultiInputValue | null) => {
     });
   };
 
+  
+
   // 文本对话
-  await askChatGPTCore(param, controller, callback, errorCallback);
+  await askChatGPTIntegratorAPI(param, controller.value, callback, errorCallback);
   // if(!hasError && answer.value.length > 0) {
   // let response = answer.value
   // invoke('send_auto_input_value', { payload: { response } })

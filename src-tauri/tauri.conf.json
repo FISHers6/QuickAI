@@ -7,7 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "quick-ai",
+    "productName": "QuickAI",
     "version": "0.0.1"
   },
   "tauri": {
@@ -35,8 +35,13 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
-      "targets": "all"
+      "identifier": "com.quickai",
+      "targets": "all",
+      "windows": {
+        "wix": {
+          "language": ["zh-CN", "en-US", "zh-TW"]
+        }
+      }
     },
     "security": {
       "csp": null
@@ -55,6 +60,10 @@
         "decorations": false,
         "transparent": false
       }
-    ]
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.ico",
+      "iconAsTemplate": true
+    }
   }
 }

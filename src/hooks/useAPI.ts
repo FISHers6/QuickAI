@@ -8,7 +8,10 @@ import { useChat } from "@/hooks/useChat"
 import { useRecord } from "@/hooks/useRecord"
 import type { Record } from "@/store/modules/record/helper"
 import type { AxiosProgressEvent, GenericAbortSignal } from 'axios'
-import { getNowTime } from '@/utils/util'
+import { getNowTime, generateUUID } from '@/utils/util'
+import post from '@/utils/request'
+import { fetchChatAPIProcess } from '@/api'
+import { C } from '@tauri-apps/api/event-30ea0228'
 const baseURL = 'https://api.openai.com'
 
 interface GPTMessage {
@@ -26,12 +29,30 @@ export interface GPTParamV2 {
   question: string, 
   prompts?: string, // not use
   controller: AbortController,
+  conversationID?: string,
+  parentMessageId?: string,
 }
 
 export interface GPTResponse {
   content: string,
   newConversationId: string,
   newParentMessageId: string,
+}
+
+export async function askChatGPTIntegratorAPI(param: GPTParamV2, controller: AbortController, callback: Function, errorCallback: Function) {  
+  const {updateSetting, getSetting} = useSettings()
+  const setting = getSetting()
+  const hasApiKey = (setting.apiKey && setting.apiKey !== '') ? true : false
+  try{
+    if(hasApiKey) {
+      await askChatGPTCore(param, controller, callback, errorCallback)
+    }else {
+      await askChatGPTV2(param, callback, errorCallback)
+    }
+  }finally{
+    controller.abort()
+  }
+
 }
 
 export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorCallback: Function) {
@@ -93,8 +114,10 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
     userProxy: userProxy,
     signal: controller.signal,
     onDownloadProgress: ({ event }) => {
+      console.log('event', event)
       const xhr = event.target
       const { responseText } = xhr
+      console.log('responseText', responseText)
       // Always process the final line
       const lastIndex = responseText.lastIndexOf('\n', responseText.length - 2)
       let chunk = responseText
@@ -103,7 +126,7 @@ async function fetchChatAPIOnceV2(question: string, prompt: string, apiKey: stri
       console.log(chunk)
       try {
         const data = JSON.parse(chunk)
-        if(data.status === "Fail" || !data.parentMessageId || data.parentMessageId === '') {
+        if(data.status === null || data.status === "Fail" || !data.parentMessageId || data.parentMessageId === '') {
           errorCallback(data.message)
           return
         }
@@ -144,7 +167,7 @@ const URL_PROXY = import.meta.env.VITE_URL_PROXY;
     let userProxy = (setting.proxy && setting.proxy !== '') ? setting.proxy : URL_PROXY
 
     if (!apiKey) {
-      throw new Error("请在设置页面中, 填写OpenAI API key; 内测版免费无需API Key, 请加群下载")
+      throw new Error("请在设置页面中, 填写OpenAI API key; 内测版免费无需API Key, 请加QQ交流群456730400下载")
     }
 
     if (!userProxy) {
@@ -152,8 +175,8 @@ const URL_PROXY = import.meta.env.VITE_URL_PROXY;
     }
 
     let options =	useChatContext ? {
-      conversationId: setting.conversationRequest?.conversationId,
-      parentMessageId: setting.conversationRequest?.parentMessageId
+      conversationId: param.conversationID,
+      parentMessageId: param.parentMessageId
     } : {
         conversationId: '',
         parentMessageId: ''
@@ -233,7 +256,7 @@ const URL_PROXY = import.meta.env.VITE_URL_PROXY;
               parentMessageId: newParentMessageId,
             }
           }
-          addRecordMessage(parseNumber(newConversationId), userMessage)
+          addRecordMessage(newConversationId, userMessage)
           let botMessage: Record = {
             dateTime: getNowTime(),
             text: result,
@@ -243,7 +266,7 @@ const URL_PROXY = import.meta.env.VITE_URL_PROXY;
               parentMessageId: newParentMessageId,
             }
           }
-          addRecordMessage(parseNumber(newConversationId), botMessage)
+          addRecordMessage(newConversationId, botMessage)
       }
     }catch(error: any) {
       console.log(error)
@@ -260,17 +283,12 @@ function parseNumber(numStr: string): number {
   return parseInt(numStr, 10);
 }
 
-function generateUuid(): number {
-  const maxInt = 4294967295; // 2^32 - 1
-  return Math.floor(Math.random() * maxInt);
-}
-
 async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, options: Chat.ConversationRequest, useChatContext: boolean, apiKey: string, user_proxy: string) {
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
 
     if (!apiKey) {
-      throw new Error("请在设置页面中, 填写OpenAI API key; 内测版免费无需API Key, 请加群下载")
+      throw new Error("请在设置页面中, 填写OpenAI API key; 内测版免费无需API Key, 请加交流群456730400下载")
     }
 
     let proxyUrl: null | string = null
@@ -286,11 +304,12 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
     let gptMessage: GPTMessage[] = []
 
     let chatId = options.conversationId
-
-    if (useChatContext && chatId) {
-      console.log('useChatContext, getRecord,', chatId, parseNumber(chatId))
+    console.log('useChatContext', useChatContext)
+    console.log('chatId', chatId)
+    if (useChatContext && chatId!==null && chatId!==undefined && chatId.length > 0) {
+      console.log('useChatContext, getRecord,', chatId, chatId)
       const { getRecordMessages } = useRecord()
-      let chatMessages = getRecordMessages(parseNumber(chatId) as number)
+      let chatMessages = getRecordMessages(chatId)
       console.log('chatMessages', chatMessages)
       if(chatMessages) {
         for (const message of chatMessages) {
@@ -299,7 +318,7 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
               role: role,
               content: message.text
           });
-      }
+        }
       }
     }
 
@@ -324,10 +343,10 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
     console.log(chatId)
     if(chatId) {
       console.log('chatId is immutable', chatId)
-      newChatID = parseNumber(chatId)
+      newChatID = chatId
     }else {
       console.log('gen uuid')
-      newChatID = generateUuid()
+      newChatID = generateUUID()
     }
 
     const requestOptions = {
@@ -389,6 +408,8 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
               return
             }
             try {
+              console.log('data')
+              console.log(data)
               const json = JSON.parse(data)
               const text = json.choices[0].delta?.content
               let newMessageId = json.id
@@ -431,9 +452,21 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
     return new Response(stream) 
 }
 
+export function fetchChatConfig<T = any>() {
+  return post<T>({
+    url: '/config',
+  })
+}
 
-interface imageParams {
-  prompt: string,
-  n: number,
-  size: string,
+export function fetchSession<T>() {
+  return post<T>({
+    url: '/session',
+  })
+}
+
+export function fetchVerify<T>(token: string) {
+  return post<T>({
+    url: '/verify',
+    data: { token },
+  })
 }

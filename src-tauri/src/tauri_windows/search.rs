@@ -46,14 +46,14 @@ pub fn search_windows() {
             let window_width = 400.0;
             let window_height = 60.0;
             let offset_y = 300.0; // 向上偏移 300 个像素
-            let pos_x = (state.screen_size.0 - window_width) / 2.0;
-            let pos_y = ((state.screen_size.1 - window_height) / 2.0 - offset_y)
+            let _pos_x = (state.screen_size.0 - window_width) / 2.0;
+            let _pos_y = ((state.screen_size.1 - window_height) / 2.0 - offset_y)
                 .min(state.screen_size.1 / 2.0);
 
             let windows = tauri::WindowBuilder::new(
                 handle,
                 SEARCH_WINDOWS,
-                tauri::WindowUrl::App("search.html".into()),
+                tauri::WindowUrl::App("src/search.html".into()),
             )
             .title("Search")
             .resizable(false)
@@ -64,7 +64,8 @@ pub fn search_windows() {
             .skip_taskbar(true)
             .inner_size(window_width, window_height)
             .focused(true)
-            .position(pos_x, pos_y)
+            .center()
+            // .position(pos_x, pos_y)
             .build()
             .expect("build windows error not happened");
             // 仅在 macOS 下执行

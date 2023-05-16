@@ -21,23 +21,22 @@ import type { ElInput } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { Edit, Promotion } from '@element-plus/icons-vue'
 import { askChatGPTV2  } from '@/hooks/useAPI'
-import { askChatGPTCore  } from '@/hooks/useAPI'
+import { askChatGPTCore, askChatGPTIntegratorAPI  } from '@/hooks/useAPI'
 
 import type { GPTParamV2 } from '@/hooks/useAPI'
 import type { GPTResponse } from '@/hooks/useAPI'
 import { invoke } from '@tauri-apps/api'
 import useClipboard from '@/hooks/useClipboard'
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { listen } from '@tauri-apps/api/event';
 
 import { usePromptModeStore } from '@/hooks/store'
-import { useSettings } from "@/hooks/useSettings"
+import { useSettings } from '@/hooks/useSettings'
 import { useRecord } from "@/hooks/useRecord"
 import type { SettingsState } from '@/store/modules/settings/helper'
 const { question, getSelectedContent } = useClipboard();
 const answer = ref('')
 const loading = ref(false)
-const controller = new AbortController()
 
 const inputValue = ref('')
 const inputVisible = ref(false)
@@ -98,14 +97,21 @@ const invokeEnter = async ({ isComposing, key }: KeyboardEvent) => {
   }
 }
 
+const { getSetting } = useSettings()
+
 const askTheQuestion = async () => {
+  let setting = getSetting()
+  let controller = new AbortController()
   loading.value = true
     console.log('ask starting...')
     answer.value = ''
+
     let AskGPTParam = {
       question: question.value,
       prompts: promptModeStore.getSelectedPrompt,
       controller: controller,
+      conversationID:  setting.conversationRequest?.conversationId,
+      parentMessageId: setting.conversationRequest?.parentMessageId
     }
 
     const callback = (response: GPTResponse) => {
@@ -122,35 +128,11 @@ const askTheQuestion = async () => {
     const errorCallback = (error: any) => {
         loading.value = false
         console.log(error)
-        answer.value = error as string
-        controller.abort()
+        answer.value = error.message ? error.message : '发生了错误, 请联系管理或加QQ交流群456730400解决'
     }
 
-    await askChatGPTCore(AskGPTParam, controller, callback, errorCallback)
+    await askChatGPTIntegratorAPI(AskGPTParam, controller, callback, errorCallback)
     console.log('ask start end.')
-}
-
-const client_request_api = async () => {
-  const messages = [
-      {role: 'system', content: promptModeStore.getSelectedPrompt},
-      {role: 'user', content: question.value}
-    ]
-
-    const {getSetting} = useSettings()
-    const setting = getSetting()
-    const apiKey = setting.apiKey
-
-    if (apiKey && apiKey!=='') {
-      try{
-        await askChatGPTCore(messages, apiKey, controller, answer)
-        loading.value = false
-      }catch(error: any){
-        loading.value = false
-        answer.value = error.message.includes("The user aborted a request")
-          ? ""
-          : error.message.replace(/(sk-\w{5})\w+/g, "$1")
-      }
-    }
 }
 
 interface QuestionPayload {

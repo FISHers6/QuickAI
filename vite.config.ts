@@ -61,6 +61,13 @@ export default defineConfig(async (env) => {
     server: {
       port: 1420,
       strictPort: true,
+      // proxy: {
+      //     '/api': {
+      //       target: viteEnv.VITE_APP_API_BASE_URL,
+      //       changeOrigin: true, // 允许跨域
+      //       rewrite: path => path.replace('/api/', '/'),
+      //     },
+      //   },
     },
     // to make use of `TAURI_DEBUG` and other env variables
     // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
@@ -72,6 +79,19 @@ export default defineConfig(async (env) => {
       minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
       // produce sourcemaps for debug builds
       sourcemap: !!process.env.TAURI_DEBUG,
+      tsc: {
+        skipLibCheck: true
+      },
+      outDir: 'dist',
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'index.html'),
+          chat: resolve(__dirname, 'src/chat.html'),
+          search: resolve(__dirname, 'src/search.html'),
+          select: resolve(__dirname, 'src/select.html'),
+          settings: resolve(__dirname, 'src/settings.html'),
+        },
+      },
     },
   }
 })

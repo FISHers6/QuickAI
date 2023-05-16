@@ -10,11 +10,11 @@ export interface Record {
 }
 
 export interface RecordState {
-    records: { uuid: number; data: Record[] }[]
+    records: { uuid: string; data: Record[] }[]
 }
 
 export function defaultState(): RecordState {
-    const uuid = 1002
+    const uuid = '1002'
     return {
       records: [{ uuid, data: [] }],
     }

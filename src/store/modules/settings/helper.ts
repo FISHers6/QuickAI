@@ -15,6 +15,20 @@ export interface SettingsState {
   quickAskShortcut: string,
   searchShortcut: string,
   chatShortcut: string,
+  enableSelect: boolean,
+}
+
+export interface AppConfig {
+  quickAskShortcut: String | null,
+  searchShortcut: String | null,
+  chatShortcut: String | null,
+  mode: String | null,
+  isDarkMode: boolean,
+  language: String,
+  apiKey: String,
+  proxy: String,
+  useChatContext: boolean,
+  enableSelect: boolean,
 }
 
 export function defaultSetting(): SettingsState {
@@ -30,9 +44,10 @@ export function defaultSetting(): SettingsState {
       parentMessageId: ''
     },
     mode: '快捷提问',
-    quickAskShortcut: "CommandOrControl+Alt+D",
-    searchShortcut: "Shift+Alt+Space",
-    chatShortcut: "Shift+Alt+C",
+    quickAskShortcut: "Shift+D",
+    searchShortcut: "CommandOrControl+Shift+Space",
+    chatShortcut: "Shift+C",
+    enableSelect: true,
   }
 }
 

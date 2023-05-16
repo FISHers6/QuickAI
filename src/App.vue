@@ -6,9 +6,10 @@
 <script setup lang="ts">
 import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api'
-import { askChatGPTCore } from '@/hooks/useAPI'
+import { askChatGPTCore, askChatGPTIntegratorAPI } from '@/hooks/useAPI'
 import type { GPTParamV2 } from '@/hooks/useAPI'
 import type { GPTResponse } from '@/hooks/useAPI'
+import { useSettings } from './hooks/useSettings'
 
 interface TriggerChatAPI {
   question: string,
@@ -27,10 +28,16 @@ const unlisten = listen('trigger-send-chat-api', async (event) => {
 const send_chat_api =  async (question: string, prompts: string) => {
     const controller = new AbortController()
 
+
+    const {updateSetting, getSetting} = useSettings()
+    const setting = getSetting()
+  
     const param: GPTParamV2 = {
         question: question,
         prompts: prompts,
         controller: controller,
+        conversationID:  setting.conversationRequest?.conversationId,
+        parentMessageId: setting.conversationRequest?.parentMessageId
     }
     
     const callback = (response: GPTResponse) => {
@@ -47,10 +54,8 @@ const send_chat_api =  async (question: string, prompts: string) => {
 
     const errorCallback = (error: any) => {
         console.log(error)
-        controller.abort()
     }
-
-    await askChatGPTCore(param, controller, callback, errorCallback)
+    await askChatGPTIntegratorAPI(param, controller, callback, errorCallback)
 }
 </script>
 

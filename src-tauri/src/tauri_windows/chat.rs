@@ -27,7 +27,7 @@ pub fn show_chat_windows(question: Option<String>) {
             let windows = tauri::WindowBuilder::new(
                 handle,
                 CHAT_WINDOWS,
-                tauri::WindowUrl::App("chat.html".into()),
+                tauri::WindowUrl::App("src/chat.html".into()),
             )
             .title("会话")
             .resizable(false)

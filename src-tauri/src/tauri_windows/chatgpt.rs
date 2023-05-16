@@ -57,6 +57,7 @@ pub fn show_quick_answer_window(handle: &AppHandle, question: Option<String>, is
     let state: tauri::State<AppState> = handle.state();
     match handle.get_window(CHATGPT_WINDOWS) {
         Some(window) => {
+            tracing::info!("found chatgpt window");
             if is_center {
                 window.center().unwrap();
             } else {
