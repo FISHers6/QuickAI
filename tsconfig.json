@@ -19,7 +19,7 @@
     },
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.js"],
+  "include": [],
   "exclude": ["node_modules", "dist", "service"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

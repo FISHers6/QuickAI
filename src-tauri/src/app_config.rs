@@ -13,20 +13,27 @@ pub struct AppConfig {
     pub api_key: Option<String>,
     pub proxy: Option<String>,
     pub use_chat_context: bool,
+    pub enable_select: Option<bool>,
 }
 
 impl Default for AppConfig {
     fn default() -> Self {
+        #[cfg(target_os="macos")]
+        let enable_select = false;
+        #[cfg(not(target_os="macos"))]
+        let enable_select = true;
+
         Self {
-            quick_ask_shortcut: Some("CommandOrControl+Alt+D".to_string()),
-            search_shortcut: Some("Shift+Alt+Space".to_string()),
-            chat_shortcut: Some("Shift+Alt+C".to_string()),
+            quick_ask_shortcut: Some("Shift+Q".to_string()),
+            search_shortcut: Some("CommandOrControl+Shift+Space".to_string()),
+            chat_shortcut: Some("Shift+C".to_string()),
             mode: Some("快捷提问".to_string()),
             is_dark_mode: true,
             language: "zh-cn".to_string(),
             api_key: None,
             proxy: None,
             use_chat_context: true,
+            enable_select: Some(enable_select),
         }
     }
 }
@@ -78,5 +85,40 @@ pub fn save_app_config(config: &AppConfig) -> Result<(), String> {
         }
     } else {
         Err("not found app config directory".to_string())
+    }
+}
+
+#[cfg(not(dev))]
+pub fn save_local_server_port(port: u16) -> Result<(), String> {
+    if let Some(config_dir) = config_dir() {
+        let app_config_dir = config_dir.join("config.quick-ai");
+        if !app_config_dir.exists() {
+            std::fs::create_dir_all(&app_config_dir).expect("not failed");
+        }
+        let config_path = app_config_dir.join("port.json");
+        std::fs::write(config_path, port.to_string()).map_err(|err| format!("failed to write config {}", err))
+    } else {
+        Err("not found app config directory".to_string())
+    }
+}
+
+#[cfg(not(dev))]
+pub fn get_local_server_port() -> anyhow::Result<Option<u16>> {
+    use anyhow::Context;
+    let config_dir = config_dir().context("not found app config dir")?;
+    let app_config_dir = config_dir.join("config.quick-ai");
+    if !app_config_dir.exists() {
+        std::fs::create_dir_all(&app_config_dir).expect("not failed");
+    }
+    let config_path = app_config_dir.join("port.json");
+    if config_path.exists() {
+        let content =  std::fs::read_to_string(config_path)?;
+        if content.is_empty() {
+            Ok(None)
+        }else {
+            Ok(Some(content.parse::<u16>()?))
+        }
+    } else {
+        Err(anyhow::anyhow!("not found app config path"))
     }
 }

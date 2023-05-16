@@ -35,10 +35,14 @@
       </div>
       <div class="chatInputs">
         <!--表情-->
-        <div class="emoji boxinput" @click="clickEmoji"> 
+        <!-- <div class="emoji boxinput" @click="clickEmoji"> 
           <img src="@/assets/img/emoji/smiling-face-with-sunglasses.png" alt="" />
+        </div> -->
+        <div class="emoji boxinput" v-on:click="clearChatMessageHandle">
+          <!-- <span class="icon-clean icon-svg"></span> -->
+          <img src="@/assets/img/clean.png" alt="" />
         </div>
-        <label class="emoji boxinput" for="imgFile"><span class="iconfont icon-tupian"></span></label>
+        <!-- <label class="emoji boxinput" for="imgFile"><span class="iconfont icon-tupian"></span></label> -->
         <label class="emoji boxinput" for="docFile"><span class="iconfont icon-wenjian"></span></label>
         <input v-show="false" type="file" name="" id="imgFile" @change="sendImg" accept="image/*" />
         <input v-show="false" type="file" name="" id="docFile" @change="sendFile" accept="application/*,text/*" />
@@ -85,18 +89,20 @@ import type FileMeta from "@/hooks/useFile"
 import { Chat } from '@/typings/chat'
 import { createImageEdit, createImageVariations} from "@/hooks/getData"
 import { listen } from '@tauri-apps/api/event';
-import { askChatGPTCore } from '@/hooks/useAPI'
+import { askChatGPTCore, askChatGPTIntegratorAPI } from '@/hooks/useAPI'
 import type { GPTParamV2 } from '@/hooks/useAPI'
 import type { GPTResponse } from '@/hooks/useAPI'
 import { ElMessage } from 'element-plus'
+import { ref } from 'vue'
+import { useSettings } from '@/hooks/useSettings'
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const openLongReply = true
 
 // 用于存储chat和message
-const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
+const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex, clearChatMessage } = useChat()
 
 // 消息发送控制停止
-let controller = new AbortController()
+let controller = ref(new AbortController())
 
 
 // 会话内存状态
@@ -135,6 +141,15 @@ const chatContent = ref<HTMLDivElement | null>(null)
 
 // 预览图
 const srcImgList = ref<string[]>([])
+
+const clearChatMessageHandle = () => {
+  clearChatMessage(+uuid)
+  ElMessage({
+    message: '已清空会话消息~',
+    type: 'success',
+    duration: 2000,
+  })
+}
 
 function handleSubmit() {
   if(prompt.value === '' || prompt.value.trim() === '') {
@@ -177,7 +192,7 @@ async function onConversation(chatMsg: ChatMsg) {
   if (loading.value)
     return
 
-  controller = new AbortController()
+  controller.value = new AbortController()
 
   if (userMessageList.value.length > 0) {
     const lastMessage: Chat.Chat | null | undefined = userMessageList.value[userMessageList.value.length - 1]
@@ -319,10 +334,16 @@ async function onConversation(chatMsg: ChatMsg) {
     if(message.startsWith('/image') || message.startsWith('/img') || message.startsWith('/生成图片') || message.startsWith('/图片生成') || message.startsWith('/图片 ')) {
       genImageAPI(message, 1, "240x240")
     }else {
+
+      const { updateSetting, getSetting } = useSettings()
+      const setting = getSetting();
+
       const param: GPTParamV2 = {
         question: message,
         prompts: '',
-        controller: controller,
+        controller: controller.value,
+        conversationID: options.conversationId,
+        parentMessageId: options.parentMessageId
     }
 
     const callback = (response: GPTResponse) => {
@@ -356,7 +377,6 @@ async function onConversation(chatMsg: ChatMsg) {
 
       const errorCallback = (error: any) => {
           console.log(error)
-          controller.abort()
           loading.value = false
           console.log('error callback: ' + error)
 
@@ -365,7 +385,7 @@ async function onConversation(chatMsg: ChatMsg) {
             dataSources.value.length - 1,
             {
               dateTime: new Date().toLocaleString(),
-              text: error as string,
+              text: error,
               inversion: false,
               error: true,
               loading: false,
@@ -378,7 +398,8 @@ async function onConversation(chatMsg: ChatMsg) {
       }
 
       // 文本对话
-      await askChatGPTCore(param, controller, callback, errorCallback)
+      await askChatGPTIntegratorAPI(param, controller.value, callback, errorCallback)
+      controller.value.abort()
     }
   }
   catch (error: any) {
@@ -1095,4 +1116,6 @@ const sendImg = (e) => {
   100% {
     transform: scaleX(0);
   }
-}</style>
+}
+
+</style>

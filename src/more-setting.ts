@@ -8,7 +8,7 @@ import { setupStore } from './store'
 
 import '@/assets/scss/global.scss'
 import 'element-plus/dist/index.css'
-import 'highlight.js/styles/atom-one-dark.css'
+// import 'highlight.js/styles/atom-one-dark.css'
 
 async function bootstrap() {
     const app = createApp(App)

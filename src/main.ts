@@ -18,7 +18,7 @@ import { setupRouter } from './route'
 import '@/assets/scss/global.scss'
 import '@/assets/scss/index.scss'
 import 'element-plus/dist/index.css'
-import 'highlight.js/styles/atom-one-dark.css'
+// import 'highlight.js/styles/atom-one-dark.css'
 
 async function bootstrap() {
     const app = createApp(App)

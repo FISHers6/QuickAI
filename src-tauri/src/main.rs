@@ -11,9 +11,14 @@ mod shortcut;
 mod task;
 mod tauri_windows;
 mod utils;
+mod tray;
 
+use app_config::AppConfig;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
+use tray::handle_click_system_tray;
+use tray::system_tray;
+use std::sync::atomic::AtomicBool;
 use std::sync::atomic::AtomicIsize;
 use std::sync::Arc;
 use std::time::Duration;
@@ -25,6 +30,8 @@ use tokio::sync::mpsc::UnboundedSender;
 use tokio::task::JoinHandle;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
+use crate::tauri_windows::chatgpt::show_quick_answer_window;
+
 pub static APP: OnceCell<AppHandle> = OnceCell::new();
 pub struct AppState {
     pub selected_content: Arc<RwLock<String>>,
@@ -32,16 +39,18 @@ pub struct AppState {
     runtime: Runtime,
     pub auto_input_sender: OnceCell<UnboundedSender<String>>,
     pub screen_size: (f64, f64), // (width, height)
+    pub enable_select: AtomicBool,
 }
 
 impl AppState {
-    pub fn new(runtime: Runtime, screen_size: (f64, f64)) -> Self {
+    pub fn new(app_config: &AppConfig, runtime: Runtime, screen_size: (f64, f64)) -> Self {
         Self {
             selected_content: Arc::new(RwLock::new(String::new())),
             foreground_handle: AtomicIsize::new(0),
             runtime,
             auto_input_sender: OnceCell::new(),
             screen_size,
+            enable_select: AtomicBool::new(app_config.enable_select.unwrap_or(true)),
         }
     }
 
@@ -71,15 +80,42 @@ impl AppState {
         })
     }
 }
+
 fn main() {
     tracing_subscriber::registry().with(fmt::layer()).init();
     // get screen size
     let screen_size = crate::utils::get_screen_size().unwrap_or((1920.0, 1080.0));
-    tracing::info!(screen_size =? screen_size);
-    let builder =
-        tauri::Builder::default().plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
-            tracing::info!("{}, {argv:?}, {cwd}", app.package_info().name);
-        }));
+
+    #[allow(unused_mut)]
+    let mut context = tauri::generate_context!();
+    #[allow(unused_mut)]
+    let mut builder = tauri::Builder::default().plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+        show_quick_answer_window(app, None, true);
+    }));
+
+    let app_config = crate::app_config::get_app_config().unwrap_or_default();
+
+    #[cfg(not(dev))]
+    {
+        use tauri::{utils::config::AppUrl, WindowUrl};
+        let port = if let Ok(Some(port)) = crate::app_config::get_local_server_port() {
+            port
+        }else {
+            let port = portpicker::pick_unused_port().expect("Failed to pick unused port");
+            if let Err(err) = crate::app_config::save_local_server_port(port) {
+                tracing::error!(port_save_error=?err);
+            }
+            port
+        };
+        let url = format!("http://localhost:{}", port).parse().unwrap();
+        let window_url = WindowUrl::External(url);
+        // rewrite the config so the IPC is enabled on this URL
+        context.config_mut().build.dist_dir = AppUrl::Url(window_url.clone());
+        context.config_mut().build.dev_path = AppUrl::Url(window_url);
+
+        builder = builder.plugin(tauri_plugin_localhost::Builder::new(port).build());
+    }
+
     #[cfg(target_os = "macos")]
     let builder = builder.invoke_handler(tauri::generate_handler![
         command::get_selected_content,
@@ -118,6 +154,7 @@ fn main() {
             APP.get_or_init(|| app.handle());
             let app_handle = app.handle();
             app_handle.manage(AppState::new(
+                &app_config,
                 tokio::runtime::Runtime::new().expect("build tokio runtime error"),
                 screen_size,
             ));
@@ -128,19 +165,13 @@ fn main() {
             task::register_task(&app_handle);
             Ok(())
         })
-        .build(tauri::generate_context!())
+        .system_tray(system_tray())
+        .on_system_tray_event(handle_click_system_tray)
+        .build(context)
         .expect("error while running tauri application")
         .run(|app_handle, event| match event {
             tauri::RunEvent::WindowEvent { label, event, .. } => {
-                if label == crate::tauri_windows::chatgpt::CHATGPT_WINDOWS {
-                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                        tracing::info!(label = label, prevent_close = true);
-                        if let Some(main_window) = app_handle.get_window(&label) {
-                            let _ = main_window.hide();
-                        }
-                        api.prevent_close()
-                    }
-                } else if label == crate::tauri_windows::SELECT_WINDOWS
+                if label == crate::tauri_windows::SELECT_WINDOWS
                     || label == crate::tauri_windows::search::SEARCH_WINDOWS
                 {
                     if let WindowEvent::Focused(focused) = event {
@@ -152,10 +183,6 @@ fn main() {
                         }
                     }
                 }
-            }
-            tauri::RunEvent::ExitRequested { api, .. } => {
-                tracing::info!("exit");
-                api.prevent_exit();
             }
             _ => {}
         });

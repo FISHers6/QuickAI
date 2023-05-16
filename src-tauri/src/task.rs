@@ -1,3 +1,4 @@
+use std::sync::atomic::Ordering;
 use std::time::Instant;
 
 use crate::tauri_windows::select::SELECT_WINDOWS_HEIGHT;
@@ -52,7 +53,7 @@ pub fn register_task(handle: &AppHandle) {
     });
 }
 
-const MIN_DISTANCE_TIME: u128 = 500;
+const MIN_DISTANCE_TIME: u128 = 100;
 const MIN_DISTANCE_POSITION: f64 = 10.0;
 const WINDOWS_POSITION_OFFSET: f64 = 15.0;
 
@@ -74,9 +75,17 @@ struct SelectListener {
 
 impl SelectListener {
     fn should_select(&self, mouse_position_x: f64, mouse_position_y: f64) -> bool {
+        fn is_enable_select() -> bool {
+            if let Some(app_handle) = crate::APP.get() {
+                let state: State::<AppState> = app_handle.state();
+                state.enable_select.load(Ordering::SeqCst)
+            }else {
+                false
+            }
+        }
         self.last_press_mouse_time.elapsed().as_millis() >= MIN_DISTANCE_TIME
             && ((mouse_position_x - self.last_mouse_position_x).abs() >= MIN_DISTANCE_POSITION
-                || (mouse_position_y - self.last_mouse_position_y).abs() >= MIN_DISTANCE_POSITION)
+                || (mouse_position_y - self.last_mouse_position_y).abs() >= MIN_DISTANCE_POSITION) && is_enable_select()
     }
 
     fn select_content_and_show_tip(&self, mouse_position_x: f64, mouse_position_y: f64) {

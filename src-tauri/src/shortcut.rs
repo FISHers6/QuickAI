@@ -1,6 +1,10 @@
+use std::sync::atomic::Ordering;
+
+use crate::AppState;
+use crate::tauri_windows::select;
 use crate::tauri_windows::{chat, chatgpt, search};
 use anyhow::Result;
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 use tauri::GlobalShortcutManager;
 
 pub(crate) struct ShortcutRegister;
@@ -31,6 +35,15 @@ impl ShortcutRegister {
             handle
                 .global_shortcut_manager()
                 .register(&chat_shortcut, chat::chat_windows)?;
+        }
+
+        let enable_select = app_config.enable_select.unwrap_or_default();
+        let state: tauri::State<AppState> = handle.state();
+        state.enable_select.store(enable_select, Ordering::SeqCst);
+        if !enable_select {
+            if let Some(select_window) = handle.get_window(select::SELECT_WINDOWS) {
+                let _ = select_window.close();
+            }
         }
 
         Ok(())

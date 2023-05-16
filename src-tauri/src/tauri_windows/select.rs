@@ -42,7 +42,7 @@ pub fn build_select_windows(
             let windows = tauri::WindowBuilder::new(
                 handle,
                 SELECT_WINDOWS,
-                tauri::WindowUrl::App("select.html".into()),
+                tauri::WindowUrl::App("src/select.html".into()),
             )
             .title("select")
             .resizable(false)
