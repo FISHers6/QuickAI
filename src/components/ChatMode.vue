@@ -61,6 +61,7 @@
           maxlength="2000"
           placeholder="请输入你的问题~"
           style="margin-left: 2%;margin-top: 3px;min-height: 51px;max-height:400px;max-width: 80%;min-width: 45%;" 
+          @keydown.enter.stop="handleSubmit"
         ></el-input>
         <div>
           <div class="send boxinput" @click='handleSubmit'>

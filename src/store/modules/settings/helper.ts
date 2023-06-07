@@ -16,6 +16,7 @@ export interface SettingsState {
   searchShortcut: string,
   chatShortcut: string,
   enableSelect: boolean,
+  messageContextCount: number,
 }
 
 export interface AppConfig {
@@ -29,6 +30,7 @@ export interface AppConfig {
   proxy: String,
   useChatContext: boolean,
   enableSelect: boolean,
+  messageContextCount: Number,
 }
 
 export function defaultSetting(): SettingsState {
@@ -48,6 +50,7 @@ export function defaultSetting(): SettingsState {
     searchShortcut: "CommandOrControl+Shift+Space",
     chatShortcut: "Shift+C",
     enableSelect: true,
+    messageContextCount: 6,
   }
 }
 

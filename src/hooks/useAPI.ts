@@ -84,11 +84,6 @@ export async function askChatGPTV2(param: GPTParamV2, callback: Function, errorC
     const {newConversationId, newParentMessageId} = await fetchChatAPIOnceV2(question, prompts, apiKey, userProxy, param.controller, options, callback, errorCallback)
     if(useChatContext && newConversationId && newParentMessageId && (newConversationId !== '' || newParentMessageId !== '')) {
         updateSetting({
-          systemMessage: setting.systemMessage,
-          language: setting.language,
-          apiKey: setting.apiKey,
-          proxy: setting.proxy,
-          isDarkMode: setting.isDarkMode,
           useChatContext: setting.useChatContext,
           conversationRequest: {
             conversationId: newConversationId,
@@ -283,7 +278,7 @@ function parseNumber(numStr: string): number {
   return parseInt(numStr, 10);
 }
 
-async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, options: Chat.ConversationRequest, useChatContext: boolean, apiKey: string, user_proxy: string) {
+async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, options: Chat.ConversationRequest, useChatContext: boolean, apiKey: string, user_proxy: string, messageContextCount: number) {
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
 
@@ -312,7 +307,7 @@ async function askChatGPTAPI(messages: GPTParamV2, controller: AbortController, 
       let chatMessages = getRecordMessages(chatId)
       console.log('chatMessages', chatMessages)
       if(chatMessages) {
-        for (const message of chatMessages) {
+        for (const message of chatMessages.slice(Math.max(chatMessages.length - messageContextCount, 0))) {
           const role = message.bot === true ? 'assistant' : 'user';
           gptMessage.push({
               role: role,
