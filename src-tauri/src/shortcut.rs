@@ -1,4 +1,3 @@
-
 use crate::tauri_windows::{chat, chatgpt, search};
 use anyhow::Result;
 use tauri::AppHandle;
@@ -36,14 +35,16 @@ impl ShortcutRegister {
 
         #[cfg(not(target_os = "macos"))]
         {
-            use std::sync::atomic::Ordering;
             use crate::AppState;
+            use std::sync::atomic::Ordering;
             use tauri::Manager;
             let enable_select = app_config.enable_select.unwrap_or_default();
             let state: tauri::State<AppState> = handle.state();
             state.enable_select.store(enable_select, Ordering::SeqCst);
             if !enable_select {
-                if let Some(select_window) = handle.get_window(crate::tauri_windows::select::SELECT_WINDOWS) {
+                if let Some(select_window) =
+                    handle.get_window(crate::tauri_windows::select::SELECT_WINDOWS)
+                {
                     let _ = select_window.close();
                 }
             }

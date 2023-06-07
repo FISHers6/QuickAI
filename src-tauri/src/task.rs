@@ -77,15 +77,16 @@ impl SelectListener {
     fn should_select(&self, mouse_position_x: f64, mouse_position_y: f64) -> bool {
         fn is_enable_select() -> bool {
             if let Some(app_handle) = crate::APP.get() {
-                let state: State::<AppState> = app_handle.state();
+                let state: State<AppState> = app_handle.state();
                 state.enable_select.load(Ordering::SeqCst)
-            }else {
+            } else {
                 false
             }
         }
         self.last_press_mouse_time.elapsed().as_millis() >= MIN_DISTANCE_TIME
             && ((mouse_position_x - self.last_mouse_position_x).abs() >= MIN_DISTANCE_POSITION
-                || (mouse_position_y - self.last_mouse_position_y).abs() >= MIN_DISTANCE_POSITION) && is_enable_select()
+                || (mouse_position_y - self.last_mouse_position_y).abs() >= MIN_DISTANCE_POSITION)
+            && is_enable_select()
     }
 
     fn select_content_and_show_tip(&self, mouse_position_x: f64, mouse_position_y: f64) {

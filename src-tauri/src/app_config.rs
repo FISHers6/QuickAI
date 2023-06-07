@@ -14,13 +14,14 @@ pub struct AppConfig {
     pub proxy: Option<String>,
     pub use_chat_context: bool,
     pub enable_select: Option<bool>,
+    pub message_context_count: Option<i32>,
 }
 
 impl Default for AppConfig {
     fn default() -> Self {
-        #[cfg(target_os="macos")]
+        #[cfg(target_os = "macos")]
         let enable_select = false;
-        #[cfg(not(target_os="macos"))]
+        #[cfg(not(target_os = "macos"))]
         let enable_select = true;
 
         Self {
@@ -34,6 +35,7 @@ impl Default for AppConfig {
             proxy: None,
             use_chat_context: true,
             enable_select: Some(enable_select),
+            message_context_count: Some(6),
         }
     }
 }
@@ -96,7 +98,8 @@ pub fn save_local_server_port(port: u16) -> Result<(), String> {
             std::fs::create_dir_all(&app_config_dir).expect("not failed");
         }
         let config_path = app_config_dir.join("port.json");
-        std::fs::write(config_path, port.to_string()).map_err(|err| format!("failed to write config {}", err))
+        std::fs::write(config_path, port.to_string())
+            .map_err(|err| format!("failed to write config {}", err))
     } else {
         Err("not found app config directory".to_string())
     }
@@ -112,10 +115,10 @@ pub fn get_local_server_port() -> anyhow::Result<Option<u16>> {
     }
     let config_path = app_config_dir.join("port.json");
     if config_path.exists() {
-        let content =  std::fs::read_to_string(config_path)?;
+        let content = std::fs::read_to_string(config_path)?;
         if content.is_empty() {
             Ok(None)
-        }else {
+        } else {
             Ok(Some(content.parse::<u16>()?))
         }
     } else {

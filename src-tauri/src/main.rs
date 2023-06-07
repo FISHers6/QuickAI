@@ -10,14 +10,12 @@ mod shortcut;
 #[cfg(not(target_os = "macos"))]
 mod task;
 mod tauri_windows;
-mod utils;
 mod tray;
+mod utils;
 
 use app_config::AppConfig;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
-use tray::handle_click_system_tray;
-use tray::system_tray;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::AtomicIsize;
 use std::sync::Arc;
@@ -29,6 +27,8 @@ use tokio::runtime::Runtime;
 use tokio::sync::mpsc::UnboundedSender;
 use tokio::task::JoinHandle;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt};
+use tray::handle_click_system_tray;
+use tray::system_tray;
 
 use crate::tauri_windows::chatgpt::show_quick_answer_window;
 
@@ -89,9 +89,10 @@ fn main() {
     #[allow(unused_mut)]
     let mut context = tauri::generate_context!();
     #[allow(unused_mut)]
-    let mut builder = tauri::Builder::default().plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
-        show_quick_answer_window(app, None, true);
-    }));
+    let mut builder =
+        tauri::Builder::default().plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            show_quick_answer_window(app, None, true);
+        }));
 
     let app_config = crate::app_config::get_app_config().unwrap_or_default();
 
@@ -100,7 +101,7 @@ fn main() {
         use tauri::{utils::config::AppUrl, WindowUrl};
         let port = if let Ok(Some(port)) = crate::app_config::get_local_server_port() {
             port
-        }else {
+        } else {
             let port = portpicker::pick_unused_port().expect("Failed to pick unused port");
             if let Err(err) = crate::app_config::save_local_server_port(port) {
                 tracing::error!(port_save_error=?err);
