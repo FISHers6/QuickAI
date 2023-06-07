@@ -1,9 +1,8 @@
-
-use tauri::{CustomMenuItem, SystemTray, SystemTrayMenu, AppHandle, SystemTrayEvent};
-use crate::tauri_windows::chatgpt::{CHATGPT_WINDOWS, show_quick_answer_window};
-use crate::tauri_windows::chat::{CHAT_WINDOWS, chat_windows};
-use crate::tauri_windows::settings::{SETTING_WINDOWS, build_setting_window};
-use crate::tauri_windows::search::{SEARCH_WINDOWS, search_windows};
+use crate::tauri_windows::chat::{chat_windows, CHAT_WINDOWS};
+use crate::tauri_windows::chatgpt::{show_quick_answer_window, CHATGPT_WINDOWS};
+use crate::tauri_windows::search::{search_windows, SEARCH_WINDOWS};
+use crate::tauri_windows::settings::{build_setting_window, SETTING_WINDOWS};
+use tauri::{AppHandle, CustomMenuItem, SystemTray, SystemTrayEvent, SystemTrayMenu};
 const EXIT: &str = "EXIT";
 
 pub fn system_tray() -> SystemTray {
@@ -24,7 +23,7 @@ pub fn system_tray() -> SystemTray {
 pub fn handle_click_system_tray(app_handle: &AppHandle, event: SystemTrayEvent) {
     match event {
         SystemTrayEvent::MenuItemClick { id, .. } => {
-            tracing::info!(id=id);
+            tracing::info!(id = id);
             match id.as_str() {
                 CHATGPT_WINDOWS => show_quick_answer_window(app_handle, None, true),
                 SETTING_WINDOWS => build_setting_window(app_handle),

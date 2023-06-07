@@ -1,5 +1,5 @@
 use crate::AppState;
-use tauri::{Manager, AppHandle};
+use tauri::{AppHandle, Manager};
 
 pub const SETTING_WINDOWS: &str = "setting_windows";
 
