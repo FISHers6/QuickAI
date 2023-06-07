@@ -24,7 +24,9 @@
       el-form-item(label="划词功能(Win10+)" :label-width="formLabelWidth" class="setting-form-item")
         .tools-item
           el-switch(v-model="form.enableSelect" inline-prompt active-text="开启" inactive-text="关闭")  
-      el-form-item(label="API KEY (可选)" :label-width="formLabelWidth" class="setting-form-item")
+      el-form-item(label="记忆对话数量" :label-width="formLabelWidth" class="setting-form-item")
+        el-input(v-model="form.messageContextCount" autocomplete="off" placeholder="请输入多轮对话记忆的上下文数量" class="setting-form")
+      el-form-item(label="API KEY (可选)" :label-width="formLabelWidth" class="setting-form-item" )
         el-input(v-model="form.api_key" autocomplete="off" placeholder="输入API KEY, 速度更快~" class="setting-form")
       el-form-item(label="Proxy 代理 (可选)" :label-width="formLabelWidth" class="setting-form-item")
         el-input(v-model="form.proxy" autocomplete="off" placeholder="代理地址" class="setting-form")
@@ -95,6 +97,7 @@ const form = reactive({
   quickAskShortcut: currentSetting.quickAskShortcut,
   chatShortcut: currentSetting.chatShortcut,
   mode: currentSetting.mode,
+  messageContextCount: currentSetting.messageContextCount
 })
 
 const isDarkMode = ref(currentSetting.isDarkMode)
@@ -116,6 +119,7 @@ const submitSetting = () => {
     quickAskShortcut: form.quickAskShortcut,
     chatShortcut: form.chatShortcut,
     mode: form.mode,
+    messageContextCount: form.messageContextCount,
   }
   updateSetting(settings)
   let appConfig: AppConfig = {
@@ -129,6 +133,7 @@ const submitSetting = () => {
     proxy: settings.proxy,
     useChatContext: settings.useChatContenxt,
     enableSelect: settings.enableSelect,
+    messageContextCount: settings.messageContextCount,
   };
   // 修改配置
   invoke('update_app_config',  { payload: appConfig})

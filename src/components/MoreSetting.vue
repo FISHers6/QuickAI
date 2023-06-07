@@ -15,6 +15,8 @@
         el-form-item(label="划词功能(Win10+)" :label-width="formLabelWidth" class="setting-form-item")
           .tools-item
             el-switch(v-model="form.enableSelect" inline-prompt active-text="开启" inactive-text="关闭")
+        el-form-item(label="记忆对话数量" :label-width="formLabelWidth" class="setting-form-item")
+          el-input(v-model="form.messageContextCount" autocomplete="off" placeholder="请输入多轮对话记忆的上下文数量" class="setting-form")
         el-form-item(label="API KEY (可选)" :label-width="formLabelWidth")
             el-input(v-model="form.api_key" autocomplete="off" placeholder="输入自己的API KEY, 速度更快~")
         el-form-item(label="Proxy 代理 (可选)" :label-width="formLabelWidth")
@@ -60,7 +62,8 @@ const form = reactive({
   quickAskShortcut: currentSetting.quickAskShortcut,
   searchShortcut: currentSetting.searchShortcut,
   chatShortcut: currentSetting.chatShortcut,
-  enableSelect: currentSetting.enableSelect
+  enableSelect: currentSetting.enableSelect,
+  messageContextCount: currentSetting.messageContextCount
 })
 
 // 监听form对象
@@ -80,7 +83,8 @@ const debouncedSubmitSetting = _.debounce(() => {
     quickAskShortcut: form.quickAskShortcut,
     searchShortcut: form.searchShortcut,
     chatShortcut: form.chatShortcut,
-    enableSelect: form.enableSelect
+    enableSelect: form.enableSelect,
+    messageContextCount: form.messageContextCount,
   }
   updateSetting(settings)
   let appConfig: AppConfig = {
@@ -94,6 +98,7 @@ const debouncedSubmitSetting = _.debounce(() => {
     proxy: settings.proxy,
     useChatContext: settings.useChatContenxt,
     enableSelect: settings.enableSelect,
+    messageContextCount: settings.messageContextCount,
   };
   // 修改配置
   invoke('update_app_config',  { payload: appConfig})
